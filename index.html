@@ -256,6 +256,8 @@
             .editor-panel h3 { font-size: 17px; }
             .report-desktop { display: none; }
             .report-mobile { display: block; }
+            .report-desktop.show-on-mobile { display: flex; justify-content: center; overflow-x: auto; padding: 10px 0; }
+            .report-mobile.hide-on-mobile { display: none; }
         }
     </style>
 </head>
@@ -333,6 +335,13 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- 手机端切换按钮 -->
+<div class="report-mobile" style="display:none; text-align:center; margin:8px 0 0;" id="mobileToggleWrap">
+    <button id="toggleViewBtn" style="padding:8px 20px; border:1px solid #1a6b3c; border-radius:20px; background:white; color:#1a6b3c; font-size:13px; font-weight:600; cursor:pointer;">
+        📄 查看完整报告样式
+    </button>
 </div>
 
 <!-- 手机端：流式布局报告 -->
@@ -467,6 +476,30 @@
         generateQRCode('qrCodeContainer', getQRContent(currentCode));
     }
     refreshQR();
+
+    // ------ 手机端切换完整报告样式 ------
+    const toggleBtn = document.getElementById('toggleViewBtn');
+    const desktopReport = document.querySelector('.report-desktop');
+    const mobileReport = document.getElementById('mobileReport');
+    const toggleWrap = document.getElementById('mobileToggleWrap');
+    let showingDesktop = false;
+
+    if (toggleBtn && desktopReport && mobileReport && toggleWrap) {
+        toggleBtn.addEventListener('click', () => {
+            showingDesktop = !showingDesktop;
+            if (showingDesktop) {
+                desktopReport.classList.add('show-on-mobile');
+                mobileReport.classList.add('hide-on-mobile');
+                toggleWrap.style.display = 'none';
+                toggleBtn.textContent = '📱 返回简洁视图';
+                toggleWrap.style.display = 'block';
+            } else {
+                desktopReport.classList.remove('show-on-mobile');
+                mobileReport.classList.remove('hide-on-mobile');
+                toggleBtn.textContent = '📄 查看完整报告样式';
+            }
+        });
+    }
 
     // ------ 照片同步（桌面+手机） ------
     const photoFile = document.getElementById('photoUpload');
