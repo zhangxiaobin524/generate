@@ -2,7 +2,9 @@ version: "3"
 
 services:
   xuexin-report:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: xuexin-report:latest
     container_name: xuexin-report
     ports:
