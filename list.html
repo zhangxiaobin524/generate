@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>学信档案</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+        
+        /* 顶部导航 */
+        .header {
+            background: #1a6b3c;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .header-logo-icon {
+            width: 28px;
+            height: 28px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        .header-logo-text {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .header-nav {
+            flex: 1;
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .header-nav-item {
+            color: rgba(255,255,255,0.8);
+            font-size: 13px;
+            white-space: nowrap;
+            padding: 4px 0;
+        }
+        .header-nav-item.active {
+            color: white;
+            font-weight: 500;
+        }
+        
+        /* 二级导航 */
+        .sub-nav {
+            background: #f0f7f2;
+            padding: 8px 12px;
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .sub-nav-item {
+            color: #666;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .sub-nav-item.active {
+            color: #1a6b3c;
+            font-weight: 500;
+        }
+        
+        /* 内容区 */
+        .content {
+            padding: 12px;
+        }
+        
+        /* 报告卡片 */
+        .report-section {
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .report-title {
+            background: #1a6b3c;
+            color: white;
+            padding: 8px 12px;
+            font-size: 13px;
+        }
+        .report-subtitle {
+            background: #e8f5e9;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #333;
+        }
+        
+        /* 表格 */
+        .report-table {
+            width: 100%;
+            font-size: 12px;
+        }
+        .report-table th {
+            background: #f5f5f5;
+            padding: 10px 8px;
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .report-table td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            vertical-align: top;
+        }
+        .report-table tr:last-child td {
+            border-bottom: none;
+        }
+        .code-cell {
+            font-family: monospace;
+            color: #1a6b3c;
+            font-weight: 500;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #e8f5e9;
+            color: #1a6b3c;
+            border-radius: 2px;
+            font-size: 11px;
+        }
+        .action-links {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .action-links a {
+            color: #1a6b3c;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        .action-links a:hover {
+            text-decoration: underline;
+        }
+        .action-note {
+            color: #999;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+        
+        /* 底部 */
+        .footer {
+            text-align: center;
+            padding: 20px 12px;
+            font-size: 11px;
+            color: #999;
+            line-height: 1.8;
+        }
+        .footer a {
+            color: #999;
+            text-decoration: none;
+        }
+        
+        /* 页面标题 */
+        .page-header {
+            text-align: center;
+            padding: 12px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .page-header h1 {
+            font-size: 16px;
+            color: #1a6b3c;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .page-header h1::before {
+            content: '✓';
+            width: 18px;
+            height: 18px;
+            background: #1a6b3c;
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <h1>学信档案</h1>
+    </div>
+    
+    <!-- 顶部导航 -->
+    <div class="header">
+        <div class="header-logo">
+            <div class="header-logo-icon">📋</div>
+            <div class="header-logo-text">学信档案</div>
+        </div>
+        <div class="header-nav">
+            <span class="header-nav-item">首页</span>
+            <span class="header-nav-item">高等教育信息</span>
+            <span class="header-nav-item active">在线验证报告</span>
+            <span class="header-nav-item">学历学位认证...</span>
+            <span class="header-nav-item">出国（境）报告...</span>
+        </div>
+    </div>
+    
+    <!-- 二级导航 -->
+    <div class="sub-nav">
+        <span class="sub-nav-item">首页</span>
+        <span class="sub-nav-item">高等学籍</span>
+        <span class="sub-nav-item">高等学历</span>
+        <span class="sub-nav-item">学位</span>
+        <span class="sub-nav-item">协助申请</span>
+    </div>
+    
+    <!-- 内容 -->
+    <div class="content">
+        <div class="report-section">
+            <div class="report-title">本科 - 运城学院 - 计算机科学与技术(网络工程方向)</div>
+            <div class="report-subtitle">📋 已申请的报告</div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>在线验证码</th>
+                        <th>语种</th>
+                        <th>有效期</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="code-cell">AG4FMEZUN9W8YHRL</td>
+                        <td>中文</td>
+                        <td>2026-12-12</td>
+                        <td><span class="status-badge">有效</span></td>
+                        <td>
+                            <div class="action-links">
+                                <a href="index.html">查看</a>
+                                <a href="#">延长验证有效期</a>
+                                <a href="#">关闭</a>
+                            </div>
+                            <div class="action-note">2026-11-12起可以延长有效期</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 底部 -->
+    <div class="footer">
+        <div>学信网 | 帮助中心 | Copyright © 2003-2026 学信网 All Rights Reserved</div>
+        <div>京ICP备19004913号 | 京公网安备11010202009747号</div>
+    </div>
+</body>
+</html>
