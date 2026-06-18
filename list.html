@@ -2,294 +2,248 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>学信档案</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+    <title>学信档案 - 已申请的报告</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
-            background: #f0f2f5;
-            min-height: 100vh;
-            color: #333;
+            font-family: "Microsoft YaHei", "SimSun", "PingFang SC", sans-serif;
+            background: #f5f5f5;
         }
 
         /* ===== 顶部栏 ===== */
         .topbar {
-            background: #1a6b3c;
-            padding: 10px 14px;
+            background: #2e7d32;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 0 15px;
         }
-        .topbar-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .topbar-left { display: flex; align-items: center; gap: 8px; }
+        .logo-icon {
+            width: 30px; height: 30px;
+            background: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; color: #2e7d32;
         }
-        .topbar-shield {
-            width: 26px;
-            height: 26px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            color: #1a6b3c;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-        .topbar-title {
-            color: white;
-            font-size: 17px;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-        .topbar-icon {
-            color: rgba(255,255,255,0.85);
-            font-size: 18px;
-            cursor: pointer;
-        }
+        .logo-text { color: white; font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+        .topbar-right { display: flex; align-items: center; gap: 16px; }
+        .topbar-icon { color: white; font-size: 18px; cursor: pointer; }
 
-        /* ===== 导航 ===== */
-        .nav-bar {
-            background: #1a6b3c;
-            padding: 0 12px 8px;
+        /* ===== 主导航 ===== */
+        .main-nav {
+            background: #2e7d32;
+            border-top: 1px solid rgba(255,255,255,0.2);
             display: flex;
-            gap: 4px;
+            align-items: center;
+            padding: 0 10px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
         }
-        .nav-bar::-webkit-scrollbar { display: none; }
+        .main-nav::-webkit-scrollbar { display: none; }
+        .nav-logo {
+            display: flex; align-items: center; gap: 6px;
+            color: white; font-size: 14px; font-weight: bold;
+            margin-right: 12px; flex-shrink: 0;
+        }
+        .nav-logo-icon {
+            width: 20px; height: 20px;
+            background: white; border-radius: 3px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; color: #2e7d32;
+        }
         .nav-item {
-            color: rgba(255,255,255,0.7);
-            font-size: 13px;
-            white-space: nowrap;
-            padding: 6px 10px;
-            border-radius: 4px 4px 0 0;
+            color: rgba(255,255,255,0.85);
+            padding: 8px 10px;
+            font-size: 12px;
             cursor: pointer;
+            white-space: nowrap;
             flex-shrink: 0;
-            transition: all 0.2s;
         }
         .nav-item.active {
-            color: #1a6b3c;
-            background: #f0f2f5;
-            font-weight: 500;
+            background: white;
+            color: #2e7d32;
+            border-radius: 4px 4px 0 0;
         }
 
         /* ===== 子导航 ===== */
-        .sub-bar {
-            background: white;
-            padding: 8px 12px;
+        .sub-nav {
+            background: #e8f5e9;
             display: flex;
-            gap: 4px;
+            align-items: center;
+            padding: 0 12px;
+            height: 34px;
+            gap: 6px;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            border-bottom: 1px solid #c8e6c9;
             scrollbar-width: none;
-            border-bottom: 1px solid #e5e5e5;
         }
-        .sub-bar::-webkit-scrollbar { display: none; }
+        .sub-nav::-webkit-scrollbar { display: none; }
         .sub-item {
             color: #666;
-            font-size: 13px;
-            white-space: nowrap;
-            padding: 6px 12px;
-            border-radius: 16px;
+            padding: 4px 10px;
+            font-size: 12px;
             cursor: pointer;
+            white-space: nowrap;
             flex-shrink: 0;
         }
-        .sub-item.active {
-            color: #1a6b3c;
-            background: #e8f5e9;
-            font-weight: 500;
-        }
+        .sub-item.active { color: #2e7d32; font-weight: 500; }
 
-        /* ===== 信息卡片 ===== */
-        .info-card {
+        /* ===== 页面标题 ===== */
+        .page-header {
             background: white;
-            margin: 10px 12px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            padding: 12px 15px;
+            text-align: center;
+            border-bottom: 1px solid #e0e0e0;
         }
-        .info-card-header {
-            background: #1a6b3c;
-            color: white;
-            padding: 12px 14px;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .info-card-header .arrow {
-            margin-left: auto;
-            font-size: 12px;
-            color: rgba(255,255,255,0.7);
-        }
-        .info-card-body {
-            padding: 12px 14px;
-        }
-        .info-row {
-            display: flex;
-            padding: 6px 0;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-        .info-label {
-            color: #999;
-            width: 70px;
-            flex-shrink: 0;
-        }
-        .info-value {
-            color: #333;
-            flex: 1;
-        }
-
-        /* ===== 报告列表 ===== */
-        .report-section {
-            background: white;
-            margin: 0 12px 10px;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        }
-        .report-section-title {
-            padding: 12px 14px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .report-section-title .count {
-            color: #999;
-            font-weight: 400;
-            font-size: 12px;
-            margin-left: 4px;
-        }
-
-        .report-item {
-            padding: 14px;
-            border-bottom: 1px solid #f5f5f5;
-        }
-        .report-item:last-child {
-            border-bottom: none;
-        }
-
-        .report-code {
-            font-family: "Courier New", monospace;
-            color: #1a6b3c;
-            font-size: 15px;
+        .page-header h1 {
+            font-size: 16px;
+            color: #2e7d32;
             font-weight: 600;
-            letter-spacing: 0.5px;
         }
-        .report-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px 20px;
-            margin-top: 8px;
+
+        /* ===== 包装器：实现整体缩放让手机看到完整内容 ===== */
+        .page-wrapper {
+            width: 100%;
+            overflow: hidden;
+        }
+        .page-content {
+            width: 100%;
+            transform-origin: top left;
+        }
+
+        /* ===== 内容 ===== */
+        .container { padding: 12px 15px; }
+
+        /* ===== 信息栏 ===== */
+        .info-section {
+            background: #2e7d32;
+            color: white;
+            padding: 8px 15px;
             font-size: 13px;
-            color: #666;
-        }
-        .report-meta span {
-            display: inline-flex;
+            margin-bottom: 12px;
+            display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 8px;
         }
-        .report-meta .label {
-            color: #999;
+        .info-section::before {
+            content: '';
+            display: inline-block;
+            width: 0; height: 0;
+            border-top: 5px solid transparent;
+            border-bottom: 5px solid transparent;
+            border-left: 8px solid white;
         }
-        .status-valid {
+
+        /* ===== 报告表格 ===== */
+        .report-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .report-header {
+            background: #2e7d32;
+            color: white;
+            padding: 10px 15px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .report-header .badge {
+            float: right;
+            background: rgba(255,255,255,0.2);
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        /* 表格容器，用于缩放 */
+        .table-wrap {
+            overflow: hidden;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            table-layout: auto;
+        }
+        .report-table thead { background: #e8f5e9; }
+        .report-table th {
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #c8e6c9;
+            white-space: nowrap;
+        }
+        .report-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: top;
+        }
+        .report-table tr:last-child td { border-bottom: none; }
+        .code-cell {
+            font-family: "Courier New", monospace;
+            color: #2e7d32;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .status-tag {
             display: inline-block;
             padding: 2px 10px;
             background: #e8f5e9;
-            color: #1a6b3c;
+            color: #2e7d32;
             border-radius: 3px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .report-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px dashed #eee;
-        }
-        .report-actions a {
-            color: #1a6b3c;
-            text-decoration: none;
-            font-size: 13px;
-            padding: 4px 12px;
-            border: 1px solid #1a6b3c;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        .report-actions a:hover {
-            background: #1a6b3c;
-            color: white;
-        }
-        .report-actions a.link-plain {
-            border: none;
-            padding: 4px 0;
-            color: #1a6b3c;
-        }
-        .report-actions a.link-plain:hover {
-            background: none;
-            text-decoration: underline;
-        }
-        .report-note {
-            color: #bbb;
             font-size: 11px;
-            margin-top: 6px;
         }
+        .action-group { display: flex; flex-direction: column; gap: 4px; }
+        .action-group a {
+            color: #2e7d32;
+            text-decoration: none;
+            font-size: 11px;
+        }
+        .action-group a:hover { text-decoration: underline; }
+        .action-note { color: #999; font-size: 10px; margin-top: 4px; }
 
         /* ===== 底部 ===== */
         .footer {
+            padding: 24px 15px;
             text-align: center;
-            padding: 24px 16px 32px;
             font-size: 11px;
-            color: #bbb;
+            color: #999;
             line-height: 2;
         }
-        .footer a {
-            color: #999;
-            text-decoration: none;
-        }
-        .footer .sep {
-            margin: 0 6px;
-            color: #ddd;
-        }
+        .footer a { color: #999; text-decoration: none; }
+        .footer-links span { margin: 0 8px; color: #ddd; }
 
-        /* ===== 页面标题 ===== */
-        .section-header {
-            padding: 14px 12px 6px;
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        /* ===== 响应式缩放 ===== */
+        @media screen and (max-width: 768px) {
+            .page-content {
+                transform: scale(calc(100vw / 900px));
+                height: calc(100% * (900px / 100vw));
+                min-height: calc(100vh * (900px / 100vw));
+            }
         }
-        .section-header .icon {
-            font-size: 18px;
+        @media screen and (max-width: 480px) {
+            .page-content {
+                transform: scale(calc(100vw / 750px));
+                height: calc(100% * (750px / 100vw));
+                min-height: calc(100vh * (750px / 100vw));
+            }
         }
     </style>
 </head>
 <body>
+<div class="page-wrapper">
+<div class="page-content">
 
     <!-- 顶部栏 -->
     <div class="topbar">
         <div class="topbar-left">
-            <div class="topbar-shield">&#x1F6E1;</div>
-            <span class="topbar-title">学信档案</span>
+            <div class="logo-icon">&#x1F6E1;</div>
+            <span class="logo-text">学信档案</span>
         </div>
         <div class="topbar-right">
             <span class="topbar-icon">&#x2606;</span>
@@ -297,85 +251,86 @@
         </div>
     </div>
 
-    <!-- 导航 -->
-    <div class="nav-bar">
-        <span class="nav-item">学信档案</span>
+    <!-- 主导航 -->
+    <div class="main-nav">
+        <div class="nav-logo">
+            <span class="nav-logo-icon">&#x1F6E1;</span>
+            <span>学信档案</span>
+        </div>
         <span class="nav-item">首页</span>
         <span class="nav-item">高等教育信息</span>
         <span class="nav-item active">在线验证报告</span>
-        <span class="nav-item">学历学位认证与成绩验证</span>
-        <span class="nav-item">出国（境）报告翻译代办</span>
+        <span class="nav-item">学历学位认证...</span>
+        <span class="nav-item">出国（境）报告...</span>
     </div>
 
     <!-- 子导航 -->
-    <div class="sub-bar">
+    <div class="sub-nav">
         <span class="sub-item">首页</span>
         <span class="sub-item">高等学籍</span>
         <span class="sub-item">高等学历</span>
         <span class="sub-item">学位</span>
-        <span class="sub-item">协助申请</span>
+        <span class="sub-item active">协助申请</span>
     </div>
 
-    <!-- 信息卡片 -->
-    <div class="info-card">
-        <div class="info-card-header">
-            本科 - 运城学院 - 计算机科学与技术(网络工程方向)
-            <span class="arrow">&#x203A;</span>
-        </div>
-        <div class="info-card-body">
-            <div class="info-row">
-                <div class="info-label">学号</div>
-                <div class="info-value">2040825109</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">姓名</div>
-                <div class="info-value">张**</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">入学日期</div>
-                <div class="info-value">2020-09-01</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">学籍状态</div>
-                <div class="info-value" style="color:#1a6b3c;">在籍（已毕业）</div>
-            </div>
-        </div>
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <h1>在线验证报告</h1>
     </div>
 
-    <!-- 报告列表 -->
-    <div class="report-section">
-        <div class="report-section-title">
-            在线验证报告 <span class="count">(共1份)</span>
-        </div>
-        <div class="report-item">
-            <div class="report-code">AG4FMEZUN9W8YHRL</div>
-            <div class="report-meta">
-                <span><span class="label">语种：</span>中文</span>
-                <span><span class="label">有效期：</span>2026-12-12</span>
-                <span><span class="status-valid">有效</span></span>
+    <!-- 内容 -->
+    <div class="container">
+        <div class="info-section">本科 - 运城学院 - 计算机科学与技术(网络工程方向)</div>
+
+        <div class="report-card">
+            <div class="report-header">
+                已申请的报告（在线验证报告）
+                <span class="badge">共1份</span>
             </div>
-            <div class="report-actions">
-                <a href="index.html">查看</a>
-                <a href="#" class="link-plain">延长验证有效期</a>
-                <a href="#" class="link-plain">关闭</a>
+            <div class="table-wrap">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>在线验证码</th>
+                        <th>语种</th>
+                        <th>有效期</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="code-cell">AG4FMEZUN9W8YHRL</td>
+                        <td>中文</td>
+                        <td>2026-12-12</td>
+                        <td><span class="status-tag">有效</span></td>
+                        <td>
+                            <div class="action-group">
+                                <a href="index.html">查看</a>
+                                <a href="#">延长验证有效期</a>
+                                <a href="#">关闭</a>
+                            </div>
+                            <div class="action-note">2026-11-12起可以延长有效期</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
             </div>
-            <div class="report-note">2026-11-12起可以延长有效期</div>
         </div>
     </div>
 
     <!-- 底部 -->
     <div class="footer">
-        <div>
-            <a href="#">学信网</a>
-            <span class="sep">|</span>
-            <a href="#">帮助中心</a>
-            <span class="sep">|</span>
+        <div class="footer-links">
+            <a href="#">学信网</a><span>|</span>
+            <a href="#">帮助中心</a><span>|</span>
             <a href="#">意见反馈</a>
         </div>
         <div>Copyright &copy; 2003-2026 学信网 All Rights Reserved</div>
-        <div>京ICP备19004913号</div>
-        <div>京公网安备 11010202009747号</div>
+        <div>京ICP备19004913号 | 京公网安备 11010202009747号</div>
     </div>
 
+</div>
+</div>
 </body>
 </html>
