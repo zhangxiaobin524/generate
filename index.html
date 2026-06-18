@@ -11,79 +11,69 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             background: #eef2f5;
-            padding: 20px 12px;
+            padding: 16px;
             display: flex;
             justify-content: center;
             gap: 24px;
             flex-wrap: wrap;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
         }
 
         /* ===== 编辑面板 ===== */
         .editor-panel {
-            width: 100%;
-            max-width: 360px;
+            width: 340px;
             background: white;
             border-radius: 16px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            padding: 16px;
+            padding: 20px;
             flex-shrink: 0;
             height: fit-content;
         }
         .editor-panel h3 {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             color: #1a6b3c;
             border-bottom: 1px solid #ddd;
             padding-bottom: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
         }
         .editor-panel label {
             font-size: 12px;
             font-weight: 500;
             color: #4b5563;
             display: block;
-            margin-top: 8px;
-            margin-bottom: 2px;
+            margin-top: 10px;
+            margin-bottom: 4px;
         }
         .editor-panel input {
             width: 100%;
             border: 1px solid #ccc;
             border-radius: 8px;
             padding: 6px 8px;
-            font-size: 13px;
+            font-size: 14px;
             -webkit-appearance: none;
+            appearance: none;
         }
-        .file-input { margin: 12px 0 4px; }
+        .file-input { margin: 15px 0 5px; }
         .btn-export {
             background-color: #1a6b3c;
             color: white;
             font-weight: bold;
-            padding: 10px;
+            padding: 12px;
             border-radius: 12px;
             text-align: center;
             cursor: pointer;
             border: none;
             width: 100%;
-            margin-top: 16px;
-            font-size: 15px;
+            margin-top: 20px;
+            font-size: 16px;
         }
-        .btn-export:hover { background-color: #0f5230; }
+        .btn-export:active { opacity: 0.8; }
 
-        /* ===== 报告预览容器 ===== */
-        .report-wrapper {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            justify-content: center;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+        /* ===== 桌面端报告（固定706px，用于导出PDF） ===== */
+        .report-desktop {
+            display: block;
         }
-        .report-scale {
-            transform-origin: top center;
-        }
-
-        /* ===== 报告样式（固定尺寸） ===== */
         .xj-zxyz-res {
             width: 706px;
             height: 1000px;
@@ -95,7 +85,6 @@
             position: relative;
             box-sizing: border-box;
             color: #222222;
-            flex-shrink: 0;
         }
         .xj-zxyz-res h4 {
             font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", Arial, "sans-serif", SimSun;
@@ -135,21 +124,14 @@
             color: #888888;
             font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", Arial, "sans-serif", SimSun;
             font-size: 13px;
-            font-weight: 400;
-            line-height: 18px;
             flex-shrink: 0;
-            text-align: left;
         }
         .report-info-item .value {
             flex: 1;
             padding-left: 45px;
             padding-right: 150px;
             color: #222222;
-            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", Arial, "sans-serif", SimSun;
             font-size: 13px;
-            font-weight: 400;
-            line-height: 18px;
-            text-align: left;
             word-break: break-word;
         }
         .r-zp-wrap {
@@ -167,9 +149,7 @@
             overflow: hidden;
         }
         .r-zp-wrap img { width: 100%; height: 100%; object-fit: cover; }
-
         .zxyz-res-bottom {
-            box-sizing: border-box;
             position: absolute;
             bottom: 50px;
             left: 65px;
@@ -184,88 +164,121 @@
             gap: 10px;
             align-items: center;
             margin-bottom: 18px;
-            width: 100%;
         }
-        .zxyz-res-code .left .bg_ewm {
-            width: 68px;
-            height: 68px;
-            border: 1px solid #b5ccbe;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .zxyz-res-code .right {
-            flex: 1;
-            font-size: 11px;
-            line-height: 1.6;
-            color: #333333;
-        }
-        .zxyz-res-code .yzm {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 18px;
-            font-weight: 700;
-            color: #222222;
-            margin-left: 6px;
-            display: inline-block;
-        }
-        .zxyz-res-tip {
-            font-size: 11px;
-            color: #444444;
-            line-height: 1.5;
-            margin-top: 4px;
-        }
+        .zxyz-res-code .left .bg_ewm { width: 68px; height: 68px; border: 1px solid #b5ccbe; background: white; display: flex; align-items: center; justify-content: center; }
+        .zxyz-res-code .right { flex: 1; font-size: 11px; line-height: 1.6; color: #333333; }
+        .zxyz-res-code .yzm { font-family: Arial, sans-serif; font-size: 18px; font-weight: 700; color: #222222; margin-left: 6px; display: inline-block; }
+        .zxyz-res-tip { font-size: 11px; color: #444444; line-height: 1.5; margin-top: 4px; }
         .zxyz-res-tip-title { font-weight: bold; color: #222222; margin-bottom: 4px; font-size: 11.5px; }
         .tip-item { margin-bottom: 2px; }
-        .tip-item-last { margin-bottom: 0; }
-        .last-line-wrap {
-            margin-top: -8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            width: 100%;
-        }
+        .last-line-wrap { margin-top: -8px; display: flex; justify-content: space-between; align-items: flex-end; }
         .last-line-text { flex: 1; line-height: 1.4; white-space: nowrap; }
         .zxyz-res-bot-inline { flex-shrink: 0; margin-left: 10px; display: inline-block; height: 25px; }
         .zxyz-res-bot-inline img { height: 100%; display: block; }
-        .status-graduated { color: #222222 !important; font-weight: bold; }
 
-        /* ===== 移动端适配 ===== */
-        @media (max-width: 768px) {
+        /* ===== 手机端报告（流式布局，大字） ===== */
+        .report-mobile {
+            display: none;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .report-mobile-header {
+            background: linear-gradient(135deg, #1a6b3c, #2d8a4e);
+            padding: 16px;
+            text-align: center;
+        }
+        .report-mobile-header h2 {
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .report-mobile-header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+        }
+        .report-mobile-body {
+            padding: 12px 16px;
+        }
+        .report-mobile-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .report-mobile-row:last-child { border-bottom: none; }
+        .report-mobile-label {
+            font-size: 13px;
+            color: #888;
+            flex-shrink: 0;
+        }
+        .report-mobile-value {
+            font-size: 14px;
+            color: #222;
+            font-weight: 500;
+            text-align: right;
+            flex: 1;
+            padding-left: 12px;
+            word-break: break-all;
+        }
+        .report-mobile-photo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .report-mobile-photo-img {
+            width: 60px;
+            height: 76px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+        }
+        .report-mobile-photo-img img { width: 100%; height: 100%; object-fit: cover; }
+        .report-mobile-photo-label { font-size: 12px; color: #888; }
+        .report-mobile-footer {
+            background: #f8faf8;
+            padding: 12px 16px;
+            border-top: 1px solid #e0e8e0;
+        }
+        .report-mobile-footer p {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .report-mobile-code {
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a6b3c;
+            margin-top: 4px;
+        }
+
+        /* ===== 响应式切换 ===== */
+        @media (max-width: 800px) {
             body { 
-                padding: 8px; 
-                gap: 8px; 
-                flex-direction: column; 
+                padding: 10px;
+                flex-direction: column;
                 align-items: stretch;
+                gap: 12px;
             }
-            .editor-panel { 
-                width: 100%; 
-                max-width: none;
-                padding: 12px; 
-                margin-right: 0;
-            }
-            .editor-panel h3 { font-size: 16px; }
-            .report-wrapper {
+            .editor-panel {
                 width: 100%;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                justify-content: flex-start;
-                padding: 4px 0;
+                padding: 16px;
             }
-            .report-scale {
-                transform: scale(0.45);
-                transform-origin: top left;
-            }
-        }
-
-        @media (max-width: 420px) {
-            body { padding: 6px; }
-            .editor-panel { padding: 10px; }
-            .report-scale { transform: scale(0.38); }
-        }
-
-        @media (min-width: 769px) and (max-width: 1100px) {
-            .report-scale { transform: scale(0.7); }
+            .editor-panel h3 { font-size: 17px; }
+            .report-desktop { display: none; }
+            .report-mobile { display: block; }
         }
     </style>
 </head>
@@ -296,53 +309,73 @@
     <button class="btn-export" id="exportBtn">📥 导出 PDF</button>
 </div>
 
-<div class="report-wrapper">
-    <div class="report-scale" id="reportScale">
-        <div id="reportTarget" class="xj-zxyz-res">
-            <h4>教育部学籍在线验证报告</h4>
-            <div class="update-time">更新日期：2026年06月16日</div>
-            <div class="report-info">
-                <div class="r-zp-wrap" id="photoWrap">
-                    <span id="photoPlaceholder" style="font-size:11px; color:#aaa;">暂无照片</span>
-                    <img id="photoImg" style="display:none; width:100%; height:100%; object-fit:cover;" alt="证件照">
-                </div>
-                <div class="report-info-item"><div class="label">姓名</div><div class="value" id="outName">张晓斌</div></div>
-                <div class="report-info-item"><div class="label">性别</div><div class="value" id="outGender">男</div></div>
-                <div class="report-info-item"><div class="label">出生日期</div><div class="value" id="outBirth">1993年05月24日</div></div>
-                <div class="report-info-item"><div class="label">民族</div><div class="value" id="outEthnic">汉族</div></div>
-                <div class="report-info-item"><div class="label">学校名称</div><div class="value" id="outSchool">运城学院</div></div>
-                <div class="report-info-item"><div class="label">层次</div><div class="value" id="outLevel">本科</div></div>
-                <div class="report-info-item"><div class="label">专业</div><div class="value" id="outMajor">计算机科学与技术(网络工程方向)</div></div>
-                <div class="report-info-item"><div class="label">学制</div><div class="value" id="outDuration">4年</div></div>
-                <div class="report-info-item"><div class="label">学历类别</div><div class="value" id="outDegreeType">普通高等教育</div></div>
-                <div class="report-info-item"><div class="label">学习形式</div><div class="value" id="outStudyForm">普通全日制</div></div>
-                <div class="report-info-item"><div class="label">分院</div><div class="value" id="outCollege">运城学院</div></div>
-                <div class="report-info-item"><div class="label">系所</div><div class="value" id="outDept">计算机科学与技术系</div></div>
-                <div class="report-info-item"><div class="label">入学日期</div><div class="value" id="outEnroll">2013年09月01日</div></div>
-                <div class="report-info-item"><div class="label">学籍状态</div><div class="value status-graduated" id="outStatus">不在籍（毕业）</div></div>
-                <div class="report-info-item"><div class="label">离校日期</div><div class="value" id="outGrad">2017年07月01日</div></div>
+<!-- 电脑端：固定尺寸报告（用于导出PDF） -->
+<div class="report-desktop">
+    <div id="reportTarget" class="xj-zxyz-res">
+        <h4>教育部学籍在线验证报告</h4>
+        <div class="update-time">更新日期：2026年06月16日</div>
+        <div class="report-info">
+            <div class="r-zp-wrap" id="photoWrap">
+                <span id="photoPlaceholder" style="font-size:11px; color:#aaa;">暂无照片</span>
+                <img id="photoImg" style="display:none; width:100%; height:100%; object-fit:cover;" alt="证件照">
             </div>
-            <div class="zxyz-res-bottom">
-                <div class="zxyz-res-code">
-                    <div class="left"><div id="qrCodeContainer" class="bg_ewm"></div></div>
-                    <div class="right">
-                        <div><span style="font-weight:600; color:#222222;">在线验证码</span> <span class="yzm" id="outCode"></span></div>
-                        <div><span>①</span> 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>
-                        <div><span>②</span> 使用学信网App扫描二维码验证</div>
-                    </div>
+            <div class="report-info-item"><div class="label">姓名</div><div class="value" id="outName">张晓斌</div></div>
+            <div class="report-info-item"><div class="label">性别</div><div class="value" id="outGender">男</div></div>
+            <div class="report-info-item"><div class="label">出生日期</div><div class="value" id="outBirth">1993年05月24日</div></div>
+            <div class="report-info-item"><div class="label">民族</div><div class="value" id="outEthnic">汉族</div></div>
+            <div class="report-info-item"><div class="label">学校名称</div><div class="value" id="outSchool">运城学院</div></div>
+            <div class="report-info-item"><div class="label">层次</div><div class="value" id="outLevel">本科</div></div>
+            <div class="report-info-item"><div class="label">专业</div><div class="value" id="outMajor">计算机科学与技术(网络工程方向)</div></div>
+            <div class="report-info-item"><div class="label">学制</div><div class="value" id="outDuration">4年</div></div>
+            <div class="report-info-item"><div class="label">学历类别</div><div class="value" id="outDegreeType">普通高等教育</div></div>
+            <div class="report-info-item"><div class="label">学习形式</div><div class="value" id="outStudyForm">普通全日制</div></div>
+            <div class="report-info-item"><div class="label">分院</div><div class="value" id="outCollege">运城学院</div></div>
+            <div class="report-info-item"><div class="label">系所</div><div class="value" id="outDept">计算机科学与技术系</div></div>
+            <div class="report-info-item"><div class="label">入学日期</div><div class="value" id="outEnroll">2013年09月01日</div></div>
+            <div class="report-info-item"><div class="label">学籍状态</div><div class="value status-graduated" id="outStatus">不在籍（毕业）</div></div>
+            <div class="report-info-item"><div class="label">离校日期</div><div class="value" id="outGrad">2017年07月01日</div></div>
+        </div>
+        <div class="zxyz-res-bottom">
+            <div class="zxyz-res-code">
+                <div class="left"><div id="qrCodeContainer" class="bg_ewm"></div></div>
+                <div class="right">
+                    <div><span style="font-weight:600; color:#222222;">在线验证码</span> <span class="yzm" id="outCode"></span></div>
+                    <div><span>①</span> 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>
+                    <div><span>②</span> 使用学信网App扫描二维码验证</div>
                 </div>
-                <div class="zxyz-res-tip">
-                    <div class="zxyz-res-tip-title">注意事项：</div>
-                    <div class="tip-item">1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>
-                    <div class="tip-item">2、报告内容如有修改，请以最新在线验证的内容为准。</div>
-                    <div class="tip-item tip-item-last">3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>
-                    <div class="last-line-wrap">
-                        <div class="last-line-text">4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>
-                        <div class="zxyz-res-bot-inline"><img src="https://t1.chei.com.cn/chsi/images/logo.png" alt="CHSI"></div>
-                    </div>
+            </div>
+            <div class="zxyz-res-tip">
+                <div class="zxyz-res-tip-title">注意事项：</div>
+                <div class="tip-item">1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>
+                <div class="tip-item">2、报告内容如有修改，请以最新在线验证的内容为准。</div>
+                <div class="tip-item tip-item-last">3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>
+                <div class="last-line-wrap">
+                    <div class="last-line-text">4、报告在线验证有效期由报告权属人设置（1~6个月）。</div>
+                    <div class="zxyz-res-bot-inline"><img src="https://t1.chei.com.cn/chsi/images/logo.png" alt="CHSI"></div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- 手机端：流式布局报告 -->
+<div class="report-mobile" id="mobileReport">
+    <div class="report-mobile-header">
+        <h2 id="mTitle">教育部学籍在线验证报告</h2>
+        <p id="mUpdateTime">更新日期：2026年06月16日</p>
+    </div>
+    <div class="report-mobile-body" id="mobileBody">
+        <div class="report-mobile-photo">
+            <div class="report-mobile-photo-img" id="mobilePhotoWrap">
+                <span id="mobilePhotoPlaceholder" style="font-size:10px; color:#aaa;">无照片</span>
+                <img id="mobilePhotoImg" style="display:none; width:100%; height:100%; object-fit:cover;" alt="证件照">
+            </div>
+            <span class="report-mobile-photo-label">证件照</span>
+        </div>
+    </div>
+    <div class="report-mobile-footer">
+        <p>在线验证码 <span class="report-mobile-code" id="mCode"></span></p>
+        <p style="margin-top: 6px;">验证网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</p>
     </div>
 </div>
 
@@ -362,6 +395,71 @@
     codeInput.value = randomCode;
     outCodeSpan.innerText = randomCode;
 
+    // 更新手机端验证码
+    const mCode = document.getElementById('mCode');
+    if (mCode) mCode.innerText = randomCode;
+
+    // ------ 数据绑定 ------
+    const fieldDefs = [
+        { id: 'outName',     label: '姓名',     source: 'inName' },
+        { id: 'outGender',   label: '性别',     source: 'inGender' },
+        { id: 'outBirth',    label: '出生日期', source: 'inBirth' },
+        { id: 'outEthnic',   label: '民族',     source: 'inEthnic' },
+        { id: 'outSchool',   label: '学校名称', source: 'inSchool' },
+        { id: 'outLevel',    label: '层次',     source: 'inLevel' },
+        { id: 'outMajor',    label: '专业',     source: 'inMajor' },
+        { id: 'outDuration', label: '学制',     source: 'inDuration' },
+        { id: 'outDegreeType', label: '学历类别', source: 'inDegreeType' },
+        { id: 'outStudyForm',  label: '学习形式', source: 'inStudyForm' },
+        { id: 'outCollege',  label: '分院',     source: 'inCollege' },
+        { id: 'outDept',     label: '系所',     source: 'inDept' },
+        { id: 'outEnroll',   label: '入学日期', source: 'inEnroll' },
+        { id: 'outStatus',   label: '学籍状态', source: 'inStatus' },
+        { id: 'outGrad',     label: '离校日期', source: 'inGrad' },
+    ];
+    const mobileBody = document.getElementById('mobileBody');
+
+    function buildMobileRows() {
+        // 保留已有照片行
+        const photoRow = mobileBody.querySelector('.report-mobile-photo');
+        mobileBody.innerHTML = '';
+        if (photoRow) mobileBody.appendChild(photoRow);
+
+        fieldDefs.forEach(f => {
+            const src = document.getElementById(f.source);
+            const desktop = document.getElementById(f.id);
+            const row = document.createElement('div');
+            row.className = 'report-mobile-row';
+            row.innerHTML = `<span class="report-mobile-label">${f.label}</span><span class="report-mobile-value" id="m_${f.id}">${src ? src.value : ''}</span>`;
+            mobileBody.appendChild(row);
+
+            if (src && desktop) {
+                src.addEventListener('input', () => {
+                    desktop.innerHTML = src.value;
+                    const m = document.getElementById('m_' + f.id);
+                    if (m) m.innerText = src.value;
+                });
+            }
+        });
+    }
+    buildMobileRows();
+
+    // 绑定学籍状态
+    const statusIn = document.getElementById('inStatus');
+    const statusOut = document.getElementById('outStatus');
+    if (statusIn && statusOut) {
+        statusIn.addEventListener('input', () => { statusOut.innerText = statusIn.value; });
+    }
+
+    // 验证码同步
+    codeInput.addEventListener('input', (e) => {
+        currentCode = e.target.value;
+        outCodeSpan.innerText = currentCode;
+        if (mCode) mCode.innerText = currentCode;
+        refreshQR();
+    });
+
+    // ------ 二维码 ------
     function generateQRCode(containerId, text) {
         const container = document.getElementById(containerId);
         if (!container) return;
@@ -393,54 +491,47 @@
     function getQRContent(code) {
         return `https://www.chsi.com.cn/xlcx/bgcx.jsp?code=${code}`;
     }
-
     let currentCode = randomCode;
     function refreshQR() {
         generateQRCode('qrCodeContainer', getQRContent(currentCode));
     }
-    codeInput.addEventListener('input', (e) => {
-        currentCode = e.target.value;
-        outCodeSpan.innerText = currentCode;
-        refreshQR();
-    });
     refreshQR();
 
-    const bindings = [
-        ['inName','outName'],['inGender','outGender'],['inBirth','outBirth'],['inEthnic','outEthnic'],
-        ['inSchool','outSchool'],['inLevel','outLevel'],['inMajor','outMajor'],['inDuration','outDuration'],
-        ['inDegreeType','outDegreeType'],['inStudyForm','outStudyForm'],['inCollege','outCollege'],
-        ['inDept','outDept'],['inEnroll','outEnroll'],['inGrad','outGrad']
-    ];
-    bindings.forEach(([inId, outId]) => {
-        const inp = document.getElementById(inId);
-        const outp = document.getElementById(outId);
-        if (inp && outp) inp.addEventListener('input', () => { outp.innerHTML = inp.value; });
-    });
-    const statusIn = document.getElementById('inStatus');
-    const statusOut = document.getElementById('outStatus');
-    if (statusIn && statusOut) {
-        statusIn.addEventListener('input', () => { statusOut.innerText = statusIn.value; });
-    }
-
+    // ------ 照片同步（桌面+手机） ------
     const photoFile = document.getElementById('photoUpload');
     const photoImg = document.getElementById('photoImg');
     const placeholder = document.getElementById('photoPlaceholder');
+    const mobilePhotoImg = document.getElementById('mobilePhotoImg');
+    const mobilePhotoPlaceholder = document.getElementById('mobilePhotoPlaceholder');
+
+    function setPhoto(src) {
+        if (src) {
+            photoImg.src = src;
+            photoImg.style.display = 'block';
+            placeholder.style.display = 'none';
+            mobilePhotoImg.src = src;
+            mobilePhotoImg.style.display = 'block';
+            mobilePhotoPlaceholder.style.display = 'none';
+        } else {
+            photoImg.style.display = 'none';
+            placeholder.style.display = 'block';
+            mobilePhotoImg.style.display = 'none';
+            mobilePhotoPlaceholder.style.display = 'block';
+        }
+    }
+
     photoFile.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = (ev) => {
-                photoImg.src = ev.target.result;
-                photoImg.style.display = 'block';
-                placeholder.style.display = 'none';
-            };
+            reader.onload = (ev) => { setPhoto(ev.target.result); };
             reader.readAsDataURL(file);
         } else {
-            photoImg.style.display = 'none';
-            placeholder.style.display = 'block';
+            setPhoto(null);
         }
     });
 
+    // ------ PDF 导出 ------
     const exportBtn = document.getElementById('exportBtn');
     exportBtn.addEventListener('click', async () => {
         const el = document.getElementById('reportTarget');
