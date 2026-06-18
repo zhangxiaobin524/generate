@@ -181,87 +181,54 @@
             display: none;
             width: 100%;
             background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 20px 16px;
         }
-        .report-mobile-header {
-            background: linear-gradient(135deg, #1a6b3c, #2d8a4e);
-            padding: 16px;
+        .report-mobile-title {
             text-align: center;
-        }
-        .report-mobile-header h2 {
-            color: white;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .report-mobile-header p {
-            color: rgba(255,255,255,0.7);
-            font-size: 12px;
-        }
-        .report-mobile-body {
-            padding: 12px 16px;
-        }
-        .report-mobile-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .report-mobile-row:last-child { border-bottom: none; }
-        .report-mobile-label {
-            font-size: 13px;
-            color: #888;
-            flex-shrink: 0;
-        }
-        .report-mobile-value {
-            font-size: 14px;
-            color: #222;
-            font-weight: 500;
-            text-align: right;
-            flex: 1;
-            padding-left: 12px;
-            word-break: break-all;
+            color: #333;
+            margin-bottom: 20px;
         }
         .report-mobile-photo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+            text-align: center;
+            margin-bottom: 20px;
         }
         .report-mobile-photo-img {
-            width: 60px;
-            height: 76px;
+            width: 120px;
+            height: 150px;
+            margin: 0 auto;
             border: 1px solid #ddd;
-            border-radius: 4px;
             overflow: hidden;
-            flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f9f9f9;
+            background: #f5f5f5;
         }
         .report-mobile-photo-img img { width: 100%; height: 100%; object-fit: cover; }
-        .report-mobile-photo-label { font-size: 12px; color: #888; }
-        .report-mobile-footer {
-            background: #f8faf8;
-            padding: 12px 16px;
-            border-top: 1px solid #e0e8e0;
+        .report-mobile-body {
+            padding: 0;
         }
-        .report-mobile-footer p {
-            font-size: 11px;
-            color: #666;
-            line-height: 1.6;
+        .report-mobile-row {
+            display: flex;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
         }
-        .report-mobile-code {
-            font-family: monospace;
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a6b3c;
-            margin-top: 4px;
+        .report-mobile-row:last-child { border-bottom: none; }
+        .report-mobile-label {
+            width: 80px;
+            font-size: 15px;
+            color: #999;
+            flex-shrink: 0;
+            line-height: 1.5;
+        }
+        .report-mobile-value {
+            flex: 1;
+            font-size: 15px;
+            color: #333;
+            line-height: 1.5;
+            word-break: break-all;
         }
 
         /* ===== 响应式切换 ===== */
@@ -360,23 +327,14 @@
 
 <!-- 手机端：流式布局报告 -->
 <div class="report-mobile" id="mobileReport">
-    <div class="report-mobile-header">
-        <h2 id="mTitle">教育部学籍在线验证报告</h2>
-        <p id="mUpdateTime">更新日期：2026年06月16日</p>
-    </div>
-    <div class="report-mobile-body" id="mobileBody">
-        <div class="report-mobile-photo">
-            <div class="report-mobile-photo-img" id="mobilePhotoWrap">
-                <span id="mobilePhotoPlaceholder" style="font-size:10px; color:#aaa;">无照片</span>
-                <img id="mobilePhotoImg" style="display:none; width:100%; height:100%; object-fit:cover;" alt="证件照">
-            </div>
-            <span class="report-mobile-photo-label">证件照</span>
+    <div class="report-mobile-title" id="mTitle">教育部学籍在线验证报告</div>
+    <div class="report-mobile-photo">
+        <div class="report-mobile-photo-img" id="mobilePhotoWrap">
+            <span id="mobilePhotoPlaceholder" style="font-size:12px; color:#ccc;">暂无照片</span>
+            <img id="mobilePhotoImg" style="display:none; width:100%; height:100%; object-fit:cover;" alt="证件照">
         </div>
     </div>
-    <div class="report-mobile-footer">
-        <p>在线验证码 <span class="report-mobile-code" id="mCode"></span></p>
-        <p style="margin-top: 6px;">验证网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</p>
-    </div>
+    <div class="report-mobile-body" id="mobileBody"></div>
 </div>
 
 <script>
@@ -394,10 +352,6 @@
     const outCodeSpan = document.getElementById('outCode');
     codeInput.value = randomCode;
     outCodeSpan.innerText = randomCode;
-
-    // 更新手机端验证码
-    const mCode = document.getElementById('mCode');
-    if (mCode) mCode.innerText = randomCode;
 
     // ------ 数据绑定 ------
     const fieldDefs = [
@@ -420,10 +374,16 @@
     const mobileBody = document.getElementById('mobileBody');
 
     function buildMobileRows() {
-        // 保留已有照片行
+        // 保留已有照片
         const photoRow = mobileBody.querySelector('.report-mobile-photo');
         mobileBody.innerHTML = '';
         if (photoRow) mobileBody.appendChild(photoRow);
+
+        // 更新日期
+        const updateRow = document.createElement('div');
+        updateRow.className = 'report-mobile-row';
+        updateRow.innerHTML = `<span class="report-mobile-label">更新日期</span><span class="report-mobile-value">2026年06月16日</span>`;
+        mobileBody.appendChild(updateRow);
 
         fieldDefs.forEach(f => {
             const src = document.getElementById(f.source);
@@ -441,6 +401,12 @@
                 });
             }
         });
+
+        // 在线验证码
+        const codeRow = document.createElement('div');
+        codeRow.className = 'report-mobile-row';
+        codeRow.innerHTML = `<span class="report-mobile-label">在线验证码</span><span class="report-mobile-value" id="mCode" style="font-family:monospace;font-weight:700;">${randomCode}</span>`;
+        mobileBody.appendChild(codeRow);
     }
     buildMobileRows();
 
