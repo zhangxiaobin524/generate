@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  xuexin-report:
+    build: .
+    image: xuexin-report:latest
+    container_name: xuexin-report
+    ports:
+      - "8080:80"
+    restart: unless-stopped
