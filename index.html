@@ -181,41 +181,35 @@
             display: none;
             width: 100%;
             background: white;
-            padding: 0;
+            padding: 0 16px 20px;
         }
         .report-mobile-title {
             text-align: center;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 700;
             color: #222;
-            padding: 16px 0 2px;
+            padding: 20px 0 4px;
             margin: 0;
         }
         .report-mobile-update {
             text-align: center;
             font-size: 12px;
             color: #999;
-            padding: 0 0 20px;
+            margin-bottom: 16px;
         }
         .report-mobile-body {
-            padding: 0 16px;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
             position: relative;
-        }
-        .report-mobile-fields {
-            flex: 1;
-            min-width: 0;
-            padding-right: 10px;
+            padding-top: 0;
         }
         .report-mobile-photo {
-            width: 100px;
-            flex-shrink: 0;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 90px;
         }
         .report-mobile-photo-img {
-            width: 100px;
-            height: 130px;
+            width: 90px;
+            height: 115px;
             border: 1px solid #ddd;
             overflow: hidden;
             display: flex;
@@ -224,22 +218,25 @@
             background: #f5f5f5;
         }
         .report-mobile-photo-img img { width: 100%; height: 100%; object-fit: cover; }
+        .report-mobile-fields {
+            padding-right: 100px;
+        }
         .report-mobile-row {
             display: flex;
             align-items: flex-start;
-            padding: 8px 0;
+            padding: 6px 0;
         }
         .report-mobile-label {
             width: 70px;
             font-size: 14px;
-            color: #999;
+            color: #888;
             flex-shrink: 0;
             line-height: 1.5;
         }
         .report-mobile-value {
             flex: 1;
             font-size: 14px;
-            color: #333;
+            color: #222;
             line-height: 1.5;
             word-break: break-all;
         }
@@ -341,13 +338,16 @@
 <!-- 手机端：流式布局报告 -->
 <div class="report-mobile" id="mobileReport">
     <div class="report-mobile-title" id="mTitle">教育部学籍在线验证报告</div>
-    <div class="report-mobile-photo">
-        <div class="report-mobile-photo-img" id="mobilePhotoWrap">
-            <span id="mobilePhotoPlaceholder" style="font-size:12px; color:#ccc;">暂无照片</span>
-            <img id="mobilePhotoImg" style="display:none; width:100%; height:100%; object-fit:cover;" alt="证件照">
+    <div class="report-mobile-update" id="mUpdate">更新日期：2026年06月16日</div>
+    <div class="report-mobile-body">
+        <div class="report-mobile-photo">
+            <div class="report-mobile-photo-img" id="mobilePhotoWrap">
+                <span id="mobilePhotoPlaceholder" style="font-size:11px; color:#aaa;">暂无照片</span>
+                <img id="mobilePhotoImg" style="display:none; width:100%; height:100%; object-fit:cover;" alt="证件照">
+            </div>
         </div>
+        <div class="report-mobile-fields" id="mobileFields"></div>
     </div>
-    <div class="report-mobile-body" id="mobileBody"></div>
 </div>
 
 <script>
@@ -384,19 +384,11 @@
         { id: 'outStatus',   label: '学籍状态', source: 'inStatus' },
         { id: 'outGrad',     label: '离校日期', source: 'inGrad' },
     ];
-    const mobileBody = document.getElementById('mobileBody');
+    const mobileFields = document.getElementById('mobileFields');
 
     function buildMobileRows() {
-        // 保留已有照片
-        const photoRow = mobileBody.querySelector('.report-mobile-photo');
-        mobileBody.innerHTML = '';
-        if (photoRow) mobileBody.appendChild(photoRow);
-
-        // 更新日期
-        const updateRow = document.createElement('div');
-        updateRow.className = 'report-mobile-row';
-        updateRow.innerHTML = `<span class="report-mobile-label">更新日期</span><span class="report-mobile-value">2026年06月16日</span>`;
-        mobileBody.appendChild(updateRow);
+        if (!mobileFields) return;
+        mobileFields.innerHTML = '';
 
         fieldDefs.forEach(f => {
             const src = document.getElementById(f.source);
@@ -404,7 +396,7 @@
             const row = document.createElement('div');
             row.className = 'report-mobile-row';
             row.innerHTML = `<span class="report-mobile-label">${f.label}</span><span class="report-mobile-value" id="m_${f.id}">${src ? src.value : ''}</span>`;
-            mobileBody.appendChild(row);
+            mobileFields.appendChild(row);
 
             if (src && desktop) {
                 src.addEventListener('input', () => {
@@ -419,7 +411,7 @@
         const codeRow = document.createElement('div');
         codeRow.className = 'report-mobile-row';
         codeRow.innerHTML = `<span class="report-mobile-label">在线验证码</span><span class="report-mobile-value" id="mCode" style="font-family:monospace;font-weight:700;">${randomCode}</span>`;
-        mobileBody.appendChild(codeRow);
+        mobileFields.appendChild(codeRow);
     }
     buildMobileRows();
 
