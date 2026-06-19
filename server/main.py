@@ -196,6 +196,18 @@ def get_user(user_id: int):
     user["photo"] = user["photo"] or ""
     return {"code": 0, "data": user}
 
+@app.get("/api/users")
+def list_users():
+    conn = get_db()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM accounts ORDER BY created_at DESC")
+    users = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    for u in users:
+        u["photo"] = u["photo"] or ""
+    return {"code": 0, "data": users}
+
 @app.delete("/api/user/{user_id}")
 def delete_user(user_id: int):
     conn = get_db()

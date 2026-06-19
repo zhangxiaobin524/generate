@@ -148,7 +148,7 @@ document.getElementById('generateBtn').addEventListener('click', async function(
     this.disabled = true;
     this.textContent = '⏳ 生成中...';
     try {
-        var res = await fetch('http://127.0.0.1:9002/api/register', {
+        var res = await fetch('/api/register', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({name: name, gender: gender, photo: photoData})
@@ -179,16 +179,18 @@ document.getElementById('generateBtn').addEventListener('click', async function(
     }
 });
 
-// 加载账号列表
+// 加载账号列表（从后端API获取）
 async function loadAccounts() {
     var container = document.getElementById('accountList');
     var countEl = document.getElementById('accountCount');
     try {
-        // 获取所有账号 - 此处简单起见直接从登录 API 了解快速获取
-        // 真实场景应该有列表 API，这里简化从本地存储读取
-        var accounts = localStorage.getItem('xuexin_accounts');
-        if (accounts) accounts = JSON.parse(accounts);
-        else accounts = [];
+        var res = await fetch('/api/users');
+        var result = await res.json();
+        if (result.code !== 0) {
+            container.innerHTML = '<div class="empty-tip">加载失败</div>';
+            return;
+        }
+        var accounts = result.data || [];
 
         if (accounts.length === 0) {
             container.innerHTML = '<div class="empty-tip">暂无账号</div>';
@@ -197,12 +199,8 @@ async function loadAccounts() {
         }
 
         countEl.textContent = '(' + accounts.length + '个)';
-        // 反转数组，让最新的账号显示在最上面
-        var reversed = accounts.slice().reverse();
         var html = '';
-        reversed.forEach(function(acc, i) {
-            // 用原始数组中的索引来删除
-            var origIdx = accounts.length - 1 - i;
+        accounts.forEach(function(acc) {
             html += '<div class="acc-item">';
             html += '<div class="avatar">';
             if (acc.photo) html += '<img src="' + acc.photo + '">';
@@ -210,7 +208,7 @@ async function loadAccounts() {
             html += '</div>';
             html += '<div class="info"><div class="name">' + acc.name + '</div>';
             html += '<div class="detail">' + acc.id_card + ' · ' + acc.school + '</div></div>';
-            html += '<button class="copy-btn" onclick="copyAccount(' + origIdx + ')">复制</button><button class="del-btn" onclick="deleteAccount(' + origIdx + ')">删除</button>';
+            html += '<button class="copy-btn" onclick="copyAccount(' + acc.id + ')">复制</button><button class="del-btn" onclick="deleteAccount(' + acc.id + ')">删除</button>';
             html += '</div>';
         });
         container.innerHTML = html;
@@ -219,45 +217,26 @@ async function loadAccounts() {
     }
 }
 
-// 注册后保存到本地用于列表展示（后端已有完整存储）
-function saveAccountToLocal(info) {
-    var accounts = localStorage.getItem('xuexin_accounts');
-    accounts = accounts ? JSON.parse(accounts) : [];
-    accounts.push(info);
-    localStorage.setItem('xuexin_accounts', JSON.stringify(accounts));
-}
-
-// 删除指定索引的账号（同时删除数据库记录）
-async function deleteAccount(index) {
+// 删除指定数据库ID的账号
+async function deleteAccount(id) {
     if (!confirm('确定要删除此账号吗？')) return;
-    var accounts = localStorage.getItem('xuexin_accounts');
-    accounts = accounts ? JSON.parse(accounts) : [];
-    var acc = accounts[index];
-    if (!acc) return;
-
-    // 调后端API删除数据库记录
-    if (acc.id) {
-        try {
-            var res = await fetch('http://127.0.0.1:9002/api/user/' + acc.id, { method: 'DELETE' });
-            var data = await res.json();
-            if (data.code !== 0) console.warn('后端删除失败:', data);
-        } catch(e) {
-            console.warn('后端删除请求失败:', e);
-        }
+    try {
+        var res = await fetch('/api/user/' + id, { method: 'DELETE' });
+        var data = await res.json();
+        if (data.code !== 0) { alert('删除失败'); return; }
+    } catch(e) {
+        alert('删除失败：' + e.message);
+        return;
     }
-
-    accounts.splice(index, 1);
-    localStorage.setItem('xuexin_accounts', JSON.stringify(accounts));
     loadAccounts();
 }
 
 // 复制姓名和身份证号
-function copyAccount(index) {
-    var accounts = localStorage.getItem('xuexin_accounts');
-    accounts = accounts ? JSON.parse(accounts) : [];
-    var acc = accounts[index];
-    if (!acc) return;
-    var text = acc.name + ' ' + acc.id_card;
+function copyAccount(id) {
+    fetch('/api/user/' + id).then(function(r) { return r.json(); }).then(function(result) {
+        if (result.code !== 0 || !result.data) { alert('获取信息失败'); return; }
+        var acc = result.data;
+        var text = acc.name + ' ' + acc.id_card;
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function() {
             alert('已复制：' + text);
@@ -272,19 +251,6 @@ function copyAccount(index) {
         alert('已复制：' + text);
     }
 }
-
-// 重写 fetch 保存
-var origFetch = window.fetch;
-window.fetch = function(url, options) {
-    return origFetch(url, options).then(function(res) {
-        if (url === 'http://127.0.0.1:9002/api/register' && options && options.method === 'POST') {
-            res.clone().json().then(function(data) {
-                if (data.code === 0) saveAccountToLocal(data.data);
-            });
-        }
-        return res;
-    });
-};
 
 loadAccounts();
 </script>

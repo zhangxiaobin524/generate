@@ -202,7 +202,7 @@ document.getElementById('loginBtn').addEventListener('click', async function() {
     this.disabled = true;
     this.textContent = '登录中...';
     try {
-        var res = await fetch('http://127.0.0.1:9002/api/login', {
+        var res = await fetch('/api/login', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({name: name, id_card: idCard})

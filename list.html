@@ -423,7 +423,7 @@
             return;
         }
         try {
-            var res = await fetch('http://127.0.0.1:9002/api/user/' + uid);
+            var res = await fetch('/api/user/' + uid);
             var data = await res.json();
             if (data.code !== 0 || !data.data) {
                 localStorage.removeItem('xuexin_user_id');

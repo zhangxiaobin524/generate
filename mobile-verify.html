@@ -375,7 +375,7 @@ async function checkAndLoad() {
     }
 
     try {
-        var res = await fetch('http://127.0.0.1:9002/api/user/' + userId);
+        var res = await fetch('/api/user/' + userId);
         if (res.status === 404) {
             // 账号已被删除
             maskIcon.innerHTML = '&#10060;';
