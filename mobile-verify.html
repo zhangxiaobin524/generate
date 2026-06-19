@@ -181,10 +181,56 @@
             line-height: 1.8;
             margin-top: 20px;
         }
+        /* 验证蒙层 */
+        .verify-mask {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .verify-mask .icon { font-size: 48px; }
+        .verify-mask .msg {
+            font-size: 16px;
+            color: #333;
+            margin-top: 16px;
+            text-align: center;
+            padding: 0 30px;
+            line-height: 1.6;
+        }
+        .verify-mask .sub-msg {
+            font-size: 13px;
+            color: #999;
+            margin-top: 8px;
+            text-align: center;
+            padding: 0 30px;
+        }
+        .verify-mask .back-btn {
+            margin-top: 20px;
+            padding: 10px 24px;
+            background: #2db475;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .page-content { display: none; }
     </style>
 </head>
 <body>
 
+<div class="verify-mask" id="verifyMask">
+    <div class="icon" id="maskIcon">&#9203;</div>
+    <div class="msg" id="maskMsg">验证账号中...</div>
+    <div class="sub-msg" id="maskSubMsg"></div>
+    <button class="back-btn" id="maskBtn" style="display:none;">返回登录</button>
+</div>
+
+<div class="page-content" id="pageContent">
     <!-- 通知 -->
     <div class="notice">
         通知：学信网客服咨询将于6月19日-6月21日暂停，期间网站可正常访问。祝您端午节快乐！
@@ -308,21 +354,53 @@
         主办单位：教育部学生服务与素质发展中心<br>
         Copyright &copy; 2003-2026 学信网 All Rights Reserved
     </div>
+</div>
 
 <script>
-async function loadUserData() {
+async function checkAndLoad() {
     var userId = localStorage.getItem('xuexin_user_id');
+    var mask = document.getElementById('verifyMask');
+    var maskIcon = document.getElementById('maskIcon');
+    var maskMsg = document.getElementById('maskMsg');
+    var maskSub = document.getElementById('maskSubMsg');
+    var maskBtn = document.getElementById('maskBtn');
+
     if (!userId) {
-        // 如果没有用户ID，显示默认数据
+        maskIcon.innerHTML = '&#10060;';
+        maskMsg.textContent = '未检测到登录信息';
+        maskSub.textContent = '请先登录后再查看验证报告';
+        maskBtn.style.display = 'block';
+        maskBtn.onclick = function() { window.location.href = 'login.html'; };
         return;
     }
+
     try {
         var res = await fetch('http://127.0.0.1:9002/api/user/' + userId);
+        if (res.status === 404) {
+            // 账号已被删除
+            maskIcon.innerHTML = '&#10060;';
+            maskMsg.textContent = '该账号不存在或已被删除';
+            maskSub.textContent = '请联系管理员获取有效账号';
+            maskBtn.style.display = 'block';
+            maskBtn.onclick = function() { window.location.href = 'login.html'; };
+            localStorage.removeItem('xuexin_user_id');
+            localStorage.removeItem('xuexin_user_name');
+            localStorage.removeItem('xuexin_id_card');
+            return;
+        }
         var data = await res.json();
-        if (data.code !== 0 || !data.data) return;
-        var u = data.data;
+        if (data.code !== 0 || !data.data) {
+            // 账号异常
+            maskIcon.innerHTML = '&#10060;';
+            maskMsg.textContent = '该账号异常，无法查看报告';
+            maskSub.textContent = data.detail || '请联系管理员';
+            maskBtn.style.display = 'block';
+            maskBtn.onclick = function() { window.location.href = 'login.html'; };
+            return;
+        }
 
-        // 填充数据
+        // 账号正常，显示内容
+        var u = data.data;
         var map = {
             'outName': u.name,
             'outGender': u.gender,
@@ -346,17 +424,24 @@ async function loadUserData() {
             var el = document.getElementById(key);
             if (el) el.textContent = map[key];
         }
-
-        // 头像
         if (u.photo) {
-            var display = document.getElementById('photoDisplay');
-            display.innerHTML = '<img src="' + u.photo + '">';
+            document.getElementById('photoDisplay').innerHTML = '<img src="' + u.photo + '">';
         }
+
+        // 隐藏蒙层，显示页面
+        mask.style.display = 'none';
+        document.getElementById('pageContent').style.display = 'block';
+
     } catch(e) {
-        console.warn('加载用户数据失败:', e);
+        maskIcon.innerHTML = '&#10060;';
+        maskMsg.textContent = '网络错误，无法验证账号';
+        maskSub.textContent = '请检查网络连接后重试';
+        maskBtn.style.display = 'block';
+        maskBtn.textContent = '重试';
+        maskBtn.onclick = function() { location.reload(); };
     }
 }
-loadUserData();
+checkAndLoad();
 </script>
 </body>
 </html>

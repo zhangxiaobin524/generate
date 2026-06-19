@@ -10,9 +10,9 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 # 数据库连接池
 db_config = {
-    "host": os.getenv("DB_HOST", "mysql"),
+    "host": os.getenv("DB_HOST", "127.0.0.1"),
     "user": os.getenv("DB_USER", "root"),
-    "password": os.getenv("DB_PASSWORD", "root123"),
+    "password": os.getenv("DB_PASSWORD", ""),
     "database": os.getenv("DB_NAME", "xuexin"),
     "pool_name": "mypool",
     "pool_size": 5,
@@ -195,3 +195,18 @@ def get_user(user_id: int):
         raise HTTPException(status_code=404, detail="用户不存在")
     user["photo"] = user["photo"] or ""
     return {"code": 0, "data": user}
+
+@app.delete("/api/user/{user_id}")
+def delete_user(user_id: int):
+    conn = get_db()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM accounts WHERE id=%s", (user_id,))
+    if not cursor.fetchone():
+        cursor.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail="用户不存在")
+    cursor.execute("DELETE FROM accounts WHERE id=%s", (user_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return {"code": 0, "message": "删除成功"}

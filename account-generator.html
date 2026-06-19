@@ -75,6 +75,10 @@
             padding: 4px 10px; background: #ff4444; color: white;
             border: none; border-radius: 4px; font-size: 11px; cursor: pointer;
         }
+        .acc-item .copy-btn {
+            padding: 4px 10px; background: #2db475; color: white;
+            border: none; border-radius: 4px; font-size: 11px; cursor: pointer; margin-right: 4px;
+        }
         .empty-tip { text-align: center; color: #ccc; font-size: 13px; padding: 20px; }
     </style>
 </head>
@@ -206,7 +210,7 @@ async function loadAccounts() {
             html += '</div>';
             html += '<div class="info"><div class="name">' + acc.name + '</div>';
             html += '<div class="detail">' + acc.id_card + ' · ' + acc.school + '</div></div>';
-            html += '<button class="del-btn" onclick="deleteAccount(' + origIdx + ')">删除</button>';
+            html += '<button class="copy-btn" onclick="copyAccount(' + origIdx + ')">复制</button><button class="del-btn" onclick="deleteAccount(' + origIdx + ')">删除</button>';
             html += '</div>';
         });
         container.innerHTML = html;
@@ -223,14 +227,50 @@ function saveAccountToLocal(info) {
     localStorage.setItem('xuexin_accounts', JSON.stringify(accounts));
 }
 
-// 删除指定索引的账号
-function deleteAccount(index) {
+// 删除指定索引的账号（同时删除数据库记录）
+async function deleteAccount(index) {
     if (!confirm('确定要删除此账号吗？')) return;
     var accounts = localStorage.getItem('xuexin_accounts');
     accounts = accounts ? JSON.parse(accounts) : [];
+    var acc = accounts[index];
+    if (!acc) return;
+
+    // 调后端API删除数据库记录
+    if (acc.id) {
+        try {
+            var res = await fetch('http://127.0.0.1:9002/api/user/' + acc.id, { method: 'DELETE' });
+            var data = await res.json();
+            if (data.code !== 0) console.warn('后端删除失败:', data);
+        } catch(e) {
+            console.warn('后端删除请求失败:', e);
+        }
+    }
+
     accounts.splice(index, 1);
     localStorage.setItem('xuexin_accounts', JSON.stringify(accounts));
     loadAccounts();
+}
+
+// 复制姓名和身份证号
+function copyAccount(index) {
+    var accounts = localStorage.getItem('xuexin_accounts');
+    accounts = accounts ? JSON.parse(accounts) : [];
+    var acc = accounts[index];
+    if (!acc) return;
+    var text = acc.name + ' ' + acc.id_card;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+            alert('已复制：' + text);
+        });
+    } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        alert('已复制：' + text);
+    }
 }
 
 // 重写 fetch 保存

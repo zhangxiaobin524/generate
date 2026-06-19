@@ -15,6 +15,23 @@
             font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
         }
 
+        /* 验证蒙层 */
+        .verify-mask {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+        .verify-mask .msg { font-size: 16px; color: #333; margin-top: 16px; }
+        .verify-mask .sub-msg { font-size: 13px; color: #999; margin-top: 8px; }
+        .verify-mask .go-btn {
+            margin-top: 20px; padding: 10px 24px; background: #2db475;
+            color: white; border: none; border-radius: 6px; font-size: 15px; cursor: pointer;
+        }
         /* 桌面端：正常显示 */
         .page-wrapper {
             width: 100%;
@@ -275,6 +292,11 @@
     </style>
 </head>
 <body>
+<div class="verify-mask" id="verifyMask">
+    <div class="msg" id="maskMsg">验证用户中...</div>
+    <div class="sub-msg" id="maskSubMsg"></div>
+    <button class="go-btn" id="maskBtn" style="display:none;">返回登录</button>
+</div>
 <div class="page-wrapper">
 <div class="page-content">
 
@@ -384,13 +406,45 @@
 </body>
 </html>
 <script>
-    // 登录检查
-    (function() {
+    // 登录检查 + 数据库验证（先遮罩，验证通过再显示页面）
+    (async function() {
+        var mask = document.getElementById('verifyMask');
+        var maskMsg = document.getElementById('maskMsg');
+        var maskSub = document.getElementById('maskSubMsg');
+        var maskBtn = document.getElementById('maskBtn');
+
         var uid = localStorage.getItem('xuexin_user_id');
         var name = localStorage.getItem('xuexin_user_name');
         if (!uid) {
-            window.location.href = 'login.html';
+            maskMsg.textContent = '未登录';
+            maskSub.textContent = '请先登录';
+            maskBtn.style.display = 'block';
+            maskBtn.onclick = function() { window.location.href = 'login.html'; };
+            return;
         }
+        try {
+            var res = await fetch('http://127.0.0.1:9002/api/user/' + uid);
+            var data = await res.json();
+            if (data.code !== 0 || !data.data) {
+                localStorage.removeItem('xuexin_user_id');
+                localStorage.removeItem('xuexin_user_name');
+                localStorage.removeItem('xuexin_id_card');
+                maskMsg.textContent = '账号不存在或已被删除';
+                maskSub.textContent = '请重新登录';
+                maskBtn.style.display = 'block';
+                maskBtn.onclick = function() { window.location.href = 'login.html'; };
+                return;
+            }
+        } catch(e) {
+            maskMsg.textContent = '网络错误';
+            maskSub.textContent = '请检查网络后重试';
+            maskBtn.style.display = 'block';
+            maskBtn.textContent = '重试';
+            maskBtn.onclick = function() { location.reload(); };
+            return;
+        }
+        // 验证通过，移除遮罩
+        mask.style.display = 'none';
         // 在页面右上角显示用户名
         var topbar = document.querySelector('.topbar-right');
         if (topbar && name) {
