@@ -212,7 +212,7 @@ document.getElementById('loginBtn').addEventListener('click', async function() {
             localStorage.setItem('xuexin_user_id', data.data.id);
             localStorage.setItem('xuexin_user_name', data.data.name);
             localStorage.setItem('xuexin_id_card', data.data.id_card);
-            window.location.href = 'list.html';
+            window.location.href = 'archive.html';
         } else {
             throw new Error(data.detail || '登录失败');
         }

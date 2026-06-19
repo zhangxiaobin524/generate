@@ -110,9 +110,11 @@ def generate_full_account(name, gender, photo=""):
     birth = f"{birth_year}年{birth_month}月{birth_day}日"
     nums = f"{birth_year}{birth_month}{birth_day}"
     area = random_pick(['110101','110102','310101','310104','440101','440301','330101','320101','210101','420101'])
-    seq = str(random.randint(1, 999)).zfill(3)
+    # 前2位顺序码随机 + 第3位奇男偶女
+    seq_first = str(random.randint(0, 99)).zfill(2)
     gcode = random_pick(['1','3','5','7','9']) if gender == '男' else random_pick(['0','2','4','6','8'])
-    full17 = area + nums + seq + gcode
+    seq = seq_first + gcode  # 3位顺序码，末位标记性别
+    full17 = area + nums + seq  # 6+8+3=17位
     ws = [7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2]
     cs = ['1','0','X','9','8','7','6','5','4','3','2']
     s = sum(int(full17[i]) * ws[i] for i in range(17))

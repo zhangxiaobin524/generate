@@ -6,6 +6,7 @@
     <title>教育部学籍在线验证报告</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -102,15 +103,15 @@
             background: #2db475;
         }
         .download-btn {
-            width: 32px;
-            height: 32px;
-            background: #f5f5f5;
+            width: 24px;
+            height: 24px;
+            background: #ccc;
             border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
-            color: #666;
+            font-size: 12px;
+            color: #fff;
             cursor: pointer;
         }
 
@@ -226,10 +227,6 @@
             cursor: pointer;
         }
         .page-content { display: none; }
-        /* PDF内部样式 */
-        .pdf-item { display:flex; margin-bottom:13px; align-items:baseline; }
-        .pdf-lb { width:65px; color:#888; font-size:13px; flex-shrink:0; }
-        .pdf-val { flex:1; padding-left:45px; padding-right:150px; color:#222; font-size:13px; }
 
         /* 弹出蒙层（英文提示、菜单共用） */
         .overlay {
@@ -318,52 +315,55 @@
         }
         .search-btn { color: #333; font-size: 14px; cursor: pointer; flex-shrink: 0; }
 
-        /* 菜单面板 */
-        .menu-panel {
+        /* 菜单弹窗 - 顶部弹出 */
+        .menu-popup {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
             background: white;
             z-index: 10001;
             display: none;
-            flex-direction: column;
+            padding: 0 0 20px;
+            border-radius: 0 0 12px 12px;
         }
-        .menu-panel.open { display: flex; }
-        .menu-header {
+        .menu-popup.open { display: block; }
+        .menu-popup .close-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 14px 16px;
-            border-bottom: 1px solid #f0f0f0;
         }
-        .menu-header .left {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .menu-header .left svg { width: 22px; height: 22px; }
-        .menu-header .left span { font-size: 17px; font-weight: 600; color: #333; }
-        .menu-header .close-btn { font-size: 22px; color: #999; cursor: pointer; background: none; border: none; padding: 4px 8px; }
-        .menu-grid-wrap { padding: 16px; flex: 1; }
-        .menu-grid {
+        .menu-popup .close-bar .logo { height: 22px; }
+        .menu-popup .close-bar .ch-icon { font-size: 22px; color: #999; cursor: pointer; }
+        .menu-popup .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
+            padding: 0 12px;
+            gap: 8px;
         }
-        .menu-grid-item {
+        .menu-popup .menu-grid a {
+            display: block;
+            text-align: center;
+            padding: 10px 6px;
+            font-size: 17px;
+            color: #333;
+            text-decoration: none;
             background: #f5f5f5;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 18px 8px;
-            cursor: pointer;
+            border-radius: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .menu-grid-item:active { background: #e8e8e8; }
-        .menu-grid-item .m-icon { font-size: 22px; color: #666; margin-bottom: 4px; }
-        .menu-grid-item .m-label { font-size: 13px; color: #333; font-weight: 500; }
+        .menu-popup .menu-grid a:active { background: #e8e8e8; }
+        .menu-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: none;
+        }
+        .menu-overlay.open { display: block; }
     </style>
 </head>
 <body>
@@ -391,38 +391,33 @@
         <span class="search-back" onclick="closeSearch()">&#8592;</span>
         <div class="search-input-wrap">
             <span class="search-icon">&#128269;</span>
-            <input type="text" placeholder="请输入关键词">
+            <input type="text" placeholder="">
         </div>
         <span class="search-btn" onclick="closeSearch()">搜索</span>
     </div>
-    <div style="padding:20px;color:#999;text-align:center;font-size:14px;">输入关键词进行搜索</div>
 </div>
 
-<div class="menu-panel" id="menuPanel">
-    <div class="menu-header">
-        <div class="left">
-            <svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="45" ry="45" fill="#e74c3c"/><path d="M30 35 Q50 25 70 35 Q70 50 50 55 Q30 50 30 35" fill="white"/><circle cx="50" cy="40" r="8" fill="white"/></svg>
-            <span>学信网</span>
-        </div>
-        <button class="close-btn" onclick="closeMenu()">&times;</button>
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<div class="menu-popup" id="menuPanel">
+    <div class="close-bar">
+        <img src="xxw.png" alt="学信网" class="logo" style="height:22px;">
+        <i class="ch-icon" style="font-size:0.64rem;color:#999;cursor:pointer;" onclick="closeMenu()">&times;</i>
     </div>
-    <div class="menu-grid-wrap">
-        <div class="menu-grid">
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#127968;</span><span class="m-label">首页</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128218;</span><span class="m-label">学籍查询</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128196;</span><span class="m-label">学历查询</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128220;</span><span class="m-label">学位查询</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128203;</span><span class="m-label">在线验证</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#127758;</span><span class="m-label">出国教育背景</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128247;</span><span class="m-label">图像校对</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128100;</span><span class="m-label">学信档案</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128218;</span><span class="m-label">高考</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#127891;</span><span class="m-label">研招</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#127758;</span><span class="m-label">港澳台招生</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128737;</span><span class="m-label">征兵</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128188;</span><span class="m-label">就业</span></div>
-            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#127891;</span><span class="m-label">学职平台</span></div>
-        </div>
+    <div class="menu-grid">
+        <a href="/">首页</a>
+        <a href="https://my.chsi.com.cn/">学籍查询</a>
+        <a href="/xlcx/index.jsp">学历查询</a>
+        <a href="/xwcx/index.jsp">学位查询</a>
+        <a href="/xlcx/bgcx.jsp">在线验证</a>
+        <a href="/xlrz/cgjy/">出国教育背景信息服务</a>
+        <a href="https://my.chsi.com.cn/archive/index.jsp#txjd">图像校对</a>
+        <a href="https://my.chsi.com.cn/">学信档案</a>
+        <a href="https://gaokao.chsi.com.cn/">高考</a>
+        <a href="https://yz.chsi.com.cn/">研招</a>
+        <a href="https://www.gatzs.com.cn/">港澳台招生</a>
+        <a href="https://www.gfbzb.gov.cn/">征兵</a>
+        <a href="https://www.ncss.cn/">就业</a>
+        <a href="https://xz.chsi.com.cn/">学职平台</a>
     </div>
 </div>
 
@@ -435,11 +430,7 @@
     <!-- 顶部栏 -->
     <div class="header">
         <div class="header-left">
-            <svg class="logo-icon" viewBox="0 0 100 100">
-                <ellipse cx="50" cy="50" rx="45" ry="45" fill="#e74c3c"/>
-                <path d="M30 35 Q50 25 70 35 Q70 50 50 55 Q30 50 30 35" fill="white"/>
-                <circle cx="50" cy="40" r="8" fill="white"/>
-            </svg>
+            <img class="logo-icon" src="xxw.png" alt="" style="width:30px;height:30px;object-fit:contain;">
             <span class="logo-text">学信网</span>
             <span class="sub-title">在线验证</span>
         </div>
@@ -540,7 +531,7 @@
             </li>
             <li class="info-item">
                 <span class="info-label">更新日期</span>
-                <span class="info-value" id="outUpdate">2026年06月16日</span>
+                <span class="info-value" id="outUpdate"></span>
             </li>
         </ul>
     </div>
@@ -552,56 +543,59 @@
     </div>
 </div>
 
-<!-- 电脑版PDF用（隐藏）- 完全仿index.html的xj-zxyz-res样式 -->
-<div id="pdfReport" style="display:none;width:706px;height:auto;min-height:1000px;background:#fff;padding:50px 50px 50px 65px;position:relative;box-sizing:border-box;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei','Hiragino Sans GB','WenQuanYi Micro Hei',Arial,SimSun,sans-serif;">
-    <!-- 绿色双边框 -->
-    <div style="position:absolute;top:10px;left:10px;right:10px;bottom:10px;border:8px solid #2db475;pointer-events:none;box-sizing:border-box;"></div>
-    <div style="position:absolute;top:18px;left:18px;right:18px;bottom:18px;border:1px solid #c2dec9;pointer-events:none;box-sizing:border-box;"></div>
-    <!-- 标题 -->
-    <div style="text-align:center;margin-bottom:6px;position:relative;z-index:20;">
-        <div style="font-size:27px;font-weight:700;color:#000;line-height:36px;">教育部学籍在线验证报告</div>
-        <div style="font-size:12px;color:#999;margin-top:2px;">更新日期：<span id="pdfUpdate">2026年06月16日</span></div>
-    </div>
-    <!-- 信息区 -->
-    <div style="position:relative;z-index:20;padding-left:5px;margin-top:35px;">
-        <div id="pdfPhoto" style="position:absolute;right:20px;top:0;width:90px;height:120px;border:1px solid #b0b0b0;background:#f4f9f5;display:flex;align-items:center;justify-content:center;overflow:hidden;"><span style="font-size:11px;color:#aaa;">照片</span></div>
-        <div class="pdf-item"><span class="pdf-lb">姓名</span><span class="pdf-val" id="pdfName"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">性别</span><span class="pdf-val" id="pdfGender"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">出生日期</span><span class="pdf-val" id="pdfBirth"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">民族</span><span class="pdf-val" id="pdfEthnic"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">学校名称</span><span class="pdf-val" id="pdfSchool"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">层次</span><span class="pdf-val" id="pdfLevel"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">专业</span><span class="pdf-val" id="pdfMajor"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">学制</span><span class="pdf-val" id="pdfDuration"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">学历类别</span><span class="pdf-val" id="pdfDegreeType"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">学习形式</span><span class="pdf-val" id="pdfStudyForm"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">分院</span><span class="pdf-val" id="pdfCollege"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">系所</span><span class="pdf-val" id="pdfDept"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">入学日期</span><span class="pdf-val" id="pdfEnroll"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">学籍状态</span><span class="pdf-val" id="pdfStatus"></span></div>
-        <div class="pdf-item"><span class="pdf-lb">离校日期</span><span class="pdf-val" id="pdfGrad"></span></div>
-    </div>
-    <!-- 底部 -->
-    <div style="position:absolute;bottom:45px;left:65px;right:65px;z-index:20;">
-        <div style="border:1px solid #c2dec9;background:#f6fbf8;padding:8px 12px;display:flex;gap:10px;align-items:center;margin-bottom:15px;">
-            <div style="width:68px;height:68px;border:1px solid #b5ccbe;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#ccc;">二维码</div>
-            <div style="flex:1;font-size:11px;line-height:1.7;color:#333;">
-                <div><span style="font-weight:700;color:#222;">在线验证码</span> <span class="pdf-code-span" id="pdfCode" style="font-size:18px;font-weight:700;color:#222;margin-left:6px;"></span></div>
-                <div>① 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>
-                <div>② 使用学信网App扫描二维码验证</div>
-            </div>
+<!-- 电脑版PDF用（隐藏）- 完全复用index.html的xj-zxyz-res样式 -->
+<div id="pdfReport" style="display:none;">
+    <div class="xj-zxyz-res-pdf" style="width:706px;height:1000px;background-repeat:no-repeat;background-size:100% 100%;padding:50px 50px 50px 65px;position:relative;box-sizing:border-box;color:#222222;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;">
+        <h4 style="font-size:27px;font-weight:700;line-height:36px;text-align:center;color:#000000;margin-top:20px;margin-bottom:4px;position:relative;z-index:20;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>
+        <div style="font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;font-size:12px;color:#999999;text-align:center;margin-bottom:40px;position:relative;z-index:20;">更新日期：<span id="pdfUpdate"></span></div>
+        <div style="position:relative;width:100%;z-index:20;padding-left:5px;">
+            <div id="pdfPhoto" style="position:absolute;right:25px;top:5px;width:100px;height:130px;border:1px solid #b0b0b0;background:#f4f9f5;z-index:35;display:flex;align-items:center;justify-content:center;overflow:hidden;"><span style="font-size:11px;color:#aaa;">暂无照片</span></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">姓名</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfName"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">性别</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfGender"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">出生日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfBirth"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">民族</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfEthnic"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学校名称</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfSchool"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">层次</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfLevel"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">专业</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfMajor"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学制</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfDuration"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学历类别</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfDegreeType"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学习形式</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfStudyForm"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">分院</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfCollege"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">系所</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfDept"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">入学日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfEnroll"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学籍状态</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfStatus"></div></div>
+            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">离校日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfGrad"></div></div>
         </div>
-        <div style="font-size:11px;color:#444;line-height:1.6;">
-            <div style="font-weight:700;color:#222;margin-bottom:3px;">注意事项：</div>
-            <div>1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>
-            <div>2、报告内容如有修改，请以最新在线验证的内容为准。</div>
-            <div>3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>
-            <div>4、报告在线验证有效期由报告权属人设置（1~6个月）。</div>
+        <div style="position:absolute;bottom:50px;left:65px;right:80px;z-index:20;">
+            <div style="border:1px solid #c2dec9;background:#f6fbf8;padding:6px 10px;display:flex;gap:10px;align-items:center;margin-bottom:18px;">
+                <div style="flex-shrink:0;"><div id="pdfQR" style="width:68px;height:68px;border:1px solid #b5ccbe;background:white;display:flex;align-items:center;justify-content:center;font-size:10px;color:#ccc;">二维码</div></div>
+                <div style="flex:1;font-size:11px;line-height:1.6;color:#333;">
+                    <div><span style="font-weight:600;color:#333;">在线验证码</span> <span class="yzm" id="pdfCode" style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#00bac7;margin-left:6px;display:inline-block;"></span></div>
+                    <div>① 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>
+                    <div>② 使用学信网App扫描二维码验证</div>
+                </div>
+            </div>
+            <div style="font-size:10px;color:#444;line-height:1.6;margin-top:4px;">
+                <div style="font-weight:bold;color:#222;margin-bottom:2px;font-size:10.5px;">注意事项：</div>
+                <div style="margin-bottom:1px;white-space:nowrap;">1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>
+                <div style="margin-bottom:1px;white-space:nowrap;">2、报告内容如有修改，请以最新在线验证的内容为准。</div>
+                <div style="margin-bottom:1px;white-space:nowrap;">3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;white-space:nowrap;">
+                    <div>4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>
+                    <div style="flex-shrink:0;margin-left:8px;display:flex;align-items:center;gap:4px;"><img src="xxw.png" style="height:22px;width:auto;"><span style="color:#888;font-size:12px;font-weight:600;">CHSI</span></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
+// 生成6.16~6.20之间的随机更新日期
+function randomUpdateDate() {
+    var day = 16 + Math.floor(Math.random() * 5); // 16,17,18,19,20
+    return '2026年06月' + (day < 10 ? '0' : '') + day + '日';
+}
+
 async function checkAndLoad() {
     var userId = localStorage.getItem('xuexin_user_id');
     var mask = document.getElementById('verifyMask');
@@ -660,12 +654,14 @@ async function checkAndLoad() {
             'outStatus': u.status,
             'outGrad': u.grad_date,
             'outCode': u.verify_code,
-            'outUpdate': '2026年06月16日',
+            'outUpdate': randomUpdateDate(),
         };
         for (var key in map) {
             var el = document.getElementById(key);
             if (el) el.textContent = map[key];
         }
+        // 保存验证码到localStorage（供PDF导出使用）
+        if (u.verify_code) localStorage.setItem('xuexin_user_verify_code', u.verify_code);
         // 填充PDF内容
         fillPdfData(u);
         if (u.photo) {
@@ -717,9 +713,11 @@ function closeSearch() {
 
 // ---- 导航菜单 ----
 function openMenu() {
+    document.getElementById('menuOverlay').classList.add('open');
     document.getElementById('menuPanel').classList.add('open');
 }
 function closeMenu() {
+    document.getElementById('menuOverlay').classList.remove('open');
     document.getElementById('menuPanel').classList.remove('open');
 }
 
@@ -742,55 +740,127 @@ function fillPdfData(u) {
         'pdfEnroll': u.enroll_date,
         'pdfGrad': u.grad_date,
         'pdfCode': u.verify_code,
-        'pdfUpdate': '2026年06月16日',
+        'pdfUpdate': randomUpdateDate(),
     };
     for (var k in pdfMap) {
         var el = document.getElementById(k);
         if (el) el.textContent = pdfMap[k];
     }
+    // 生成PDF二维码
+    if (u.verify_code && typeof qrcode !== 'undefined') {
+        var qrContainer = document.getElementById('pdfQR');
+        if (qrContainer) {
+            qrContainer.innerHTML = '';
+            var qr = qrcode(4, 'M');
+            qr.addData('https://www.chsi.com.cn/xlcx/bgcx.jsp?code=' + u.verify_code);
+            qr.make();
+            var cellSize = 3;
+            var margin = 2;
+            var size = qr.getModuleCount() * cellSize + margin * 2;
+            var canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            canvas.style.width = '68px';
+            canvas.style.height = '68px';
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+            for (var row = 0; row < qr.getModuleCount(); row++) {
+                for (var col = 0; col < qr.getModuleCount(); col++) {
+                    if (qr.isDark(row, col)) {
+                        ctx.fillStyle = '#000000';
+                        ctx.fillRect(col * cellSize + margin, row * cellSize + margin, cellSize, cellSize);
+                    }
+                }
+            }
+            qrContainer.appendChild(canvas);
+        }
+    }
 }
 
-// ---- 下载PDF（克隆渲染，采用index.html方式） ----
+// ---- 下载PDF（克隆渲染，保留花纹背景） ----
 function downloadPDF() {
     var btn = document.querySelector('.download-btn');
     btn.innerHTML = '⏳';
     if (typeof html2canvas === 'undefined') { btn.innerHTML = '&#8681;'; alert('导出库加载失败，请刷新重试'); return; }
     if (typeof window.jspdf === 'undefined') { btn.innerHTML = '&#8681;'; alert('PDF库加载失败，请刷新重试'); return; }
 
+    // 导出前确保二维码已生成
+    var code = (localStorage.getItem('xuexin_user_verify_code') || '').trim();
+    if (!code) {
+        // 尝试从页面获取
+        var codeEl = document.getElementById('pdfCode');
+        if (codeEl) code = codeEl.textContent.trim();
+    }
+    var qrDataUrl = '';
+    if (code && typeof qrcode !== 'undefined') {
+        try {
+            var qr = qrcode(4, 'M');
+            qr.addData('https://www.chsi.com.cn/xlcx/bgcx.jsp?code=' + code);
+            qr.make();
+            var cs = 3, mg = 2;
+            var sz = qr.getModuleCount() * cs + mg * 2;
+            var cv = document.createElement('canvas');
+            cv.width = sz; cv.height = sz;
+            var ctx = cv.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, sz, sz);
+            for (var r = 0; r < qr.getModuleCount(); r++) {
+                for (var c = 0; c < qr.getModuleCount(); c++) {
+                    if (qr.isDark(r, c)) { ctx.fillStyle = '#000'; ctx.fillRect(c*cs+mg, r*cs+mg, cs, cs); }
+                }
+            }
+            qrDataUrl = cv.toDataURL('image/png');
+        } catch(e) { console.warn('QR生成失败', e); }
+    }
+
     var source = document.getElementById('pdfReport');
     var clone = source.cloneNode(true);
+    var reportDiv = clone.querySelector('.xj-zxyz-res-pdf');
+    // 设置整体背景色为 #FAFCFB
+    if (reportDiv) {
+        reportDiv.style.backgroundColor = '#FAFCFB';
+    }
+    // 花纹边框作为覆盖层在最上层
+    if (reportDiv) {
+        var borderOverlay = document.createElement('div');
+        borderOverlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background-image:url(' + BG_BASE64 + ');background-size:100% 100%;background-repeat:no-repeat;z-index:5;pointer-events:none;';
+        reportDiv.appendChild(borderOverlay);
+    }
+
+    // 在克隆中注入二维码图片（替代可能丢失内容的canvas）
+    if (qrDataUrl) {
+        var qrDiv = clone.querySelector('#pdfQR');
+        if (qrDiv) {
+            qrDiv.innerHTML = '<img src="' + qrDataUrl + '" style="width:68px;height:68px;display:block;">';
+        }
+    }
+    // 固定A4比例高度 (706 / 1.414 ≈ 998)
     clone.style.display = 'block';
     clone.style.position = 'fixed';
     clone.style.left = '-9999px';
     clone.style.top = '0';
     clone.style.width = '706px';
-    clone.style.height = 'auto';
-    clone.style.minHeight = '1000px';
+    clone.style.height = '998px';
     document.body.appendChild(clone);
-    clone.offsetHeight; // force reflow
+    clone.offsetHeight;
 
     html2canvas(clone, {
         scale: 2,
-        useCORS: false,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null,
         width: 706,
-        height: clone.scrollHeight
+        height: 998
     }).then(function(canvas) {
         document.body.removeChild(clone);
         var imgData = canvas.toDataURL('image/jpeg', 0.95);
         var { jsPDF } = window.jspdf;
         var pdf = new jsPDF('p', 'mm', 'a4');
         var pdfW = pdf.internal.pageSize.getWidth();
-        var imgW = canvas.width;
-        var imgH = canvas.height;
-        var ratio = pdfW / imgW;
-        var finalH = imgH * ratio;
-        var pages = Math.ceil(finalH / pdf.internal.pageSize.getHeight());
-        for (var i = 0; i < pages; i++) {
-            if (i > 0) pdf.addPage();
-            pdf.addImage(imgData, 'JPEG', 0, -(i * pdf.internal.pageSize.getHeight()), pdfW, finalH);
-        }
+        var ratio = pdfW / canvas.width;
+        var finalH = canvas.height * ratio;
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, finalH);
         pdf.save('教育部学籍在线验证报告.pdf');
         btn.innerHTML = '&#8681;';
     }).catch(function(e) {
@@ -799,6 +869,9 @@ function downloadPDF() {
         alert('生成PDF失败：' + e.message);
     });
 }
+// 学信网报告背景花纹图片 (base64)
+// 学信网报告背景花纹图片
+var BG_BASE64 = 'bg_pattern.jpg';
 </script>
 </body>
 </html>
