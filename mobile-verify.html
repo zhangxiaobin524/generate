@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>教育部学籍在线验证报告</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -19,8 +21,9 @@
             color: #e74c3c;
             padding: 10px 15px;
             font-size: 13px;
-            text-align: center;
+            text-align: left;
             border-bottom: 1px solid #ffe0e0;
+            line-height: 1.5;
         }
 
         /* 顶部栏 */
@@ -59,6 +62,7 @@
         .header-icon {
             font-size: 20px;
             color: #666;
+            cursor: pointer;
         }
 
         /* 报告语种 */
@@ -82,6 +86,7 @@
             font-size: 14px;
             color: #666;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
         .lang-option.active {
             color: #2db475;
@@ -106,6 +111,7 @@
             justify-content: center;
             font-size: 16px;
             color: #666;
+            cursor: pointer;
         }
 
         /* 主内容 */
@@ -157,12 +163,13 @@
             border-bottom: none;
         }
         .info-label {
-            width: 90px;
+            width: 110px;
             color: #999;
             font-size: 15px;
             flex-shrink: 0;
             text-align: right;
             padding-right: 15px;
+            white-space: nowrap;
         }
         .info-value {
             flex: 1;
@@ -219,6 +226,144 @@
             cursor: pointer;
         }
         .page-content { display: none; }
+        /* PDF内部样式 */
+        .pdf-item { display:flex; margin-bottom:13px; align-items:baseline; }
+        .pdf-lb { width:65px; color:#888; font-size:13px; flex-shrink:0; }
+        .pdf-val { flex:1; padding-left:45px; padding-right:150px; color:#222; font-size:13px; }
+
+        /* 弹出蒙层（英文提示、菜单共用） */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .overlay.show { display: flex; }
+
+        /* 英文提示弹窗 */
+        .english-dialog {
+            background: white;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .english-dialog .title {
+            font-size: 17px;
+            font-weight: bold;
+            color: #333;
+            padding: 16px 0;
+        }
+        .english-dialog .msg {
+            font-size: 15px;
+            color: #333;
+            line-height: 1.6;
+            padding: 0 24px 20px;
+            text-align: left;
+        }
+        .english-dialog .msg a {
+            color: #00bac7;
+            text-decoration: none;
+        }
+        .english-dialog .close-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: #00bac7;
+            border: none;
+            border-top: 1px solid #eee;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* 搜索面板 */
+        .search-panel {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: white;
+            z-index: 10002;
+            display: none;
+            flex-direction: column;
+        }
+        .search-panel.open { display: flex; }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            gap: 10px;
+        }
+        .search-back { font-size: 20px; color: #333; cursor: pointer; flex-shrink: 0; }
+        .search-input-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: #f5f5f5;
+            border-radius: 4px;
+            padding: 8px 10px;
+        }
+        .search-input-wrap .search-icon { color: #999; margin-right: 6px; font-size: 14px; }
+        .search-input-wrap input {
+            border: none;
+            background: transparent;
+            flex: 1;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-btn { color: #333; font-size: 14px; cursor: pointer; flex-shrink: 0; }
+
+        /* 菜单面板 */
+        .menu-panel {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 10001;
+            display: none;
+            flex-direction: column;
+        }
+        .menu-panel.open { display: flex; }
+        .menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .menu-header .left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .menu-header .left svg { width: 22px; height: 22px; }
+        .menu-header .left span { font-size: 17px; font-weight: 600; color: #333; }
+        .menu-header .close-btn { font-size: 22px; color: #999; cursor: pointer; background: none; border: none; padding: 4px 8px; }
+        .menu-grid-wrap { padding: 16px; flex: 1; }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        .menu-grid-item {
+            background: #f5f5f5;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 18px 8px;
+            cursor: pointer;
+        }
+        .menu-grid-item:active { background: #e8e8e8; }
+        .menu-grid-item .m-icon { font-size: 22px; color: #666; margin-bottom: 4px; }
+        .menu-grid-item .m-label { font-size: 13px; color: #333; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -228,6 +373,57 @@
     <div class="msg" id="maskMsg">验证账号中...</div>
     <div class="sub-msg" id="maskSubMsg"></div>
     <button class="back-btn" id="maskBtn" style="display:none;">返回登录</button>
+</div>
+
+<!-- 英文提示弹窗 -->
+<div class="overlay" id="englishOverlay">
+    <div class="english-dialog">
+        <div class="title">提示</div>
+        <div class="msg">该报告尚无对应的英文版，您可登录 <a href="#">学信档案</a> 进行申请。</div>
+        <button class="close-btn" onclick="closeEnglish()">关闭</button>
+    </div>
+</div>
+
+<!-- 菜单面板 -->
+<!-- 搜索面板 -->
+<div class="search-panel" id="searchPanel">
+    <div class="search-bar">
+        <span class="search-back" onclick="closeSearch()">&#8592;</span>
+        <div class="search-input-wrap">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" placeholder="请输入关键词">
+        </div>
+        <span class="search-btn" onclick="closeSearch()">搜索</span>
+    </div>
+    <div style="padding:20px;color:#999;text-align:center;font-size:14px;">输入关键词进行搜索</div>
+</div>
+
+<div class="menu-panel" id="menuPanel">
+    <div class="menu-header">
+        <div class="left">
+            <svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="45" ry="45" fill="#e74c3c"/><path d="M30 35 Q50 25 70 35 Q70 50 50 55 Q30 50 30 35" fill="white"/><circle cx="50" cy="40" r="8" fill="white"/></svg>
+            <span>学信网</span>
+        </div>
+        <button class="close-btn" onclick="closeMenu()">&times;</button>
+    </div>
+    <div class="menu-grid-wrap">
+        <div class="menu-grid">
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#127968;</span><span class="m-label">首页</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128218;</span><span class="m-label">学籍查询</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128196;</span><span class="m-label">学历查询</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128220;</span><span class="m-label">学位查询</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128203;</span><span class="m-label">在线验证</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#127758;</span><span class="m-label">出国教育背景</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128247;</span><span class="m-label">图像校对</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128100;</span><span class="m-label">学信档案</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128218;</span><span class="m-label">高考</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#127891;</span><span class="m-label">研招</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#127758;</span><span class="m-label">港澳台招生</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128737;</span><span class="m-label">征兵</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#128188;</span><span class="m-label">就业</span></div>
+            <div class="menu-grid-item" onclick="closeMenu()"><span class="m-icon">&#127891;</span><span class="m-label">学职平台</span></div>
+        </div>
+    </div>
 </div>
 
 <div class="page-content" id="pageContent">
@@ -248,8 +444,8 @@
             <span class="sub-title">在线验证</span>
         </div>
         <div class="header-right">
-            <span class="header-icon">&#128269;</span>
-            <span class="header-icon">&#9776;</span>
+            <span class="header-icon" onclick="openSearch()">&#128269;</span>
+            <span class="header-icon" onclick="openMenu()">&#9776;</span>
         </div>
     </div>
 
@@ -258,15 +454,15 @@
         <div style="display:flex;align-items:center;gap:20px;">
             <span class="lang-label">报告语种</span>
             <div class="lang-options">
-                <span class="lang-option active">中文</span>
-                <span class="lang-option">英文</span>
+                <span class="lang-option active" onclick="switchLang(this, 'zh')">中文</span>
+                <span class="lang-option" onclick="switchLang(this, 'en')">英文</span>
             </div>
         </div>
-        <div class="download-btn">&#8681;</div>
+        <div class="download-btn" onclick="downloadPDF()">&#8681;</div>
     </div>
 
     <!-- 主内容 -->
-    <div class="main-content">
+    <div class="main-content" id="reportContent">
         <div class="report-title">教育部学籍在线验证报告</div>
 
         <!-- 证件照 -->
@@ -356,6 +552,55 @@
     </div>
 </div>
 
+<!-- 电脑版PDF用（隐藏）- 完全仿index.html的xj-zxyz-res样式 -->
+<div id="pdfReport" style="display:none;width:706px;height:auto;min-height:1000px;background:#fff;padding:50px 50px 50px 65px;position:relative;box-sizing:border-box;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei','Hiragino Sans GB','WenQuanYi Micro Hei',Arial,SimSun,sans-serif;">
+    <!-- 绿色双边框 -->
+    <div style="position:absolute;top:10px;left:10px;right:10px;bottom:10px;border:8px solid #2db475;pointer-events:none;box-sizing:border-box;"></div>
+    <div style="position:absolute;top:18px;left:18px;right:18px;bottom:18px;border:1px solid #c2dec9;pointer-events:none;box-sizing:border-box;"></div>
+    <!-- 标题 -->
+    <div style="text-align:center;margin-bottom:6px;position:relative;z-index:20;">
+        <div style="font-size:27px;font-weight:700;color:#000;line-height:36px;">教育部学籍在线验证报告</div>
+        <div style="font-size:12px;color:#999;margin-top:2px;">更新日期：<span id="pdfUpdate">2026年06月16日</span></div>
+    </div>
+    <!-- 信息区 -->
+    <div style="position:relative;z-index:20;padding-left:5px;margin-top:35px;">
+        <div id="pdfPhoto" style="position:absolute;right:20px;top:0;width:90px;height:120px;border:1px solid #b0b0b0;background:#f4f9f5;display:flex;align-items:center;justify-content:center;overflow:hidden;"><span style="font-size:11px;color:#aaa;">照片</span></div>
+        <div class="pdf-item"><span class="pdf-lb">姓名</span><span class="pdf-val" id="pdfName"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">性别</span><span class="pdf-val" id="pdfGender"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">出生日期</span><span class="pdf-val" id="pdfBirth"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">民族</span><span class="pdf-val" id="pdfEthnic"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">学校名称</span><span class="pdf-val" id="pdfSchool"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">层次</span><span class="pdf-val" id="pdfLevel"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">专业</span><span class="pdf-val" id="pdfMajor"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">学制</span><span class="pdf-val" id="pdfDuration"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">学历类别</span><span class="pdf-val" id="pdfDegreeType"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">学习形式</span><span class="pdf-val" id="pdfStudyForm"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">分院</span><span class="pdf-val" id="pdfCollege"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">系所</span><span class="pdf-val" id="pdfDept"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">入学日期</span><span class="pdf-val" id="pdfEnroll"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">学籍状态</span><span class="pdf-val" id="pdfStatus"></span></div>
+        <div class="pdf-item"><span class="pdf-lb">离校日期</span><span class="pdf-val" id="pdfGrad"></span></div>
+    </div>
+    <!-- 底部 -->
+    <div style="position:absolute;bottom:45px;left:65px;right:65px;z-index:20;">
+        <div style="border:1px solid #c2dec9;background:#f6fbf8;padding:8px 12px;display:flex;gap:10px;align-items:center;margin-bottom:15px;">
+            <div style="width:68px;height:68px;border:1px solid #b5ccbe;background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#ccc;">二维码</div>
+            <div style="flex:1;font-size:11px;line-height:1.7;color:#333;">
+                <div><span style="font-weight:700;color:#222;">在线验证码</span> <span class="pdf-code-span" id="pdfCode" style="font-size:18px;font-weight:700;color:#222;margin-left:6px;"></span></div>
+                <div>① 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>
+                <div>② 使用学信网App扫描二维码验证</div>
+            </div>
+        </div>
+        <div style="font-size:11px;color:#444;line-height:1.6;">
+            <div style="font-weight:700;color:#222;margin-bottom:3px;">注意事项：</div>
+            <div>1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>
+            <div>2、报告内容如有修改，请以最新在线验证的内容为准。</div>
+            <div>3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>
+            <div>4、报告在线验证有效期由报告权属人设置（1~6个月）。</div>
+        </div>
+    </div>
+</div>
+
 <script>
 async function checkAndLoad() {
     var userId = localStorage.getItem('xuexin_user_id');
@@ -377,7 +622,6 @@ async function checkAndLoad() {
     try {
         var res = await fetch('/api/user/' + userId);
         if (res.status === 404) {
-            // 账号已被删除
             maskIcon.innerHTML = '&#10060;';
             maskMsg.textContent = '该账号不存在或已被删除';
             maskSub.textContent = '请联系管理员获取有效账号';
@@ -390,7 +634,6 @@ async function checkAndLoad() {
         }
         var data = await res.json();
         if (data.code !== 0 || !data.data) {
-            // 账号异常
             maskIcon.innerHTML = '&#10060;';
             maskMsg.textContent = '该账号异常，无法查看报告';
             maskSub.textContent = data.detail || '请联系管理员';
@@ -399,7 +642,6 @@ async function checkAndLoad() {
             return;
         }
 
-        // 账号正常，显示内容
         var u = data.data;
         var map = {
             'outName': u.name,
@@ -424,11 +666,14 @@ async function checkAndLoad() {
             var el = document.getElementById(key);
             if (el) el.textContent = map[key];
         }
+        // 填充PDF内容
+        fillPdfData(u);
         if (u.photo) {
             document.getElementById('photoDisplay').innerHTML = '<img src="' + u.photo + '">';
+            var pdfPhoto = document.getElementById('pdfPhoto');
+            if (pdfPhoto) pdfPhoto.innerHTML = '<img src="' + u.photo + '" style="width:100%;height:100%;object-fit:cover;">';
         }
 
-        // 隐藏蒙层，显示页面
         mask.style.display = 'none';
         document.getElementById('pageContent').style.display = 'block';
 
@@ -442,6 +687,118 @@ async function checkAndLoad() {
     }
 }
 checkAndLoad();
+
+// ---- 切换语种 ----
+function switchLang(el, lang) {
+    var options = document.querySelectorAll('.lang-option');
+    options.forEach(function(o) { o.classList.remove('active'); });
+    el.classList.add('active');
+    if (lang === 'en') {
+        document.getElementById('englishOverlay').classList.add('show');
+    }
+}
+function closeEnglish() {
+    document.getElementById('englishOverlay').classList.remove('show');
+    // 切回中文
+    var options = document.querySelectorAll('.lang-option');
+    options.forEach(function(o) {
+        if (o.textContent === '中文') o.classList.add('active');
+        else o.classList.remove('active');
+    });
+}
+
+// ---- 搜索面板 ----
+function openSearch() {
+    document.getElementById('searchPanel').classList.add('open');
+}
+function closeSearch() {
+    document.getElementById('searchPanel').classList.remove('open');
+}
+
+// ---- 导航菜单 ----
+function openMenu() {
+    document.getElementById('menuPanel').classList.add('open');
+}
+function closeMenu() {
+    document.getElementById('menuPanel').classList.remove('open');
+}
+
+// ---- 填充PDF数据 ----
+function fillPdfData(u) {
+    var pdfMap = {
+        'pdfName': u.name,
+        'pdfGender': u.gender,
+        'pdfBirth': u.birth,
+        'pdfEthnic': u.ethnic,
+        'pdfSchool': u.school,
+        'pdfLevel': u.level,
+        'pdfMajor': u.major,
+        'pdfDuration': u.duration,
+        'pdfDegreeType': u.degree_type,
+        'pdfStudyForm': u.study_form,
+        'pdfCollege': u.college,
+        'pdfDept': u.dept,
+        'pdfStatus': u.status,
+        'pdfEnroll': u.enroll_date,
+        'pdfGrad': u.grad_date,
+        'pdfCode': u.verify_code,
+        'pdfUpdate': '2026年06月16日',
+    };
+    for (var k in pdfMap) {
+        var el = document.getElementById(k);
+        if (el) el.textContent = pdfMap[k];
+    }
+}
+
+// ---- 下载PDF（克隆渲染，采用index.html方式） ----
+function downloadPDF() {
+    var btn = document.querySelector('.download-btn');
+    btn.innerHTML = '⏳';
+    if (typeof html2canvas === 'undefined') { btn.innerHTML = '&#8681;'; alert('导出库加载失败，请刷新重试'); return; }
+    if (typeof window.jspdf === 'undefined') { btn.innerHTML = '&#8681;'; alert('PDF库加载失败，请刷新重试'); return; }
+
+    var source = document.getElementById('pdfReport');
+    var clone = source.cloneNode(true);
+    clone.style.display = 'block';
+    clone.style.position = 'fixed';
+    clone.style.left = '-9999px';
+    clone.style.top = '0';
+    clone.style.width = '706px';
+    clone.style.height = 'auto';
+    clone.style.minHeight = '1000px';
+    document.body.appendChild(clone);
+    clone.offsetHeight; // force reflow
+
+    html2canvas(clone, {
+        scale: 2,
+        useCORS: false,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        width: 706,
+        height: clone.scrollHeight
+    }).then(function(canvas) {
+        document.body.removeChild(clone);
+        var imgData = canvas.toDataURL('image/jpeg', 0.95);
+        var { jsPDF } = window.jspdf;
+        var pdf = new jsPDF('p', 'mm', 'a4');
+        var pdfW = pdf.internal.pageSize.getWidth();
+        var imgW = canvas.width;
+        var imgH = canvas.height;
+        var ratio = pdfW / imgW;
+        var finalH = imgH * ratio;
+        var pages = Math.ceil(finalH / pdf.internal.pageSize.getHeight());
+        for (var i = 0; i < pages; i++) {
+            if (i > 0) pdf.addPage();
+            pdf.addImage(imgData, 'JPEG', 0, -(i * pdf.internal.pageSize.getHeight()), pdfW, finalH);
+        }
+        pdf.save('教育部学籍在线验证报告.pdf');
+        btn.innerHTML = '&#8681;';
+    }).catch(function(e) {
+        if (clone.parentNode) document.body.removeChild(clone);
+        btn.innerHTML = '&#8681;';
+        alert('生成PDF失败：' + e.message);
+    });
+}
 </script>
 </body>
 </html>
