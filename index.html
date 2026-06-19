@@ -539,7 +539,7 @@
         }
     });
 
-    // ------ PDF 导出（先移除背景图避免CORS，渲染后再恢复） ------
+    // ------ PDF 导出（支持手机端隐藏元素的渲染） ------
     const exportBtn = document.getElementById('exportBtn');
     exportBtn.addEventListener('click', async () => {
         const el = document.getElementById('reportTarget');
@@ -558,8 +558,21 @@
         exportBtn.disabled = true;
 
         try {
+            // 保存被隐藏元素的父容器状态，临时显示用于截图
+            const desktopWrap = document.querySelector('.report-desktop') as HTMLElement;
+            const wasHidden = desktopWrap && desktopWrap.style.display === 'none';
+            const mobileReportEl = document.getElementById('mobileReport');
+
+            if (wasHidden && desktopWrap) {
+                desktopWrap.style.display = 'block';
+                desktopWrap.style.position = 'fixed';
+                desktopWrap.style.left = '-9999px';
+                desktopWrap.style.top = '0';
+                desktopWrap.style.zIndex = '-1';
+                if (mobileReportEl) mobileReportEl.style.display = 'none';
+            }
+
             // 保存原始背景图，移除后再截图（避免CORS）
-            const origBg = el.style.backgroundImage || '';
             el.style.backgroundImage = 'none';
             el.style.backgroundColor = '#ffffff';
 
@@ -571,8 +584,21 @@
                 allowTaint: true
             });
 
-            // 恢复背景
-            el.style.backgroundImage = origBg;
+            // 恢复显示状态
+            el.style.backgroundImage = '';
+            el.style.backgroundColor = '';
+            if (wasHidden && desktopWrap) {
+                desktopWrap.style.display = '';
+                desktopWrap.style.position = '';
+                desktopWrap.style.left = '';
+                desktopWrap.style.top = '';
+                desktopWrap.style.zIndex = '';
+            }
+
+            // 检查 canvas 是否有效
+            if (canvas.width === 0 || canvas.height === 0) {
+                throw new Error('报告区域尺寸为零');
+            }
 
             const imgData = canvas.toDataURL('image/jpeg', 0.95);
             if (!imgData || imgData === 'data:,') {
