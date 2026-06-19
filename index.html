@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>学信网学籍在线验证报告</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-    <script>/* html2canvas */</script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
-      onerror="document.write('<scr'+'ipt src=\'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js\'><\/scr'+'ipt>')"></script>
-    <script>/* jsPDF */</script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
-      onerror="document.write('<scr'+'ipt src=\'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js\'><\/scr'+'ipt>')"></script>
+    <script src="libs/qrcode.min.js"></script>
+    <script src="libs/html2canvas.min.js"></script>
+    <script src="libs/jspdf.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -539,15 +535,18 @@
         }
     });
 
-    // ------ PDF 导出（带多策略容错） ------
+    // ------ PDF 导出（先移除背景图避免CORS，渲染后再恢复） ------
     const exportBtn = document.getElementById('exportBtn');
     exportBtn.addEventListener('click', async () => {
         const el = document.getElementById('reportTarget');
         if (!el) return;
 
-        // 检测 CDN 是否可用
         if (typeof html2canvas === 'undefined') {
             alert('导出库加载失败，请检查网络后刷新重试');
+            return;
+        }
+        if (typeof window.jspdf === 'undefined') {
+            alert('PDF库加载失败，请刷新重试');
             return;
         }
 
@@ -555,12 +554,25 @@
         exportBtn.disabled = true;
 
         try {
-            // 策略1：先尝试无外部资源的纯背景渲染
-            const canvas = await tryExport(el);
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            // 保存原始背景图，移除后再截图（避免CORS）
+            const origBg = el.style.backgroundImage || '';
+            el.style.backgroundImage = 'none';
+            el.style.backgroundColor = '#ffffff';
 
-            if (typeof jspdf === 'undefined' && typeof window.jspdf === 'undefined') {
-                throw new Error('jsPDF 库未加载');
+            const canvas = await html2canvas(el, {
+                scale: 3,
+                backgroundColor: '#ffffff',
+                logging: false,
+                useCORS: false,
+                allowTaint: true
+            });
+
+            // 恢复背景
+            el.style.backgroundImage = origBg;
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            if (!imgData || imgData === 'data:,') {
+                throw new Error('生成图片数据为空');
             }
 
             const { jsPDF } = window.jspdf;
@@ -568,59 +580,17 @@
             const pdfW = pdf.internal.pageSize.getWidth();
             const imgH = (canvas.height * pdfW) / canvas.width;
             pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, imgH);
-            pdf.save(`学籍报告_${document.getElementById('inName').value || 'unknown'}.pdf`);
+
+            const name = document.getElementById('inName').value || 'unknown';
+            pdf.save(`学籍报告_${name}.pdf`);
         } catch (err) {
-            console.error('PDF导出失败:', err);
-            // 策略2：降低画质再试
-            try {
-                exportBtn.innerText = '⏳ 重试中(降低画质)...';
-                const canvas = await html2canvas(el, {
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: true,
-                    backgroundColor: '#fff',
-                    logging: false
-                });
-                const imgData = canvas.toDataURL('image/jpeg', 0.92);
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const pdfW = pdf.internal.pageSize.getWidth();
-                const imgH = (canvas.height * pdfW) / canvas.width;
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, imgH);
-                pdf.save(`学籍报告_${document.getElementById('inName').value || 'unknown'}.pdf`);
-            } catch (err2) {
-                alert('导出失败：' + (err2.message || '未知错误') + '\n请刷新重试或检查网络连接');
-            }
+            console.error('导出失败:', err);
+            alert('导出失败：' + (err.message || '未知错误'));
         } finally {
             exportBtn.innerText = '📥 导出 PDF';
             exportBtn.disabled = false;
         }
     });
-
-    // 多策略导出
-    async function tryExport(el) {
-        // 记录原始背景图URL，以备后续替换
-        const elStyle = el.style;
-        const origBg = elStyle.backgroundImage;
-
-        try {
-            // 尝试正常导出
-            return await html2canvas(el, {
-                scale: 3.5,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: '#fff',
-                logging: false
-            });
-        } catch (e) {
-            console.warn('策略1失败，尝试降级:', e.message);
-            // 如果失败（可能是CORS问题），尝试绕过背景图CORS
-            // 先移除背景图，截取后再恢复
-            elStyle.backgroundImage = 'none';
-            elStyle.backgroundColor = '#ffffff';
-            try {
-                const canvas = await html2canvas(el, {
-                    scale: 2.5,
                     useCORS: false,
                     allowTaint: true,
                     backgroundColor: '#fff',
