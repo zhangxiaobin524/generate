@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>学信网学籍在线验证报告</title>
-    <script src="libs/qrcode.min.js"></script>
-    <script src="libs/html2canvas.min.js"></script>
-    <script src="libs/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <!-- html2canvas: 用于将报告转为图片 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
+      onerror="(function(){var s=document.createElement('script');s.src='https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js';document.head.appendChild(s)})()"></script>
+    <!-- jsPDF: 生成 PDF 文件 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+      onerror="(function(){var s=document.createElement('script');s.src='https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';document.head.appendChild(s)})()"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
