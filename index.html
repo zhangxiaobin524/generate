@@ -551,43 +551,54 @@
         exportBtn.disabled = true;
 
         try {
-            // 克隆报告元素（克隆体放到屏幕外渲染，不受CSS display影响）
-            const isHidden = el.offsetWidth === 0 || el.offsetHeight === 0;
+            // 强制使用固定尺寸渲染（706x1000是报告设计尺寸）
+            const REPORT_W = 706;
+            const REPORT_H = 1000;
+            
+            // 克隆报告元素
             const clone = el.cloneNode(true);
             clone.style.backgroundImage = 'none';
             clone.style.backgroundColor = '#ffffff';
             clone.style.position = 'fixed';
             clone.style.left = '-9999px';
             clone.style.top = '0';
-            clone.style.zIndex = '-1';
-            // 如果原元素被隐藏，给予默认尺寸，否则用实际尺寸
-            if (isHidden) {
-                clone.style.width = '706px';
-                clone.style.height = '1000px';
-            } else {
-                clone.style.width = el.offsetWidth + 'px';
-                clone.style.height = el.offsetHeight + 'px';
-            }
+            clone.style.width = REPORT_W + 'px';
+            clone.style.height = REPORT_H + 'px';
+            clone.style.margin = '0';
+            clone.style.padding = '50px 50px 50px 65px';
+
+            // 移除所有外部图片（避免CORS污染）
+            clone.querySelectorAll('img[src^="http"]').forEach(function(im) {
+                im.removeAttribute('src');
+                im.style.display = 'none';
+            });
+            // logo 版权图用文字替代
+            var logoImgs = clone.querySelectorAll('.zxyz-res-bot-inline img');
+            logoImgs.forEach(function(im) {
+                var p = im.parentNode;
+                if (p) p.innerHTML = '<span style="color:#888;font-size:11px;font-weight:600;">CHSI</span>';
+            });
+
             document.body.appendChild(clone);
 
-            // 等待一帧确保渲染
-            await new Promise(r => requestAnimationFrame(r));
+            // 确保浏览器完成布局
+            clone.offsetHeight;
 
-            const canvas = await html2canvas(clone, {
-                scale: 3,
+            var canvas = await html2canvas(clone, {
+                scale: 2,
                 backgroundColor: '#ffffff',
                 useCORS: false,
-                allowTaint: true,
-                width: clone.offsetWidth,
-                height: clone.offsetHeight
+                allowTaint: false,
+                width: REPORT_W,
+                height: REPORT_H,
+                x: 0,
+                y: 0,
+                scrollX: 0,
+                scrollY: 0
             });
 
             // 清理克隆
-            document.body.removeChild(clone);
-
-            if (canvas.width === 0 || canvas.height === 0) {
-                throw new Error('报告尺寸为零');
-            }
+            if (clone.parentNode) document.body.removeChild(clone);
             const imgData = canvas.toDataURL('image/jpeg', 0.95);
             if (!imgData || imgData === 'data:,') {
                 throw new Error('生成图片数据为空');
