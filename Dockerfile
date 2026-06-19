@@ -7,6 +7,7 @@ COPY login.html /usr/share/nginx/html/login.html
 COPY account-generator.html /usr/share/nginx/html/account-generator.html
 COPY report-list.html /usr/share/nginx/html/report-list.html
 COPY mobile-verify.html /usr/share/nginx/html/mobile-verify.html
+COPY xxw.png /usr/share/nginx/html/xxw.png
 
 EXPOSE 80
 
