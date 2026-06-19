@@ -2,125 +2,191 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登录 - 学信档案</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <title>登录_学信网</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+        }
         body {
-            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+            background: #fff;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .login-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 60px 20px 20px;
         }
-        .login-box {
-            background: white;
-            border-radius: 16px;
-            padding: 40px 30px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        }
+        /* Logo */
         .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .logo img {
+            width: 42px;
+            height: 42px;
+            display: block;
+            margin-right: 6px;
+        }
+        .logo-text {
+            font-family: SimSun, "Songti SC", "STSong", "AR PL New Sung", "WenQuanYi Bitmap Song", serif;
+            font-size: 36px;
+            font-weight: 900;
+            line-height: 45.9px;
+            color: #333;
+            text-align: center;
+        }
+        /* 提示文字 */
+        .hint {
+            font-size: 14px;
+            color: #999;
             text-align: center;
             margin-bottom: 30px;
         }
-        .logo-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #3ddc84, #2db475);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
+        .hint a {
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", "WenQuanYi Micro Hei", Arial, SimSun, "sans-serif";
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 31.86px;
+            color: rgb(96, 101, 110);
+            text-decoration: none;
+            cursor: pointer;
+            -webkit-font-smoothing: antialiased;
         }
-        .logo-icon svg { width: 32px; height: 32px; fill: white; }
-        .logo h1 { font-size: 22px; color: #333; }
-        .logo p { font-size: 13px; color: #999; margin-top: 4px; }
-
+        /* 登录表单 */
+        .login-form {
+            width: 100%;
+            max-width: 380px;
+        }
         .form-group {
             margin-bottom: 18px;
         }
-        .form-group label {
-            font-size: 13px;
-            color: #666;
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
         .form-group input {
             width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 15px;
-            transition: border 0.2s;
+            padding: 14px 14px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
             outline: none;
+            font-size: 15px;
+            color: #333;
+            background: #fff;
+            transition: border-color 0.2s;
         }
         .form-group input:focus {
-            border-color: #2db475;
+            border-color: #00bac7;
         }
-
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
+        .form-group input::placeholder {
+            color: #ccc;
         }
-        .btn-primary {
-            background: #2db475;
-            color: white;
-        }
-        .btn-primary:hover { background: #25a065; }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
         .error-msg {
             color: #e74c3c;
             font-size: 13px;
             text-align: center;
-            margin-bottom: 12px;
+            margin: 12px 0;
             display: none;
         }
-        .register-link {
-            text-align: center;
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            margin-top: 24px;
+            border: none;
+            border-radius: 4px;
+            background: #00bac7;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-login:hover {
+            background: #09c7d4;
+        }
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        /* 底部链接 */
+        .form-links {
+            display: flex;
+            justify-content: space-between;
             margin-top: 16px;
+            padding: 0 4px;
+        }
+        .form-links a {
             font-size: 14px;
-            color: #999;
-        }
-        .register-link a {
-            color: #2db475;
+            color: #666;
             text-decoration: none;
-            font-weight: 500;
         }
-        .register-link a:hover { text-decoration: underline; }
+        .form-links a:hover {
+            color: #00bac7;
+        }
+        /* 页面底部 */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+        .footer-links {
+            margin-bottom: 8px;
+        }
+        .footer-links a {
+            font-size: 13px;
+            color: #999;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .footer-links a:hover {
+            color: #00bac7;
+        }
+        .footer-copy {
+            font-size: 12px;
+            color: #bbb;
+        }
     </style>
 </head>
 <body>
-<div class="login-box">
+<div class="login-container">
+    <!-- Logo -->
     <div class="logo">
-        <div class="logo-icon">
-            <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 6l8 5 8-5" fill="none" stroke="white" stroke-width="1.5"/><path d="M12 11v9" stroke="white" stroke-width="1.5"/></svg>
+        <img src="xxw.png" alt="">
+        <span class="logo-text">学信网</span>
+    </div>
+    
+    <!-- 提示 -->
+    <div class="hint">请使用 <a href="#">学信网账号</a> 进行登录</div>
+    
+    <!-- 表单 -->
+    <div class="login-form">
+        <div class="error-msg" id="errorMsg"></div>
+        <div class="form-group">
+            <input type="text" id="loginName" placeholder="手机号/身份证号/邮箱">
         </div>
-        <h1>学信档案</h1>
-        <p>使用姓名和身份证号登录</p>
+        <div class="form-group">
+            <input type="password" id="loginIdCard" placeholder="密码">
+        </div>
+        <button class="btn-login" id="loginBtn">登录</button>
+        <div class="form-links">
+            <a href="#">找回密码</a>
+            <a href="account-generator.html">注册</a>
+        </div>
     </div>
-    <div class="error-msg" id="errorMsg"></div>
-    <div class="form-group">
-        <label>姓名</label>
-        <input type="text" id="loginName" placeholder="请输入姓名">
+</div>
+
+<!-- 底部 -->
+<div class="footer">
+    <div class="footer-links">
+        <a href="#">首页</a>
+        <a href="#">帮助中心</a>
+        <a href="#">联系我们</a>
     </div>
-    <div class="form-group">
-        <label>身份证号</label>
-        <input type="text" id="loginIdCard" placeholder="请输入18位身份证号">
-    </div>
-    <button class="btn btn-primary" id="loginBtn">登 录</button>
+    <div class="footer-copy">Copyright &copy; 2003-2026 学信网 All Rights Reserved</div>
 </div>
 
 <script>
@@ -129,7 +195,7 @@ document.getElementById('loginBtn').addEventListener('click', async function() {
     var idCard = document.getElementById('loginIdCard').value.trim();
     var errorEl = document.getElementById('errorMsg');
     if (!name || !idCard) {
-        errorEl.textContent = '请填写姓名和身份证号';
+        errorEl.textContent = '请填写用户名和密码';
         errorEl.style.display = 'block';
         return;
     }
@@ -155,7 +221,7 @@ document.getElementById('loginBtn').addEventListener('click', async function() {
         errorEl.style.display = 'block';
     } finally {
         this.disabled = false;
-        this.textContent = '登 录';
+        this.textContent = '登录';
     }
 });
 </script>
