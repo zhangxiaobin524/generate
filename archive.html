@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>学信档案</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* ===== 验证蒙层 ===== */
+        .verify-mask {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+        .verify-mask .msg { font-size: 16px; color: #333; margin-top: 16px; }
+        .verify-mask .sub-msg { font-size: 13px; color: #999; margin-top: 8px; }
+        .verify-mask .go-btn {
+            margin-top: 20px; padding: 10px 24px; background: #2db475;
+            color: white; border: none; border-radius: 6px; font-size: 15px; cursor: pointer;
+        }
+
+        /* ===== 页面容器 ===== */
+        .page-container {
+            min-height: 100%;
+            padding-bottom: 60px;
+        }
+
+        /* ===== 顶部绿色栏 ===== */
+        .top-header {
+            background: #00a05b;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+            position: relative;
+        }
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-logo {
+            width: 24px;
+            height: 24px;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: white;
+        }
+        .header-share {
+            position: absolute;
+            right: 15px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+
+        /* ===== 内容区 ===== */
+        .content {
+            padding: 12px;
+        }
+
+        /* ===== 专业推荐卡片 ===== */
+        .rec-card {
+            background: white;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .rec-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .rec-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .rec-tag {
+            font-size: 12px;
+            color: #333;
+            background: #fff5f0;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .rec-tag .num {
+            color: #ff6b35;
+        }
+        .rec-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .rec-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            flex: 1;
+            padding-right: 10px;
+        }
+        .rec-btn {
+            background: #00c853;
+            color: white;
+            font-size: 14px;
+            padding: 6px 16px;
+            border-radius: 16px;
+            border: none;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        /* ===== 职场实习横幅 ===== */
+        .intern-banner {
+            background: linear-gradient(135deg, #e8e4f3 0%, #d4c8e8 100%);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+        .intern-left {
+            flex: 1;
+            z-index: 1;
+        }
+        .intern-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #5c6bc0;
+            margin-bottom: 6px;
+        }
+        .intern-desc {
+            font-size: 12px;
+            color: #5c6bc0;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        .intern-illustration {
+            width: 90px;
+            height: 65px;
+            position: relative;
+        }
+
+        /* ===== 功能网格 ===== */
+        .func-grid {
+            background: white;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            padding: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .func-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 4px;
+            text-decoration: none;
+        }
+        .func-item:active { opacity: 0.7; }
+        .func-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .func-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        .func-label {
+            font-size: 15px;
+            color: #333;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* ===== 底部导航栏 ===== */
+        .bottom-tab {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: white;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            text-decoration: none;
+            padding: 4px 0;
+            flex: 1;
+        }
+        .tab-item .tab-icon {
+            width: 24px;
+            height: 24px;
+        }
+        .tab-item .tab-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        .tab-item .tab-label {
+            font-size: 10px;
+            color: #666;
+        }
+        /* 首页激活态 - 绿色 */
+        .tab-item.active .tab-label {
+            color: #00a05b;
+        }
+
+        /* ===== 菜单弹窗 ===== */
+        .menu-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: none;
+        }
+        .menu-overlay.open { display: block; }
+        .menu-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 10001;
+            display: none;
+            padding: 0 0 20px;
+            border-radius: 0 0 12px 12px;
+        }
+        .menu-popup.open { display: block; }
+        .menu-popup .close-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+        }
+        .menu-popup .close-bar span { font-weight: bold; font-size: 16px; }
+        .menu-popup .close-bar .close-btn { font-size: 22px; color: #999; cursor: pointer; }
+        .menu-popup .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            padding: 0 12px;
+            gap: 8px;
+        }
+        .menu-popup .menu-grid a {
+            display: block;
+            text-align: center;
+            padding: 10px 6px;
+            font-size: 17px;
+            color: #333;
+            text-decoration: none;
+            background: #f5f5f5;
+            border-radius: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 验证蒙层 -->
+<div class="verify-mask" id="verifyMask">
+    <div class="msg" id="maskMsg">验证用户中...</div>
+    <div class="sub-msg" id="maskSubMsg"></div>
+    <button class="go-btn" id="maskBtn" style="display:none;">返回登录</button>
+</div>
+
+<!-- 菜单遮罩 -->
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<div class="menu-popup" id="menuPanel">
+    <div class="close-bar">
+        <span>学信网</span>
+        <span class="close-btn" onclick="closeMenu()">&times;</span>
+    </div>
+    <div class="menu-grid">
+        <a href="archive.html">首页</a>
+        <a href="list.html">学籍查询</a>
+        <a href="list.html">学历查询</a>
+        <a href="list.html">学位查询</a>
+        <a href="list.html">在线验证</a>
+        <a href="#">出国教育背景</a>
+        <a href="#">图像校对</a>
+        <a href="archive.html">学信档案</a>
+        <a href="#">高考</a>
+        <a href="#">研招</a>
+        <a href="#">港澳台招生</a>
+        <a href="#">征兵</a>
+        <a href="#">就业</a>
+        <a href="#">学职平台</a>
+    </div>
+</div>
+
+<div class="page-container">
+    <!-- 顶部绿色栏 -->
+    <div class="top-header">
+        <div class="header-center">
+            <!-- 学信网Logo -->
+            <img class="header-logo" src="xxw.png" alt="">
+            <span class="header-title">学信档案</span>
+        </div>
+        <!-- 右边箭头 -->
+        <svg class="header-share" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" onclick="openMenu()">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12,5 19,12 12,19"/>
+        </svg>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="content">
+        <!-- 专业推荐卡片 -->
+        <div class="rec-card">
+            <div class="rec-header">
+                <span class="rec-title">专业推荐</span>
+                <span class="rec-tag">累计投票 <span class="num">4137</span></span>
+            </div>
+            <div class="rec-content">
+                <div class="rec-text" id="majorText">运城学院-计算机科学与技术(网络工程方向)</div>
+                <button class="rec-btn">去推荐</button>
+            </div>
+        </div>
+
+        <!-- 职场实习横幅 -->
+        <div class="intern-banner">
+            <div class="intern-left">
+                <div class="intern-title">职场实习</div>
+                <div class="intern-desc">反馈实习困惑、实战心得与建议，帮大家<br>实习少走弯路</div>
+            </div>
+            <!-- 简化的职场插图 SVG -->
+            <svg class="intern-illustration" viewBox="0 0 90 65">
+                <!-- 背景装饰 -->
+                <circle cx="70" cy="12" r="10" fill="#c5b8e0" opacity="0.5"/>
+                <!-- 人物1 -->
+                <circle cx="30" cy="22" r="5" fill="#ffab91"/>
+                <rect x="26" y="28" width="8" height="12" rx="1" fill="#5c6bc0"/>
+                <!-- 人物2 -->
+                <circle cx="50" cy="18" r="5" fill="#ffcc80"/>
+                <rect x="46" y="24" width="8" height="12" rx="1" fill="#66bb6a"/>
+                <!-- 对话框 -->
+                <rect x="22" y="6" width="16" height="8" rx="2" fill="white" opacity="0.8"/>
+                <rect x="44" y="4" width="14" height="7" rx="2" fill="white" opacity="0.8"/>
+                <!-- 对勾 -->
+                <circle cx="75" cy="45" r="9" fill="#66bb6a"/>
+                <path d="M71 45 L74 48 L79 42" stroke="white" stroke-width="2" fill="none"/>
+            </svg>
+        </div>
+
+        <!-- 功能网格 -->
+        <div class="func-grid">
+            <!-- 高等教育信息 -->
+            <a href="list.html" class="func-item">
+                <div class="func-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <rect x="8" y="20" width="32" height="24" rx="2" fill="#4caf50"/>
+                        <path d="M24 8 L40 18 L40 22 L24 12 L8 22 L8 18 Z" fill="#4caf50"/>
+                        <circle cx="24" cy="30" r="6" fill="white"/>
+                        <path d="M20 30 L24 34 L30 26" stroke="#4caf50" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+                <span class="func-label">高等教育信息</span>
+            </a>
+
+            <!-- 在线验证报告 -->
+            <a href="list.html" class="func-item">
+                <div class="func-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <rect x="8" y="8" width="32" height="32" rx="4" fill="#4caf50"/>
+                        <path d="M16 24 L22 30 L34 18" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span class="func-label">在线验证报告</span>
+            </a>
+
+            <!-- 学历学位认证与成绩验证 -->
+            <a href="list.html" class="func-item">
+                <div class="func-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <rect x="8" y="10" width="32" height="28" rx="2" fill="#4caf50"/>
+                        <rect x="12" y="16" width="20" height="3" fill="white"/>
+                        <rect x="12" y="22" width="16" height="3" fill="white"/>
+                        <rect x="12" y="28" width="24" height="3" fill="white"/>
+                        <rect x="34" y="14" width="8" height="24" rx="1" fill="#2e7d32"/>
+                    </svg>
+                </div>
+                <span class="func-label">学历学位认证<br>与成绩验证</span>
+            </a>
+
+            <!-- 出国（境）报告发送 -->
+            <a href="#" class="func-item">
+                <div class="func-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="24" r="20" fill="#42a5f5"/>
+                        <ellipse cx="24" cy="24" rx="8" ry="20" fill="#1976d2"/>
+                        <path d="M4 24 L44 24" stroke="#1976d2" stroke-width="2"/>
+                        <path d="M24 4 Q36 24 24 44" stroke="#1976d2" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+                <span class="func-label">出国（境）报告<br>发送</span>
+            </a>
+
+            <!-- 毕业证书图像校对 -->
+            <a href="#" class="func-item">
+                <div class="func-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="16" r="10" fill="#4caf50"/>
+                        <rect x="14" y="26" width="20" height="16" rx="2" fill="#4caf50"/>
+                        <circle cx="24" cy="16" r="6" fill="#81c784"/>
+                        <path d="M18 34 L24 40 L34 28" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="func-label">毕业证书图像<br>校对</span>
+            </a>
+
+            <!-- 就业 -->
+            <a href="#" class="func-item">
+                <div class="func-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <rect x="6" y="20" width="36" height="22" rx="4" fill="#66bb6a"/>
+                        <rect x="12" y="26" width="24" height="12" rx="2" fill="#4caf50"/>
+                        <text x="24" y="34" text-anchor="middle" fill="white" font-size="8" font-weight="bold">Offer</text>
+                    </svg>
+                </div>
+                <span class="func-label">就业</span>
+            </a>
+
+            <!-- 学校满意度 -->
+            <a href="#" class="func-item">
+                <div class="func-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="24" r="20" fill="#ffa726"/>
+                        <circle cx="17" cy="20" r="3" fill="white"/>
+                        <circle cx="31" cy="20" r="3" fill="white"/>
+                        <path d="M16 32 Q24 40 32 32" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="func-label">学校满意度</span>
+            </a>
+
+            <!-- 个人测评 -->
+            <a href="#" class="func-item">
+                <div class="func-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <rect x="8" y="6" width="32" height="36" rx="3" fill="#42a5f5"/>
+                        <rect x="12" y="12" width="24" height="4" rx="1" fill="white"/>
+                        <rect x="12" y="20" width="20" height="4" rx="1" fill="white"/>
+                        <rect x="12" y="28" width="16" height="4" rx="1" fill="white"/>
+                        <circle cx="36" cy="32" r="8" fill="#1976d2"/>
+                        <path d="M33 32 L36 35 L41 29" stroke="white" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+                <span class="func-label">个人测评</span>
+            </a>
+
+            <!-- "双千"计划"微专业" -->
+            <a href="#" class="func-item">
+                <div class="func-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <rect x="8" y="8" width="32" height="32" rx="4" fill="#1976d2"/>
+                        <rect x="12" y="12" width="24" height="10" rx="2" fill="#42a5f5"/>
+                        <text x="24" y="20" text-anchor="middle" fill="white" font-size="10" font-weight="bold">双千</text>
+                        <text x="24" y="38" text-anchor="middle" fill="white" font-size="8">微专业</text>
+                    </svg>
+                </div>
+                <span class="func-label">"双千"计划<br>"微专业"</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 底部导航栏 -->
+<div class="bottom-tab">
+    <a href="archive.html" class="tab-item active">
+        <div class="tab-icon">
+            <svg viewBox="0 0 24 24" fill="#00a05b">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+        </div>
+        <span class="tab-label">首页</span>
+    </a>
+    <a href="list.html" class="tab-item">
+        <div class="tab-icon">
+            <svg viewBox="0 0 24 24" fill="#666">
+                <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+            </svg>
+        </div>
+        <span class="tab-label">学籍学历学位</span>
+    </a>
+    <a href="#" class="tab-item">
+        <div class="tab-icon">
+            <svg viewBox="0 0 24 24" fill="#666">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+            </svg>
+        </div>
+        <span class="tab-label">个人测评</span>
+    </a>
+    <a href="#" class="tab-item">
+        <div class="tab-icon">
+            <svg viewBox="0 0 24 24" fill="#666">
+                <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+            </svg>
+        </div>
+        <span class="tab-label">求职招聘</span>
+    </a>
+    <a href="account-generator.html" class="tab-item">
+        <div class="tab-icon">
+            <svg viewBox="0 0 24 24" fill="#666">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+        </div>
+        <span class="tab-label">我的</span>
+    </a>
+</div>
+
+<script>
+// 登录检查
+(async function() {
+    var mask = document.getElementById('verifyMask');
+    var maskMsg = document.getElementById('maskMsg');
+    var maskSub = document.getElementById('maskSubMsg');
+    var maskBtn = document.getElementById('maskBtn');
+
+    var uid = localStorage.getItem('xuexin_user_id');
+    if (!uid) {
+        maskMsg.textContent = '未登录';
+        maskSub.textContent = '请先登录';
+        maskBtn.style.display = 'block';
+        maskBtn.onclick = function() { window.location.href = 'login.html'; };
+        return;
+    }
+
+    try {
+        var res = await fetch('/api/user/' + uid);
+        var data = await res.json();
+        if (data.code !== 0 || !data.data) {
+            localStorage.removeItem('xuexin_user_id');
+            localStorage.removeItem('xuexin_user_name');
+            localStorage.removeItem('xuexin_id_card');
+            maskMsg.textContent = '账号不存在或已被删除';
+            maskSub.textContent = '请重新登录';
+            maskBtn.style.display = 'block';
+            maskBtn.onclick = function() { window.location.href = 'login.html'; };
+            return;
+        }
+
+        var u = data.data;
+        // 更新专业推荐文字
+        var majorText = document.getElementById('majorText');
+        if (majorText) {
+            majorText.textContent = u.school + '-' + u.major;
+        }
+        
+        // 验证通过，移除遮罩
+        mask.style.display = 'none';
+
+    } catch(e) {
+        maskMsg.textContent = '网络错误';
+        maskSub.textContent = '请检查网络后重试';
+        maskBtn.style.display = 'block';
+        maskBtn.textContent = '重试';
+        maskBtn.onclick = function() { location.reload(); };
+    }
+})();
+
+// 菜单
+function openMenu() {
+    document.getElementById('menuOverlay').classList.add('open');
+    document.getElementById('menuPanel').classList.add('open');
+}
+function closeMenu() {
+    document.getElementById('menuOverlay').classList.remove('open');
+    document.getElementById('menuPanel').classList.remove('open');
+}
+</script>
+</body>
+</html>
