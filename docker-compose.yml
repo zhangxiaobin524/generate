@@ -6,7 +6,7 @@ services:
       MYSQL_ROOT_PASSWORD: root123
       MYSQL_DATABASE: xuexin
     ports:
-      - "3307:3306"
+      - "9001:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
     build: ./server
     container_name: xuexin-backend
     ports:
-      - "8000:8000"
+      - "9002:8000"
     depends_on:
       mysql:
         condition: service_healthy
@@ -35,7 +35,7 @@ services:
     build: .
     container_name: xuexin-report
     ports:
-      - "8080:80"
+      - "9003:80"
     depends_on:
       - backend
     restart: unless-stopped
