@@ -84,7 +84,7 @@
 
     <div class="card">
         <h3>生成新账号</h3>
-        <label>📷 头像</label>
+        <label>📷 头像 <span style="color:red;">*</span></label>
         <div class="photo-area">
             <div class="photo-preview" id="photoPreview">
                 <span>点击上传</span>
@@ -92,10 +92,20 @@
             <input type="file" id="photoUpload" accept="image/*" style="display:none">
             <span style="font-size:12px;color:#999;">支持 JPG/PNG</span>
         </div>
-        <label>姓名</label>
-        <input type="text" id="inName" placeholder="请输入姓名">
+        <input type="hidden" id="inName">
         <label>性别</label>
         <select id="inGender"><option value="男">男</option><option value="女">女</option></select>
+        <script>
+            var namesMale = ['张晓斌','王磊','张伟','刘洋','杨帆','周杰','吴迪','徐明','马超','胡波','郭峰','林峰','何平','高峰','陈浩','赵磊','孙权','李强','黄海','刘杰'];
+            var namesFemale = ['李娜','陈静','赵敏','黄丽','孙悦','朱婷','王芳','张娟','刘洋','杨雪','周婷','吴静','马丽','胡敏','郭雪','林婷','何悦','高敏','陈静怡','赵梦'];
+            document.getElementById('inGender').addEventListener('change', function() {
+                var list = this.value === '男' ? namesMale : namesFemale;
+                document.getElementById('inName').value = list[Math.floor(Math.random() * list.length)];
+            });
+            // 初始随机姓名
+            var initList = document.getElementById('inGender').value === '男' ? namesMale : namesFemale;
+            document.getElementById('inName').value = initList[Math.floor(Math.random() * initList.length)];
+        </script>
         <button class="btn btn-green" id="generateBtn">⚡ 生成账号</button>
         <div class="generated-info" id="generatedInfo"></div>
     </div>
@@ -130,11 +140,11 @@ document.getElementById('photoUpload').addEventListener('change', function(e) {
 document.getElementById('generateBtn').addEventListener('click', async function() {
     var name = document.getElementById('inName').value.trim();
     var gender = document.getElementById('inGender').value;
-    if (!name) { alert('请填写姓名'); return; }
+    if (!photoData) { alert('请上传头像'); return; }
     this.disabled = true;
     this.textContent = '⏳ 生成中...';
     try {
-        var res = await fetch('/api/register', {
+        var res = await fetch('http://127.0.0.1:9002/api/register', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({name: name, gender: gender, photo: photoData})
@@ -183,8 +193,12 @@ async function loadAccounts() {
         }
 
         countEl.textContent = '(' + accounts.length + '个)';
+        // 反转数组，让最新的账号显示在最上面
+        var reversed = accounts.slice().reverse();
         var html = '';
-        accounts.forEach(function(acc, i) {
+        reversed.forEach(function(acc, i) {
+            // 用原始数组中的索引来删除
+            var origIdx = accounts.length - 1 - i;
             html += '<div class="acc-item">';
             html += '<div class="avatar">';
             if (acc.photo) html += '<img src="' + acc.photo + '">';
@@ -192,6 +206,7 @@ async function loadAccounts() {
             html += '</div>';
             html += '<div class="info"><div class="name">' + acc.name + '</div>';
             html += '<div class="detail">' + acc.id_card + ' · ' + acc.school + '</div></div>';
+            html += '<button class="del-btn" onclick="deleteAccount(' + origIdx + ')">删除</button>';
             html += '</div>';
         });
         container.innerHTML = html;
@@ -208,11 +223,21 @@ function saveAccountToLocal(info) {
     localStorage.setItem('xuexin_accounts', JSON.stringify(accounts));
 }
 
+// 删除指定索引的账号
+function deleteAccount(index) {
+    if (!confirm('确定要删除此账号吗？')) return;
+    var accounts = localStorage.getItem('xuexin_accounts');
+    accounts = accounts ? JSON.parse(accounts) : [];
+    accounts.splice(index, 1);
+    localStorage.setItem('xuexin_accounts', JSON.stringify(accounts));
+    loadAccounts();
+}
+
 // 重写 fetch 保存
 var origFetch = window.fetch;
 window.fetch = function(url, options) {
     return origFetch(url, options).then(function(res) {
-        if (url === '/api/register' && options && options.method === 'POST') {
+        if (url === 'http://127.0.0.1:9002/api/register' && options && options.method === 'POST') {
             res.clone().json().then(function(data) {
                 if (data.code === 0) saveAccountToLocal(data.data);
             });

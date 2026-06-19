@@ -317,7 +317,7 @@ async function loadUserData() {
         return;
     }
     try {
-        var res = await fetch('/api/user/' + userId);
+        var res = await fetch('http://127.0.0.1:9002/api/user/' + userId);
         var data = await res.json();
         if (data.code !== 0 || !data.data) return;
         var u = data.data;

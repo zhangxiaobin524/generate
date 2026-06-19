@@ -357,7 +357,7 @@
             return;
         }
         // 加载用户信息到页面
-        fetch('/api/user/' + uid).then(function(r) { return r.json(); }).then(function(data) {
+        fetch('http://127.0.0.1:9002/api/user/' + uid).then(function(r) { return r.json(); }).then(function(data) {
             if (data.code !== 0 || !data.data) return;
             var u = data.data;
             // 更新信息栏

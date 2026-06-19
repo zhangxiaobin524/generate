@@ -34,7 +34,7 @@ def init_db():
             name VARCHAR(50) NOT NULL,
             gender VARCHAR(4) NOT NULL,
             id_card VARCHAR(20) NOT NULL UNIQUE,
-            photo TEXT,
+            photo LONGTEXT,
             birth VARCHAR(20),
             ethnic VARCHAR(20) DEFAULT '汉族',
             school VARCHAR(100),
@@ -52,6 +52,7 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
     conn.commit()
     cursor.close()
     conn.close()
