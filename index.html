@@ -559,7 +559,7 @@
 
         try {
             // 保存被隐藏元素的父容器状态，临时显示用于截图
-            const desktopWrap = document.querySelector('.report-desktop') as HTMLElement;
+            const desktopWrap = document.querySelector('.report-desktop');
             const wasHidden = desktopWrap && desktopWrap.style.display === 'none';
             const mobileReportEl = document.getElementById('mobileReport');
 
