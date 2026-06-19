@@ -539,67 +539,55 @@
         }
     });
 
-    // ------ PDF 导出（支持手机端隐藏元素的渲染） ------
+    // ------ PDF 导出（克隆到屏幕外渲染，不受CSS display影响） ------
     const exportBtn = document.getElementById('exportBtn');
     exportBtn.addEventListener('click', async () => {
         const el = document.getElementById('reportTarget');
         if (!el) return;
-
-        if (typeof html2canvas === 'undefined') {
-            alert('导出库加载失败，请检查网络后刷新重试');
-            return;
-        }
-        if (typeof window.jspdf === 'undefined') {
-            alert('PDF库加载失败，请刷新重试');
-            return;
-        }
+        if (typeof html2canvas === 'undefined') return alert('导出库加载失败，请刷新重试');
+        if (typeof window.jspdf === 'undefined') return alert('PDF库加载失败，请刷新重试');
 
         exportBtn.innerText = '⏳ 生成中...';
         exportBtn.disabled = true;
 
         try {
-            // 保存被隐藏元素的父容器状态，临时显示用于截图
-            const desktopWrap = document.querySelector('.report-desktop');
-            const wasHidden = desktopWrap && desktopWrap.style.display === 'none';
-            const mobileReportEl = document.getElementById('mobileReport');
-
-            if (wasHidden && desktopWrap) {
-                desktopWrap.style.display = 'block';
-                desktopWrap.style.position = 'fixed';
-                desktopWrap.style.left = '-9999px';
-                desktopWrap.style.top = '0';
-                desktopWrap.style.zIndex = '-1';
-                if (mobileReportEl) mobileReportEl.style.display = 'none';
+            // 克隆报告元素（克隆体放到屏幕外渲染，不受CSS display影响）
+            const isHidden = el.offsetWidth === 0 || el.offsetHeight === 0;
+            const clone = el.cloneNode(true);
+            clone.style.backgroundImage = 'none';
+            clone.style.backgroundColor = '#ffffff';
+            clone.style.position = 'fixed';
+            clone.style.left = '-9999px';
+            clone.style.top = '0';
+            clone.style.zIndex = '-1';
+            // 如果原元素被隐藏，给予默认尺寸，否则用实际尺寸
+            if (isHidden) {
+                clone.style.width = '706px';
+                clone.style.height = '1000px';
+            } else {
+                clone.style.width = el.offsetWidth + 'px';
+                clone.style.height = el.offsetHeight + 'px';
             }
+            document.body.appendChild(clone);
 
-            // 保存原始背景图，移除后再截图（避免CORS）
-            el.style.backgroundImage = 'none';
-            el.style.backgroundColor = '#ffffff';
+            // 等待一帧确保渲染
+            await new Promise(r => requestAnimationFrame(r));
 
-            const canvas = await html2canvas(el, {
+            const canvas = await html2canvas(clone, {
                 scale: 3,
                 backgroundColor: '#ffffff',
-                logging: false,
                 useCORS: false,
-                allowTaint: true
+                allowTaint: true,
+                width: clone.offsetWidth,
+                height: clone.offsetHeight
             });
 
-            // 恢复显示状态
-            el.style.backgroundImage = '';
-            el.style.backgroundColor = '';
-            if (wasHidden && desktopWrap) {
-                desktopWrap.style.display = '';
-                desktopWrap.style.position = '';
-                desktopWrap.style.left = '';
-                desktopWrap.style.top = '';
-                desktopWrap.style.zIndex = '';
-            }
+            // 清理克隆
+            document.body.removeChild(clone);
 
-            // 检查 canvas 是否有效
             if (canvas.width === 0 || canvas.height === 0) {
-                throw new Error('报告区域尺寸为零');
+                throw new Error('报告尺寸为零');
             }
-
             const imgData = canvas.toDataURL('image/jpeg', 0.95);
             if (!imgData || imgData === 'data:,') {
                 throw new Error('生成图片数据为空');
@@ -607,12 +595,10 @@
 
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
-            const pdfW = pdf.internal.pageSize.getWidth();
-            const imgH = (canvas.height * pdfW) / canvas.width;
-            pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, imgH);
-
-            const name = document.getElementById('inName').value || 'unknown';
-            pdf.save(`学籍报告_${name}.pdf`);
+            const pw = pdf.internal.pageSize.getWidth();
+            const ph = (canvas.height * pw) / canvas.width;
+            pdf.addImage(imgData, 'JPEG', 0, 0, pw, ph);
+            pdf.save('学籍报告_' + (document.getElementById('inName').value || 'unknown') + '.pdf');
         } catch (err) {
             console.error('导出失败:', err);
             alert('导出失败：' + (err.message || '未知错误'));
