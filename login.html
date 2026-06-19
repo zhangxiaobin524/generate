@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 学信档案</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3ddc84, #2db475);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+        .logo-icon svg { width: 32px; height: 32px; fill: white; }
+        .logo h1 { font-size: 22px; color: #333; }
+        .logo p { font-size: 13px; color: #999; margin-top: 4px; }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            font-size: 13px;
+            color: #666;
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border 0.2s;
+            outline: none;
+        }
+        .form-group input:focus {
+            border-color: #2db475;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #2db475;
+            color: white;
+        }
+        .btn-primary:hover { background: #25a065; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .error-msg {
+            color: #e74c3c;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 12px;
+            display: none;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #999;
+        }
+        .register-link a {
+            color: #2db475;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .register-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="login-box">
+    <div class="logo">
+        <div class="logo-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/><path d="M4 6l8 5 8-5" fill="none" stroke="white" stroke-width="1.5"/><path d="M12 11v9" stroke="white" stroke-width="1.5"/></svg>
+        </div>
+        <h1>学信档案</h1>
+        <p>使用姓名和身份证号登录</p>
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="form-group">
+        <label>姓名</label>
+        <input type="text" id="loginName" placeholder="请输入姓名">
+    </div>
+    <div class="form-group">
+        <label>身份证号</label>
+        <input type="text" id="loginIdCard" placeholder="请输入18位身份证号">
+    </div>
+    <button class="btn btn-primary" id="loginBtn">登 录</button>
+    <div class="register-link">
+        还没有账号？<a href="account-generator.html">立即生成</a>
+    </div>
+</div>
+
+<script>
+document.getElementById('loginBtn').addEventListener('click', async function() {
+    var name = document.getElementById('loginName').value.trim();
+    var idCard = document.getElementById('loginIdCard').value.trim();
+    var errorEl = document.getElementById('errorMsg');
+    if (!name || !idCard) {
+        errorEl.textContent = '请填写姓名和身份证号';
+        errorEl.style.display = 'block';
+        return;
+    }
+    this.disabled = true;
+    this.textContent = '登录中...';
+    try {
+        var res = await fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: name, id_card: idCard})
+        });
+        var data = await res.json();
+        if (data.code === 0) {
+            localStorage.setItem('xuexin_user_id', data.data.id);
+            localStorage.setItem('xuexin_user_name', data.data.name);
+            localStorage.setItem('xuexin_id_card', data.data.id_card);
+            window.location.href = 'list.html';
+        } else {
+            throw new Error(data.detail || '登录失败');
+        }
+    } catch (e) {
+        errorEl.textContent = e.message || '网络错误，请重试';
+        errorEl.style.display = 'block';
+    } finally {
+        this.disabled = false;
+        this.textContent = '登 录';
+    }
+});
+</script>
+</body>
+</html>

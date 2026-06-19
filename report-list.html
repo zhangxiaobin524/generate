@@ -3,24 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-    <title>学信档案 - 在线验证报告</title>
+    <title>学信档案 - 高等学籍</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         html, body {
             width: 100%;
             height: 100%;
-            overflow: hidden;
             background: #f5f5f5;
             font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
         }
 
-        /* 桌面端：正常显示 */
+        /* 桌面端 */
         .page-wrapper {
             width: 100%;
-            height: 100%;
-            overflow: auto;
-            -webkit-overflow-scrolling: touch;
+            min-height: 100%;
+            overflow-x: auto;
         }
 
         .page-content {
@@ -28,7 +26,6 @@
             min-height: 100vh;
             margin: 0 auto;
             background: #f5f5f5;
-            transform-origin: top center;
         }
 
         /* 手机端：等比缩放（完整显示电脑版效果） */
@@ -105,6 +102,7 @@
             height: 60px;
             line-height: 60px;
             position: relative;
+            text-decoration: none;
         }
         .nav-item:hover {
             color: white;
@@ -147,6 +145,7 @@
             cursor: pointer;
             height: 45px;
             line-height: 45px;
+            text-decoration: none;
         }
         .sub-item:hover {
             color: #2db475;
@@ -160,101 +159,85 @@
         .main-content {
             width: 1180px;
             margin: 20px auto;
-            background: white;
-            border: 1px solid #e0e0e0;
-            padding: 30px 40px;
+            padding: 0;
         }
 
-        /* 报告列表 */
-        .report-list {
-            list-style: none;
+        /* 信息栏 */
+        .info-bar {
+            background: #5cb85c;
+            color: white;
+            padding: 8px 15px;
+            font-size: 14px;
+            margin-bottom: 15px;
         }
-        .report-item {
+
+        /* 报告区块 */
+        .report-block {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+        .block-title {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 25px 0;
-            border-bottom: 1px solid #eee;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
         }
-        .report-item:last-child {
+        .block-title::before {
+            content: '✓';
+            width: 18px;
+            height: 18px;
+            background: #5cb85c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* 表格 */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .report-table th {
+            background: #f5f5f5;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+        }
+        .report-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        .report-table tr:last-child td {
             border-bottom: none;
         }
-        .report-info {
-            flex: 1;
-        }
-        .report-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-        }
-        .report-title-en {
-            font-size: 12px;
-            color: #999;
-            margin-bottom: 10px;
-        }
-        .report-desc {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.6;
-        }
-        .report-desc a {
-            color: #2b6cb5;
+        .code-link {
+            color: #2db475;
             text-decoration: none;
         }
-        .report-desc a:hover {
+        .code-link:hover {
             text-decoration: underline;
         }
-        .report-btn {
-            display: inline-block;
-            padding: 6px 20px;
-            background: #2db475;
-            color: white;
-            font-size: 14px;
-            text-decoration: none;
-            border-radius: 3px;
-            margin-left: 20px;
-        }
-        .report-btn:hover {
-            background: #25a065;
-        }
-
-        /* 报告介绍 */
-        .report-intro {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f9f9f9;
-            border: 1px solid #eee;
-        }
-        .intro-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .intro-icon {
+        .action-link {
             color: #2db475;
-            font-size: 16px;
-        }
-        .intro-content {
-            font-size: 13px;
-            color: #666;
-            line-height: 1.8;
-            margin-bottom: 10px;
-        }
-        .intro-links {
-            font-size: 13px;
-        }
-        .intro-links a {
-            color: #2b6cb5;
             text-decoration: none;
             margin-right: 15px;
         }
-        .intro-links a:hover {
+        .action-link:hover {
             text-decoration: underline;
+        }
+        .action-link.gray {
+            color: #999;
         }
 
         /* ===== 底部 ===== */
@@ -270,7 +253,7 @@
             text-decoration: none;
         }
         .footer a:hover {
-            color: #2b6cb5;
+            color: #2db475;
         }
     </style>
 </head>
@@ -281,7 +264,7 @@
     <!-- 顶部导航 -->
     <div class="header">
         <div class="header-inner">
-            <a href="#" class="logo">
+            <a href="list.html" class="logo">
                 <div class="logo-icon">
                     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4 6h16v12H4z"/>
@@ -292,9 +275,9 @@
                 <span>学信档案</span>
             </a>
             <div class="main-nav">
-                <span class="nav-item">首页</span>
-                <span class="nav-item">高等教育信息</span>
-                <span class="nav-item active">在线验证报告</span>
+                <a href="list.html" class="nav-item">首页</a>
+                <a href="list.html" class="nav-item">高等教育信息</a>
+                <a href="report-list.html" class="nav-item active">在线验证报告</a>
                 <span class="nav-item">学历学位认证与成绩验证</span>
                 <span class="nav-item">出国（境）报告发送</span>
                 <span class="nav-item">调查/投票</span>
@@ -307,8 +290,8 @@
     <!-- 子导航 -->
     <div class="sub-nav">
         <div class="sub-nav-inner">
-            <span class="sub-item active">首页</span>
-            <span class="sub-item">高等学籍</span>
+            <a href="list.html" class="sub-item">首页</a>
+            <a href="report-list.html" class="sub-item active">高等学籍</a>
             <span class="sub-item">高等学历</span>
             <span class="sub-item">学位</span>
             <span class="sub-item">协助申请</span>
@@ -317,66 +300,47 @@
 
     <!-- 主内容 -->
     <div class="main-content">
-        <ul class="report-list">
-            <!-- 学籍报告 -->
-            <li class="report-item">
-                <div class="report-info">
-                    <div class="report-title">教育部学籍在线验证报告</div>
-                    <div class="report-title-en">Online Verification Report of Student Record (Current Students)</div>
-                    <div class="report-desc">
-                        《教育部学籍在线验证报告》是依据《高等学校学生学籍学历电子注册办法》（<a href="#">教学[2014]11号</a>）为学生本人提供的学籍注册信息网上查询验证服务。
-                    </div>
-                </div>
-                <a href="report-list.html" class="report-btn">查看</a>
-            </li>
+        <!-- 信息栏 -->
+        <div class="info-bar">
+            本科 - 运城学院 - 计算机科学与技术(网络工程方向)
+        </div>
 
-            <!-- 学历报告 -->
-            <li class="report-item">
-                <div class="report-info">
-                    <div class="report-title">教育部学历证书电子注册备案表</div>
-                    <div class="report-title-en">Online Verification Report of HE Qualification Certificate (Graduate Students)</div>
-                    <div class="report-desc">
-                        《教育部学历证书电子注册备案表》是依据《高等学校学生学籍学历电子注册办法》（<a href="#">教学[2014]11号</a>）对学生本人提供的学历注册信息网上查询验证服务。
-                    </div>
-                </div>
-                <a href="report-list.html" class="report-btn">查看</a>
-            </li>
-
-            <!-- 学位报告 -->
-            <li class="report-item">
-                <div class="report-info">
-                    <div class="report-title">中国高等教育学位在线验证报告</div>
-                    <div class="report-title-en">Online Verification Report of Higher Education Degree Certificate</div>
-                    <div class="report-desc">
-                        《中国高等教育学位在线验证报告》是依据《学位授予信息管理工作规程》（学位办〔2020〕8号）对学生本人提供的学位授予信息网上查询验证服务。
-                    </div>
-                </div>
-                <a href="report-list.html" class="report-btn">查看</a>
-            </li>
-        </ul>
-
-        <!-- 报告介绍 -->
-        <div class="report-intro">
-            <div class="intro-title">
-                <span class="intro-icon">◉</span>
-                报告介绍
-            </div>
-            <div class="intro-content">
-                为满足求职招聘、派遣接收、升学（考研、专升本）、出国留学、出境学习、干部任免、职称评定、信用评估等领域的需要，学信网依托全国高等教育学生信息数据库，对学生的学籍、学历、学位、招生录取等相关信息提供在线验证报告，如：《教育部学历证书电子注册备案表》、《教育部学籍在线验证报告》、《中国高等教育学位在线验证报告》等。验证报告由学信网提供在线验证功能，报告持有人登录网站在线验证页面，输入在线验证码即可免费验证报告内容。报告中的信息也可通过扫描二维验证码进行验证或手机上网再验证。报告可在验证有效期内多次打印、多次验证。
-            </div>
-            <div class="intro-links">
-                <a href="#">报告简介</a>
-                <a href="#">特点和用途</a>
-                <a href="#">如何申请</a>
-                <a href="#">特别声明</a>
-            </div>
+        <!-- 报告区块 -->
+        <div class="report-block">
+            <div class="block-title">已申请的报告</div>
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th width="200">在线验证码</th>
+                        <th width="100">语种</th>
+                        <th width="150">有效期</th>
+                        <th width="100">状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <a href="mobile-verify.html" class="code-link">AG4FMEZUN9W8YHRL</a>
+                        </td>
+                        <td>中文</td>
+                        <td>2026-12-12</td>
+                        <td>有效</td>
+                        <td>
+                            <a href="mobile-verify.html" class="action-link">查看</a>
+                            <a href="#" class="action-link">延长验证有效期</a>
+                            <a href="#" class="action-link gray">关闭</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <!-- 底部 -->
     <div class="footer">
         <a href="#">学信网</a>　|　<a href="#">帮助中心</a>　|　Copyright © 2003-2026 学信网 All Rights Reserved<br/>
-        <a href="#">京ICP备19004913号-1</a>　<img src="https://t3.chei.com.cn/chsi/images/jgwab.svg" style="vertical-align: middle;margin-bottom: 2px;margin-left: 8px;width:14px;" /> <a href="#">京公网安备11010202009747号</a>
+        <a href="#">京ICP备19004913号-1</a>　<a href="#">京公网安备11010202009747号</a>
     </div>
 
 </div>
@@ -384,24 +348,27 @@
 </body>
 </html>
 <script>
-    // 登录检查
+    // 登录检查 + 加载用户数据
     (function() {
         var uid = localStorage.getItem('xuexin_user_id');
         var name = localStorage.getItem('xuexin_user_name');
         if (!uid) {
             window.location.href = 'login.html';
+            return;
         }
-        // 在页面右上角显示用户名
-        var topbar = document.querySelector('.topbar-right');
-        if (topbar && name) {
-            var userSpan = document.createElement('span');
-            userSpan.style.cssText = 'color:white;font-size:13px;font-weight:500;margin-right:5px;';
-            userSpan.textContent = name;
-            topbar.insertBefore(userSpan, topbar.firstChild);
-        }
+        // 加载用户信息到页面
+        fetch('/api/user/' + uid).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.code !== 0 || !data.data) return;
+            var u = data.data;
+            // 更新信息栏
+            var bar = document.querySelector('.info-bar');
+            if (bar) bar.textContent = u.level + ' - ' + u.school + ' - ' + u.major;
+            // 更新验证码
+            var codeLink = document.querySelector('.code-link');
+            if (codeLink) codeLink.textContent = u.verify_code;
+        }).catch(function(e) { console.warn('加载用户数据失败', e); });
     })();
 
-    // JS 兜底：确保手机端缩放生效
     (function() {
         if (window.innerWidth > 1200) return;
         var scale = window.innerWidth / 1200;

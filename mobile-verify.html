@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>教育部学籍在线验证报告</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+            background: #f5f5f5;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* 顶部通知 */
+        .notice {
+            background: #fff3f3;
+            color: #e74c3c;
+            padding: 10px 15px;
+            font-size: 13px;
+            text-align: center;
+            border-bottom: 1px solid #ffe0e0;
+        }
+
+        /* 顶部栏 */
+        .header {
+            background: white;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 30px;
+            height: 30px;
+        }
+        .logo-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .sub-title {
+            font-size: 14px;
+            color: #999;
+            margin-left: 5px;
+        }
+        .header-right {
+            display: flex;
+            gap: 20px;
+        }
+        .header-icon {
+            font-size: 20px;
+            color: #666;
+        }
+
+        /* 报告语种 */
+        .lang-bar {
+            background: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+        .lang-label {
+            font-size: 14px;
+            color: #666;
+        }
+        .lang-options {
+            display: flex;
+            gap: 20px;
+        }
+        .lang-option {
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+        }
+        .lang-option.active {
+            color: #2db475;
+            position: relative;
+        }
+        .lang-option.active::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #2db475;
+        }
+        .download-btn {
+            width: 32px;
+            height: 32px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* 主内容 */
+        .main-content {
+            background: white;
+            margin: 10px;
+            padding: 20px 15px;
+            border-radius: 8px;
+        }
+
+        /* 标题 */
+        .report-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* 证件照 */
+        .photo-wrap {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .photo {
+            width: 120px;
+            height: 150px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            display: inline-block;
+            overflow: hidden;
+        }
+        .photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 信息列表 */
+        .info-list {
+            list-style: none;
+        }
+        .info-item {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            width: 90px;
+            color: #999;
+            font-size: 15px;
+            flex-shrink: 0;
+            text-align: right;
+            padding-right: 15px;
+        }
+        .info-value {
+            flex: 1;
+            color: #333;
+            font-size: 15px;
+            word-break: break-all;
+        }
+
+        /* 底部 */
+        .footer {
+            background: #333;
+            color: #999;
+            padding: 20px 15px;
+            text-align: center;
+            font-size: 12px;
+            line-height: 1.8;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 通知 -->
+    <div class="notice">
+        通知：学信网客服咨询将于6月19日-6月21日暂停，期间网站可正常访问。祝您端午节快乐！
+    </div>
+
+    <!-- 顶部栏 -->
+    <div class="header">
+        <div class="header-left">
+            <svg class="logo-icon" viewBox="0 0 100 100">
+                <ellipse cx="50" cy="50" rx="45" ry="45" fill="#e74c3c"/>
+                <path d="M30 35 Q50 25 70 35 Q70 50 50 55 Q30 50 30 35" fill="white"/>
+                <circle cx="50" cy="40" r="8" fill="white"/>
+            </svg>
+            <span class="logo-text">学信网</span>
+            <span class="sub-title">在线验证</span>
+        </div>
+        <div class="header-right">
+            <span class="header-icon">&#128269;</span>
+            <span class="header-icon">&#9776;</span>
+        </div>
+    </div>
+
+    <!-- 报告语种 -->
+    <div class="lang-bar">
+        <div style="display:flex;align-items:center;gap:20px;">
+            <span class="lang-label">报告语种</span>
+            <div class="lang-options">
+                <span class="lang-option active">中文</span>
+                <span class="lang-option">英文</span>
+            </div>
+        </div>
+        <div class="download-btn">&#8681;</div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <div class="report-title">教育部学籍在线验证报告</div>
+
+        <!-- 证件照 -->
+        <div class="photo-wrap">
+            <div class="photo" id="photoDisplay">
+                <span style="line-height:150px;color:#999;font-size:12px;">暂无照片</span>
+            </div>
+        </div>
+
+        <!-- 信息列表 -->
+        <ul class="info-list">
+            <li class="info-item">
+                <span class="info-label">姓名</span>
+                <span class="info-value" id="outName">张晓斌</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">性别</span>
+                <span class="info-value" id="outGender">男</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">出生日期</span>
+                <span class="info-value" id="outBirth">1993年05月24日</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">民族</span>
+                <span class="info-value" id="outEthnic">汉族</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">学校名称</span>
+                <span class="info-value" id="outSchool">运城学院</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">层次</span>
+                <span class="info-value" id="outLevel">本科</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">专业</span>
+                <span class="info-value" id="outMajor">计算机科学与技术(网络工程方向)</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">学制</span>
+                <span class="info-value" id="outDuration">4 年</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">学历类别</span>
+                <span class="info-value" id="outDegreeType">普通高等教育</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">学习形式</span>
+                <span class="info-value" id="outStudyForm">普通全日制</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">分院</span>
+                <span class="info-value" id="outCollege">运城学院</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">系所</span>
+                <span class="info-value" id="outDept">计算机科学与技术系</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">入学日期</span>
+                <span class="info-value" id="outEnroll">2013年09月01日</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">学籍状态</span>
+                <span class="info-value" id="outStatus">不在籍（毕业）</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">离校日期</span>
+                <span class="info-value" id="outGrad">2017年07月01日</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">在线验证码</span>
+                <span class="info-value" id="outCode" style="font-family:monospace;font-weight:600;">AG4FMEZUN9W8YHRL</span>
+            </li>
+            <li class="info-item">
+                <span class="info-label">更新日期</span>
+                <span class="info-value" id="outUpdate">2026年06月16日</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 底部 -->
+    <div class="footer">
+        主办单位：教育部学生服务与素质发展中心<br>
+        Copyright &copy; 2003-2026 学信网 All Rights Reserved
+    </div>
+
+<script>
+async function loadUserData() {
+    var userId = localStorage.getItem('xuexin_user_id');
+    if (!userId) {
+        // 如果没有用户ID，显示默认数据
+        return;
+    }
+    try {
+        var res = await fetch('/api/user/' + userId);
+        var data = await res.json();
+        if (data.code !== 0 || !data.data) return;
+        var u = data.data;
+
+        // 填充数据
+        var map = {
+            'outName': u.name,
+            'outGender': u.gender,
+            'outBirth': u.birth,
+            'outEthnic': u.ethnic,
+            'outSchool': u.school,
+            'outLevel': u.level,
+            'outMajor': u.major,
+            'outDuration': u.duration,
+            'outDegreeType': u.degree_type,
+            'outStudyForm': u.study_form,
+            'outCollege': u.college,
+            'outDept': u.dept,
+            'outEnroll': u.enroll_date,
+            'outStatus': u.status,
+            'outGrad': u.grad_date,
+            'outCode': u.verify_code,
+            'outUpdate': '2026年06月16日',
+        };
+        for (var key in map) {
+            var el = document.getElementById(key);
+            if (el) el.textContent = map[key];
+        }
+
+        // 头像
+        if (u.photo) {
+            var display = document.getElementById('photoDisplay');
+            display.innerHTML = '<img src="' + u.photo + '">';
+        }
+    } catch(e) {
+        console.warn('加载用户数据失败:', e);
+    }
+}
+loadUserData();
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号生成 - 学信档案</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 520px; margin: 0 auto; }
+        h2 { text-align: center; color: #2db475; margin-bottom: 20px; font-size: 22px; }
+        .card {
+            background: white; border-radius: 14px; padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px;
+        }
+        .card h3 { font-size: 16px; color: #333; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        label { font-size: 13px; color: #666; display: block; margin-bottom: 5px; margin-top: 14px; }
+        input, select {
+            width: 100%; padding: 10px 12px; border: 1px solid #ddd;
+            border-radius: 8px; font-size: 14px; outline: none;
+        }
+        input:focus, select:focus { border-color: #2db475; }
+        .photo-area {
+            margin: 10px 0; display: flex; align-items: center; gap: 15px;
+        }
+        .photo-preview {
+            width: 80px; height: 100px; border: 2px dashed #ddd; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: #ccc; font-size: 11px; overflow: hidden; background: #fafafa; flex-shrink: 0;
+        }
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
+            font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 18px; transition: all 0.2s;
+        }
+        .btn-green { background: #2db475; color: white; }
+        .btn-green:hover { background: #25a065; }
+        .btn-green:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-small {
+            padding: 6px 14px; font-size: 12px; border-radius: 6px;
+            background: #2db475; color: white; border: none; cursor: pointer;
+        }
+        .btn-small:hover { background: #25a065; }
+        .btn-login {
+            display: inline-block; margin-top: 10px; color: #2db475;
+            text-decoration: none; font-size: 14px; font-weight: 500;
+        }
+        .btn-login:hover { text-decoration: underline; }
+        .generated-info {
+            margin-top: 16px; padding: 16px; background: #f0faf5; border-radius: 10px;
+            border: 1px solid #d4edda; display: none;
+        }
+        .gen-row { display: flex; padding: 3px 0; font-size: 13px; }
+        .gen-row .lbl { width: 75px; color: #888; flex-shrink: 0; }
+        .gen-row .val { flex: 1; color: #333; }
+        .account-list { margin-top: 12px; }
+        .acc-item {
+            display: flex; align-items: center; padding: 10px 12px;
+            background: #fafafa; border-radius: 8px; margin-bottom: 6px; border: 1px solid #eee;
+        }
+        .acc-item .avatar {
+            width: 36px; height: 36px; border-radius: 50%; background: #eee;
+            margin-right: 12px; overflow: hidden; flex-shrink: 0;
+        }
+        .acc-item .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .acc-item .info { flex: 1; }
+        .acc-item .name { font-size: 14px; font-weight: 600; color: #333; }
+        .acc-item .detail { font-size: 11px; color: #999; }
+        .acc-item .del-btn {
+            padding: 4px 10px; background: #ff4444; color: white;
+            border: none; border-radius: 4px; font-size: 11px; cursor: pointer;
+        }
+        .empty-tip { text-align: center; color: #ccc; font-size: 13px; padding: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>📋 账号管理</h2>
+
+    <div class="card">
+        <h3>生成新账号</h3>
+        <label>📷 头像</label>
+        <div class="photo-area">
+            <div class="photo-preview" id="photoPreview">
+                <span>点击上传</span>
+            </div>
+            <input type="file" id="photoUpload" accept="image/*" style="display:none">
+            <span style="font-size:12px;color:#999;">支持 JPG/PNG</span>
+        </div>
+        <label>姓名</label>
+        <input type="text" id="inName" placeholder="请输入姓名">
+        <label>性别</label>
+        <select id="inGender"><option value="男">男</option><option value="女">女</option></select>
+        <button class="btn btn-green" id="generateBtn">⚡ 生成账号</button>
+        <div class="generated-info" id="generatedInfo"></div>
+    </div>
+
+    <div class="card">
+        <h3>已生成账号 <span id="accountCount" style="color:#999;font-weight:400;"></span></h3>
+        <div id="accountList"><div class="empty-tip">暂无账号，请先生成一个</div></div>
+        <div style="text-align:center;margin-top:12px;">
+            <a href="login.html" class="btn-login">→ 去登录</a>
+        </div>
+    </div>
+</div>
+
+<script>
+var photoData = '';
+
+document.getElementById('photoPreview').addEventListener('click', function() {
+    document.getElementById('photoUpload').click();
+});
+document.getElementById('photoUpload').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        photoData = ev.target.result;
+        var preview = document.getElementById('photoPreview');
+        preview.innerHTML = '<img src="' + photoData + '">';
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('generateBtn').addEventListener('click', async function() {
+    var name = document.getElementById('inName').value.trim();
+    var gender = document.getElementById('inGender').value;
+    if (!name) { alert('请填写姓名'); return; }
+    this.disabled = true;
+    this.textContent = '⏳ 生成中...';
+    try {
+        var res = await fetch('/api/register', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name: name, gender: gender, photo: photoData})
+        });
+        var data = await res.json();
+        if (data.code === 0) {
+            var info = data.data;
+            var html = '<div style="font-weight:600;color:#2db475;margin-bottom:8px;">✅ 账号已生成</div>';
+            html += '<div class="gen-row"><span class="lbl">姓名</span><span class="val">' + info.name + '</span></div>';
+            html += '<div class="gen-row"><span class="lbl">性别</span><span class="val">' + info.gender + '</span></div>';
+            html += '<div class="gen-row"><span class="lbl">身份证号</span><span class="val">' + info.id_card + '</span></div>';
+            html += '<div class="gen-row"><span class="lbl">出生日期</span><span class="val">' + info.birth + '</span></div>';
+            html += '<div class="gen-row"><span class="lbl">学校</span><span class="val">' + info.school + '</span></div>';
+            html += '<div class="gen-row"><span class="lbl">专业</span><span class="val">' + info.major + '</span></div>';
+            html += '<div class="gen-row"><span class="lbl">验证码</span><span class="val" style="font-family:monospace;">' + info.verify_code + '</span></div>';
+            html += '<div style="margin-top:10px;"><a href="login.html" style="color:#2db475;font-size:13px;">→ 去登录试试</a></div>';
+            document.getElementById('generatedInfo').innerHTML = html;
+            document.getElementById('generatedInfo').style.display = 'block';
+            loadAccounts();
+        } else {
+            alert(data.detail || '生成失败');
+        }
+    } catch(e) {
+        alert('网络错误：' + e.message);
+    } finally {
+        this.disabled = false;
+        this.textContent = '⚡ 生成账号';
+    }
+});
+
+// 加载账号列表
+async function loadAccounts() {
+    var container = document.getElementById('accountList');
+    var countEl = document.getElementById('accountCount');
+    try {
+        // 获取所有账号 - 此处简单起见直接从登录 API 了解快速获取
+        // 真实场景应该有列表 API，这里简化从本地存储读取
+        var accounts = localStorage.getItem('xuexin_accounts');
+        if (accounts) accounts = JSON.parse(accounts);
+        else accounts = [];
+
+        if (accounts.length === 0) {
+            container.innerHTML = '<div class="empty-tip">暂无账号</div>';
+            countEl.textContent = '';
+            return;
+        }
+
+        countEl.textContent = '(' + accounts.length + '个)';
+        var html = '';
+        accounts.forEach(function(acc, i) {
+            html += '<div class="acc-item">';
+            html += '<div class="avatar">';
+            if (acc.photo) html += '<img src="' + acc.photo + '">';
+            else html += '<span style="display:flex;align-items:center;justify-content:center;height:100%;color:#ccc;">?</span>';
+            html += '</div>';
+            html += '<div class="info"><div class="name">' + acc.name + '</div>';
+            html += '<div class="detail">' + acc.id_card + ' · ' + acc.school + '</div></div>';
+            html += '</div>';
+        });
+        container.innerHTML = html;
+    } catch(e) {
+        container.innerHTML = '<div class="empty-tip">加载失败</div>';
+    }
+}
+
+// 注册后保存到本地用于列表展示（后端已有完整存储）
+function saveAccountToLocal(info) {
+    var accounts = localStorage.getItem('xuexin_accounts');
+    accounts = accounts ? JSON.parse(accounts) : [];
+    accounts.push(info);
+    localStorage.setItem('xuexin_accounts', JSON.stringify(accounts));
+}
+
+// 重写 fetch 保存
+var origFetch = window.fetch;
+window.fetch = function(url, options) {
+    return origFetch(url, options).then(function(res) {
+        if (url === '/api/register' && options && options.method === 'POST') {
+            res.clone().json().then(function(data) {
+                if (data.code === 0) saveAccountToLocal(data.data);
+            });
+        }
+        return res;
+    });
+};
+
+loadAccounts();
+</script>
+</body>
+</html>
