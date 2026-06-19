@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>学信网学籍在线验证报告</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"
+      onerror="(function(){var s=document.createElement('script');s.src='https://unpkg.com/qrcode-generator@1.4.4/qrcode.min.js';document.head.appendChild(s)})()"></script>
     <!-- html2canvas: 用于将报告转为图片 -->
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"
       onerror="(function(){var s=document.createElement('script');s.src='https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js';document.head.appendChild(s)})()"></script>
@@ -36,7 +37,7 @@
         .editor-panel h3 {
             font-size: 20px;
             font-weight: bold;
-            color: #1a6b3c;
+            color: #2563eb;
             border-bottom: 1px solid #ddd;
             padding-bottom: 8px;
             margin-bottom: 16px;
@@ -60,7 +61,7 @@
         }
         .file-input { margin: 15px 0 5px; }
         .btn-export {
-            background-color: #1a6b3c;
+            background-color: #2563eb;
             color: white;
             font-weight: bold;
             padding: 12px;
@@ -273,9 +274,22 @@
         <label>📷 上传证件照（蓝底/白底）</label>
         <input type="file" id="photoUpload" accept="image/*">
     </div>
-    <label>姓名</label><input id="inName" value="张晓斌">
-    <label>性别</label><input id="inGender" value="男">
-    <label>出生日期</label><input id="inBirth" value="1993年05月24日">
+    <label>性别</label>
+    <select id="inGender" style="width:100%;border:1px solid #ccc;border-radius:8px;padding:6px 8px;font-size:14px;margin-bottom:10px;">
+        <option value="男">男</option>
+        <option value="女">女</option>
+    </select>
+    <label>姓名</label>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <input id="inName" value="张晓斌" style="flex:1;margin-bottom:0;">
+        <button type="button" onclick="copyToClipboard('inName')" style="padding:6px 12px;background:#2563eb;color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap;">复制</button>
+    </div>
+    <label>身份证号</label>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <input id="inIdCard" value="" placeholder="18位身份证号，自动识别出生日期" style="flex:1;margin-bottom:0;">
+        <button type="button" onclick="copyToClipboard('inIdCard')" style="padding:6px 12px;background:#2563eb;color:white;border:none;border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap;">复制</button>
+    </div>
+    <label>出生日期</label><input id="inBirth" value="1993年05月24日" readonly style="background:#f5f5f5;color:#999;">
     <label>民族</label><input id="inEthnic" value="汉族">
     <label>学校名称</label><input id="inSchool" value="运城学院">
     <label>层次</label><input id="inLevel" value="本科">
@@ -285,9 +299,9 @@
     <label>学习形式</label><input id="inStudyForm" value="普通全日制">
     <label>分院</label><input id="inCollege" value="运城学院">
     <label>系所</label><input id="inDept" value="计算机科学与技术系">
-    <label>入学日期</label><input id="inEnroll" value="2013年09月01日">
-    <label>离校日期</label><input id="inGrad" value="2017年07月01日">
-    <label>学籍状态</label><input id="inStatus" value="不在籍（毕业）">
+    <label>入学日期</label><input id="inEnroll" value="2013年09月01日" readonly style="background:#f5f5f5;color:#999;">
+    <label>离校日期</label><input id="inGrad" value="2017年07月01日" readonly style="background:#f5f5f5;color:#999;">
+    <label>学籍状态</label><input id="inStatus" value="在籍" readonly style="background:#f5f5f5;color:#999;">
     <label>在线验证码</label><input id="inCode" value="">
     <button class="btn-export" id="exportBtn">📥 导出 PDF</button>
 </div>
@@ -343,7 +357,7 @@
 
 <!-- 手机端切换按钮 -->
 <div class="report-mobile" style="display:none; text-align:center; margin:8px 0 0;" id="mobileToggleWrap">
-    <button id="toggleViewBtn" style="padding:8px 20px; border:1px solid #1a6b3c; border-radius:20px; background:white; color:#1a6b3c; font-size:13px; font-weight:600; cursor:pointer;">
+    <button id="toggleViewBtn" style="padding:8px 20px; border:1px solid #2563eb; border-radius:20px; background:white; color:#2563eb; font-size:13px; font-weight:600; cursor:pointer;">
         📄 查看完整报告样式
     </button>
 </div>
@@ -364,6 +378,20 @@
 </div>
 
 <script>
+    function copyToClipboard(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(el.value).then(function() {
+                var btn = el.nextElementSibling || el.parentNode.querySelector('button');
+                if (btn) { btn.innerText = '已复制'; btn.style.background = '#28a745'; setTimeout(function(){ btn.innerText='复制'; btn.style.background='#2563eb'; }, 1500); }
+            });
+        } else {
+            el.select();
+            document.execCommand('copy');
+        }
+    }
+
     function generateRandomCode(length) {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let result = '';
@@ -373,11 +401,179 @@
         return result;
     }
 
-    const randomCode = generateRandomCode(16);
-    const codeInput = document.getElementById('inCode');
-    const outCodeSpan = document.getElementById('outCode');
+    // ====== 随机数据生成（每次刷新自动随机） ======
+    function randomPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function randomInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    var schools = [
+        '运城学院','太原师范学院','忻州师范学院','山西师范大学','山西财经大学','山西医科大学','山西农业大学','中北大学',
+        '洛阳师范学院','信阳师范学院','周口师范学院','安阳师范学院','南阳师范学院','商丘师范学院','许昌学院',
+        '滁州学院','皖西学院','宿州学院','巢湖学院','黄山学院','铜陵学院','合肥学院',
+        '莆田学院','三明学院','龙岩学院','武夷学院','宁德师范学院','泉州师范学院',
+        '德州学院','滨州学院','菏泽学院','枣庄学院','济宁学院','泰山学院','潍坊学院',
+        '韶关学院','惠州学院','嘉应学院','肇庆学院','五邑大学','茂名学院','韩山师范学院',
+        '怀化学院','湘南学院','衡阳师范学院','邵阳学院','湖南科技学院','湖南人文科技学院',
+        '宝鸡文理学院','咸阳师范学院','渭南师范学院','榆林学院','安康学院','商洛学院',
+        '湖北理工学院','湖北科技学院','湖北工程学院','黄冈师范学院','荆楚理工学院',
+        '内江师范学院','宜宾学院','绵阳师范学院','乐山师范学院','西昌学院'
+    ];
+    var majors = [
+        '计算机科学与技术(网络工程方向)','计算机科学与技术','软件工程','网络工程','物联网工程','数据科学与大数据技术',
+        '电子信息工程','通信工程','自动化','电气工程及其自动化','机械设计制造及其自动化',
+        '土木工程','建筑学','工程管理','工程造价','城乡规划',
+        '汉语言文学','汉语国际教育','新闻学','广告学','广播电视学',
+        '英语','日语','商务英语','翻译',
+        '数学与应用数学','信息与计算科学','应用物理学','应用化学','生物科学','生物技术',
+        '金融学','经济学','国际经济与贸易','工商管理','会计学','财务管理','市场营销','人力资源管理',
+        '法学','社会工作','思想政治教育',
+        '学前教育','小学教育','体育教育','社会体育指导与管理',
+        '材料科学与工程','环境工程','食品科学与工程','风景园林',
+        '音乐学','美术学','视觉传达设计','环境设计','产品设计'
+    ];
+    var depts = [
+        '计算机科学与技术系','软件工程系','电子信息工程系','自动化系','网络工程系','数据科学系',
+        '机械工程系','土木工程系','建筑系','工程管理系',
+        '经济管理学院','工商管理系','会计系','金融系',
+        '法学院','政治与法律系',
+        '外国语学院','英语系','日语系','商务英语系',
+        '人文学院','中文系','新闻传播系',
+        '理学院','数学系','物理系','化学系',
+        '教育学院','体育学院','音乐与舞蹈学院','美术与设计学院'
+    ];
+    var namesMale = ['张晓斌','王磊','张伟','刘洋','杨帆','周杰','吴迪','徐明','马超','胡波',
+                     '郭峰','林峰','何平','高峰','陈浩','赵磊','孙权','李强','黄海','刘杰'];
+    var namesFemale = ['李娜','陈静','赵敏','黄丽','孙悦','朱婷','王芳','张娟','刘洋','杨雪',
+                       '周婷','吴静','马丽','胡敏','郭雪','林婷','何悦','高敏','陈静怡','赵梦'];
+    var surnames = ['张','王','李','赵','刘','陈','杨','黄','周','吴','马','胡','郭','林','何','高','孙','朱','徐','罗'];
+    // 民族固定为汉族
+    // 学历类别和学习形式固定为「普通高等教育」「普通全日制」
+    var statuses = ['在籍','不在籍（毕业）','不在籍（结业）','不在籍（肄业）'];
+
+    // 生成随机入学/离校日期
+    var enrollYear = randomInt(2008, 2022);
+    var duration = randomPick([3,4,5]);
+    var gradYear = enrollYear + duration;
+    var enrollMonth = String(randomInt(8,10)).padStart(2,'0');
+    var gradMonth = String(randomInt(6,7)).padStart(2,'0');
+    var birthYear = randomInt(1990, 2003);
+    var birthMonth = String(randomInt(1,12)).padStart(2,'0');
+    var birthDay = String(randomInt(1,28)).padStart(2,'0');
+
+    // ====== 性别选择 → 自动生成姓名+身份证 ======
+    function generateNameAndId(gender) {
+        // 18-24岁学生
+        var now = new Date().getFullYear();
+        var age = randomInt(18, 24);
+        var birthYear = now - age;
+        var birthMonth = String(randomInt(1, 12)).padStart(2, '0');
+        var birthDay = String(randomInt(1, 28)).padStart(2, '0');
+        var birthStr = birthYear + '年' + birthMonth + '月' + birthDay + '日';
+
+        // 名字
+        var name;
+        if (gender === '男') name = randomPick(namesMale);
+        else name = randomPick(namesFemale);
+
+        // 身份证
+        var nums = String(birthYear) + birthMonth + birthDay;
+        var areaCode = randomPick(['110101','110102','310101','310104','440101','440301','330101','330201',
+                                    '210101','210201','420101','420102','500101','500102','610101','320101']);
+        var seq = String(randomInt(1, 999)).padStart(3, '0');
+        var full17 = areaCode + nums + seq;
+        var gcode;
+        if (gender === '男') gcode = randomPick(['1','3','5','7','9']);
+        else gcode = randomPick(['0','2','4','6','8']);
+        var full = full17 + gcode;
+        var ws = [7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2];
+        var cs = ['1','0','X','9','8','7','6','5','4','3','2'];
+        var s = 0;
+        for (var i = 0; i < 17; i++) s += parseInt(full[i]) * ws[i];
+        var idCard = full + cs[s % 11];
+
+        return { name: name, idCard: idCard, birth: birthStr };
+    }
+
+    function parseIdCard(id) {
+        if (!id || id.length < 14) return null;
+        var nums = id.replace(/[^0-9Xx]/g, '');
+        if (nums.length < 14) return null;
+        var y = nums.substr(6,4), m = nums.substr(10,2), d = nums.substr(12,2);
+        return y + '年' + m + '月' + d + '日';
+    }
+
+    function fillDatesFromBirth(birthStr) {
+        var nums = birthStr.replace(/[^0-9]/g, '');
+        if (nums.length < 8) return;
+        var birthYear = parseInt(nums.substr(0,4));
+        var enrollYear = birthYear + 18;
+        var gradYear = enrollYear + 4;
+        document.getElementById('inEnroll').value = enrollYear + '年09月01日';
+        document.getElementById('inGrad').value = gradYear + '年07月01日';
+    }
+
+    function regenerateByGender(gender) {
+        var data = generateNameAndId(gender);
+        document.getElementById('inName').value = data.name;
+        document.getElementById('inIdCard').value = data.idCard;
+        document.getElementById('inBirth').value = data.birth;
+        fillDatesFromBirth(data.birth);
+    }
+
+    // 初始生成
+    var initGender = randomPick(['男','女']);
+    document.getElementById('inGender').value = initGender;
+    regenerateByGender(initGender);
+
+    // 性别切换
+    document.getElementById('inGender').addEventListener('change', function() {
+        regenerateByGender(this.value);
+        syncAllFields();
+    });
+
+    // 填充其他自动生成字段
+    document.getElementById('inEthnic').value = '汉族';
+    document.getElementById('inSchool').value = randomSchool = randomPick(schools);
+    document.getElementById('inLevel').value = '本科';
+    document.getElementById('inDuration').value = '4年';
+    document.getElementById('inMajor').value = randomPick(majors);
+    document.getElementById('inDegreeType').value = '普通高等教育';
+    document.getElementById('inStudyForm').value = '普通全日制';
+    document.getElementById('inCollege').value = randomSchool;
+    document.getElementById('inDept').value = randomPick(depts);
+    document.getElementById('inStatus').value = '在籍';
+
+    // 在线验证码
+    var randomCode = generateRandomCode(16);
+    var codeInput = document.getElementById('inCode');
+    var outCodeSpan = document.getElementById('outCode');
     codeInput.value = randomCode;
     outCodeSpan.innerText = randomCode;
+
+    // 触发数据绑定，同步到报告显示
+    function syncAllFields() {
+        var defs = [
+            {id:'outName',src:'inName'},{id:'outGender',src:'inGender'},{id:'outBirth',src:'inBirth'},
+            {id:'outEthnic',src:'inEthnic'},{id:'outSchool',src:'inSchool'},{id:'outLevel',src:'inLevel'},
+            {id:'outDuration',src:'inDuration'},{id:'outMajor',src:'inMajor'},{id:'outDegreeType',src:'inDegreeType'},
+            {id:'outStudyForm',src:'inStudyForm'},{id:'outCollege',src:'inCollege'},{id:'outDept',src:'inDept'},
+            {id:'outEnroll',src:'inEnroll'},{id:'outStatus',src:'inStatus'},{id:'outGrad',src:'inGrad'}
+        ];
+        defs.forEach(function(f) {
+            var out = document.getElementById(f.id);
+            var inp = document.getElementById(f.src);
+            if (out && inp) out.innerText = inp.value;
+        });
+        // 手机端同步
+        document.querySelectorAll('[id^="m_out"]').forEach(function(el) {
+            var key = el.id.replace('m_', '');
+            var out = document.getElementById(key);
+            if (out) el.innerText = out.innerText;
+        });
+        // 验证码同步
+        var mCode = document.getElementById('mCode');
+        if (mCode) mCode.innerText = randomCode;
+    }
+    syncAllFields();
 
     // ------ 数据绑定 ------
     const fieldDefs = [
@@ -434,6 +630,17 @@
     if (statusIn && statusOut) {
         statusIn.addEventListener('input', () => { statusOut.innerText = statusIn.value; });
     }
+
+    // 身份证号输入 → 自动更新出生日期、入学/离校日期
+    var idCardInput = document.getElementById('inIdCard');
+    idCardInput.addEventListener('input', function() {
+        var parsed = parseIdCard(this.value);
+        if (parsed) {
+            document.getElementById('inBirth').value = parsed;
+            fillDatesFromBirth(parsed);
+            syncAllFields();
+        }
+    });
 
     // 验证码同步
     codeInput.addEventListener('input', (e) => {
