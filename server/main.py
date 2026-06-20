@@ -53,6 +53,12 @@ def init_db():
         )
     """)
 
+    # 添加索引加速查询
+    try:
+        cursor.execute("CREATE INDEX idx_id_card ON accounts(id_card)")
+        cursor.execute("CREATE INDEX idx_name ON accounts(name)")
+    except:
+        pass  # 索引已存在忽略
     conn.commit()
     cursor.close()
     conn.close()
@@ -209,12 +215,10 @@ def get_user(user_id: int):
 def list_users():
     conn = get_db()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM accounts ORDER BY created_at DESC")
+    cursor.execute("SELECT id, name, gender, id_card, birth, ethnic, school, level, duration, major, degree_type, study_form, college, dept, enroll_date, grad_date, status, verify_code, created_at FROM accounts ORDER BY created_at DESC")
     users = cursor.fetchall()
     cursor.close()
     conn.close()
-    for u in users:
-        u["photo"] = u["photo"] or ""
     return {"code": 0, "data": users}
 
 @app.delete("/api/user/{user_id}")
