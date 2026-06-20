@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>教育部学籍在线验证报告</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -614,7 +614,11 @@ async function checkAndLoad() {
     }
 
     try {
-        var res = await fetch('/api/user/' + userId);
+        // 10秒超时，避免移动端网络慢卡死
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function() { controller.abort(); }, 10000);
+        var res = await fetch('/api/user/' + userId, { signal: controller.signal });
+        clearTimeout(timeoutId);
         if (res.status === 404) {
             maskIcon.innerHTML = '&#10060;';
             maskMsg.textContent = '该账号不存在或已被删除';
@@ -675,8 +679,13 @@ async function checkAndLoad() {
 
     } catch(e) {
         maskIcon.innerHTML = '&#10060;';
-        maskMsg.textContent = '网络错误，无法验证账号';
-        maskSub.textContent = '请检查网络连接后重试';
+        if (e.name === 'AbortError') {
+            maskMsg.textContent = '请求超时，网络较慢';
+            maskSub.textContent = '请检查网络连接后重试';
+        } else {
+            maskMsg.textContent = '网络错误，无法验证账号';
+            maskSub.textContent = '请检查网络连接后重试';
+        }
         maskBtn.style.display = 'block';
         maskBtn.textContent = '重试';
         maskBtn.onclick = function() { location.reload(); };
