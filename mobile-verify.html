@@ -11,7 +11,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
-            background: #f5f5f5;
+            background: #FAFCFB;
             max-width: 100%;
             overflow-x: hidden;
         }
@@ -121,6 +121,7 @@
             margin: 10px;
             padding: 20px 15px;
             border-radius: 8px;
+            overflow: hidden;
         }
 
         /* 标题 */
@@ -188,6 +189,8 @@
             font-size: 12px;
             line-height: 1.8;
             margin-top: 20px;
+            clear: both;
+            position: relative;
         }
         /* 验证蒙层 */
         .verify-mask {
@@ -543,47 +546,51 @@
     </div>
 </div>
 
-<!-- 电脑版PDF用（隐藏）- 完全复用index.html的xj-zxyz-res样式 -->
+<!-- 电脑版PDF用（隐藏）- 全部使用正常流布局，彻底解决重叠 -->
 <div id="pdfReport" style="display:none;">
-    <div class="xj-zxyz-res-pdf" style="width:706px;height:1000px;background-repeat:no-repeat;background-size:100% 100%;padding:50px 50px 50px 65px;position:relative;box-sizing:border-box;color:#222222;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;">
-        <h4 style="font-size:27px;font-weight:700;line-height:36px;text-align:center;color:#000000;margin-top:20px;margin-bottom:4px;position:relative;z-index:20;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>
-        <div style="font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;font-size:12px;color:#999999;text-align:center;margin-bottom:40px;position:relative;z-index:20;">更新日期：<span id="pdfUpdate"></span></div>
-        <div style="position:relative;width:100%;z-index:20;padding-left:5px;">
-            <div id="pdfPhoto" style="position:absolute;right:25px;top:5px;width:100px;height:130px;border:1px solid #b0b0b0;background:#f4f9f5;z-index:35;display:flex;align-items:center;justify-content:center;overflow:hidden;"><span style="font-size:11px;color:#aaa;">暂无照片</span></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">姓名</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfName"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">性别</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfGender"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">出生日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfBirth"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">民族</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfEthnic"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学校名称</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfSchool"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">层次</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfLevel"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">专业</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfMajor"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学制</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfDuration"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学历类别</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfDegreeType"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学习形式</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfStudyForm"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">分院</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfCollege"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">系所</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfDept"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">入学日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfEnroll"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学籍状态</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfStatus"></div></div>
-            <div style="display:flex;margin-bottom:14px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">离校日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfGrad"></div></div>
+    <div class="xj-zxyz-res-pdf" style="width:706px;background:#FAFCFB;padding:50px 50px 30px 65px;box-sizing:border-box;color:#222;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;">
+        <h4 style="font-size:27px;font-weight:700;line-height:36px;text-align:center;color:#000;margin-top:20px;margin-bottom:4px;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>
+        <div style="font-size:12px;color:#999;text-align:center;margin-bottom:30px;">更新日期：<span id="pdfUpdate"></span></div>
+        
+        <!-- 所有信息列表 -->
+        <div style="width:100%;position:relative;">
+            <div id="pdfPhoto" style="position:absolute;right:30px;top:0;width:100px;height:130px;border:1px solid #b0b0b0;background:#f4f9f5;display:flex;align-items:center;justify-content:center;overflow:hidden;"><span style="font-size:11px;color:#aaa;">暂无照片</span></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">姓名</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfName"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">性别</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfGender"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">出生日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfBirth"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">民族</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfEthnic"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学校名称</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfSchool"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">层次</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfLevel"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">专业</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfMajor"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学制</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfDuration"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学历类别</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfDegreeType"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学习形式</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfStudyForm"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">分院</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfCollege"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">系所</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfDept"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">入学日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfEnroll"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学籍状态</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfStatus"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">离校日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfGrad"></div></div>
         </div>
-        <div style="position:absolute;bottom:50px;left:65px;right:80px;z-index:20;">
-            <div style="border:1px solid #c2dec9;background:#f6fbf8;padding:6px 10px;display:flex;gap:10px;align-items:center;margin-bottom:18px;">
-                <div style="flex-shrink:0;"><div id="pdfQR" style="width:68px;height:68px;border:1px solid #b5ccbe;background:white;display:flex;align-items:center;justify-content:center;font-size:10px;color:#ccc;">二维码</div></div>
-                <div style="flex:1;font-size:11px;line-height:1.6;color:#333;">
-                    <div><span style="font-weight:600;color:#333;">在线验证码</span> <span class="yzm" id="pdfCode" style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#00bac7;margin-left:6px;display:inline-block;"></span></div>
-                    <div>① 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>
-                    <div>② 使用学信网App扫描二维码验证</div>
-                </div>
+        
+        <!-- 在线验证码区域 -->
+        <div style="margin:120px 0 10px 0;border:1px solid #c2dec9;background:#f6fbf8;padding:10px;display:flex;gap:12px;align-items:center;width:520px;">
+            <div style="flex-shrink:0;"><div id="pdfQR" style="width:68px;height:68px;border:1px solid #b5ccbe;background:white;display:flex;align-items:center;justify-content:center;font-size:10px;color:#ccc;">二维码</div></div>
+            <div style="flex:1;font-size:11px;line-height:1.6;color:#333;">
+                <div><span style="font-weight:600;color:#333;">在线验证码</span> <span id="pdfCode" style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#00bac7;margin-left:6px;"></span></div>
+                <div>① 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>
+                <div>② 使用学信网App扫描二维码验证</div>
             </div>
-            <div style="font-size:10px;color:#444;line-height:1.6;margin-top:4px;">
-                <div style="font-weight:bold;color:#222;margin-bottom:2px;font-size:10.5px;">注意事项：</div>
-                <div style="margin-bottom:1px;white-space:nowrap;">1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>
-                <div style="margin-bottom:1px;white-space:nowrap;">2、报告内容如有修改，请以最新在线验证的内容为准。</div>
-                <div style="margin-bottom:1px;white-space:nowrap;">3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>
-                <div style="display:flex;justify-content:space-between;align-items:center;white-space:nowrap;">
-                    <div>4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>
-                    <div style="flex-shrink:0;margin-left:8px;display:flex;align-items:center;gap:4px;"><img src="xxw.png" style="height:22px;width:auto;"><span style="color:#888;font-size:12px;font-weight:600;">CHSI</span></div>
-                </div>
+        </div>
+        
+        <!-- 注意事项 - 正常流 -->
+        <div style="font-size:10px;color:#444;line-height:1.6;margin-top:10px;">
+            <div style="font-weight:bold;color:#222;margin-bottom:2px;font-size:10.5px;">注意事项：</div>
+            <div style="margin-bottom:1px;">1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>
+            <div style="margin-bottom:1px;">2、报告内容如有修改，请以最新在线验证的内容为准。</div>
+            <div style="margin-bottom:1px;">3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div style="flex:1;">4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>
+                <div style="flex-shrink:0;margin-left:8px;display:flex;align-items:center;gap:4px;"><img src="xxw.png" style="height:22px;width:auto;"><span style="color:#888;font-size:12px;font-weight:600;">CHSI</span></div>
             </div>
         </div>
     </div>
@@ -844,15 +851,17 @@ function downloadPDF() {
             qrDiv.innerHTML = '<img src="' + qrDataUrl + '" style="width:68px;height:68px;display:block;">';
         }
     }
-    // 固定A4比例高度 (706 / 1.414 ≈ 998)
+    // 让克隆根据内容自动扩展高度
     clone.style.display = 'block';
     clone.style.position = 'fixed';
     clone.style.left = '-9999px';
     clone.style.top = '0';
     clone.style.width = '706px';
-    clone.style.height = '998px';
     document.body.appendChild(clone);
+    // 等浏览器渲染完成，获取实际高度
     clone.offsetHeight;
+    var actualHeight = Math.max(clone.scrollHeight, 1000);
+    clone.style.height = actualHeight + 'px';
 
     html2canvas(clone, {
         scale: 2,
@@ -860,7 +869,7 @@ function downloadPDF() {
         allowTaint: true,
         backgroundColor: null,
         width: 706,
-        height: 998
+        height: actualHeight
     }).then(function(canvas) {
         document.body.removeChild(clone);
         var imgData = canvas.toDataURL('image/jpeg', 0.95);

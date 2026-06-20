@@ -73,7 +73,7 @@ def startup():
 
 # ---------- 数据模型 ----------
 class RegisterRequest(BaseModel):
-    name: str
+    name: str = ""
     gender: str
     photo: str = ""
 
@@ -99,7 +99,7 @@ def generate_full_account(name, gender, photo=""):
               '数学与应用数学','金融学','经济学','会计学','财务管理','市场营销','法学','学前教育','小学教育']
     depts = ['计算机科学与技术系','软件工程系','电子信息工程系','自动化系','网络工程系','经济管理学院','法学院','外国语学院',
              '人文学院','理学院','教育学院','美术与设计学院']
-    ethnics = ['汉族','蒙古族','回族','藏族','维吾尔族','苗族','彝族','壮族']
+    ethnics = ['汉族']
 
     # 生成身份证
     now = 2026
@@ -148,7 +148,14 @@ def generate_full_account(name, gender, photo=""):
 # ---------- API ----------
 @app.post("/api/register")
 def register(req: RegisterRequest):
-    info = generate_full_account(req.name, req.gender, req.photo)
+    # 如果姓名为空，自动生成
+    name = req.name.strip() if req.name and req.name.strip() else ""
+    if not name:
+        names_male = ['张晓斌','王磊','张伟','刘洋','杨帆','周杰','吴迪','徐明','马超','胡波','郭峰','林峰','何平','高峰','陈浩','赵磊','孙权','李强','黄海','刘杰']
+        names_female = ['李娜','陈静','赵敏','黄丽','孙悦','朱婷','王芳','张娟','刘洋','杨雪','周婷','吴静','马丽','胡敏','郭雪','林婷','何悦','高敏','陈静怡','赵梦']
+        name_list = names_male if req.gender == '男' else names_female
+        name = random.choice(name_list)
+    info = generate_full_account(name, req.gender, req.photo)
     conn = get_db()
     cursor = conn.cursor()
     try:
