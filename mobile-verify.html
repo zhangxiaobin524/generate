@@ -530,7 +530,7 @@
             </li>
             <li class="info-item">
                 <span class="info-label">在线验证码</span>
-                <span class="info-value" id="outCode" style="font-family:monospace;font-weight:600;">AG4FMEZUN9W8YHRL</span>
+                <span class="info-value" id="outCode" style="font-family:monospace;font-weight:600;color:#000;">AG4FMEZUN9W8YHRL</span>
             </li>
             <li class="info-item">
                 <span class="info-label">更新日期</span>
@@ -548,7 +548,7 @@
 
 <!-- 电脑版PDF用（隐藏）- 全部使用正常流布局，彻底解决重叠 -->
 <div id="pdfReport" style="display:none;">
-    <div class="xj-zxyz-res-pdf" style="width:706px;background:#FAFCFB;padding:50px 50px 30px 65px;box-sizing:border-box;color:#222;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;">
+    <div class="xj-zxyz-res-pdf" style="width:706px;background:#FAFCFB;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;min-height:auto;">
         <h4 style="font-size:27px;font-weight:700;line-height:36px;text-align:center;color:#000;margin-top:20px;margin-bottom:4px;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>
         <div style="font-size:12px;color:#999;text-align:center;margin-bottom:30px;">更新日期：<span id="pdfUpdate"></span></div>
         
@@ -576,7 +576,7 @@
         <div style="margin:120px 0 10px 0;border:1px solid #c2dec9;background:#f6fbf8;padding:10px;display:flex;gap:12px;align-items:center;width:520px;">
             <div style="flex-shrink:0;"><div id="pdfQR" style="width:68px;height:68px;border:1px solid #b5ccbe;background:white;display:flex;align-items:center;justify-content:center;font-size:10px;color:#ccc;">二维码</div></div>
             <div style="flex:1;font-size:11px;line-height:1.6;color:#333;">
-                <div><span style="font-weight:600;color:#333;">在线验证码</span> <span id="pdfCode" style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#00bac7;margin-left:6px;"></span></div>
+                <div><span style="font-weight:600;color:#333;">在线验证码</span> <span id="pdfCode" style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#000;margin-left:6px;"></span></div>
                 <div>① 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>
                 <div>② 使用学信网App扫描二维码验证</div>
             </div>
@@ -798,13 +798,15 @@ function fillPdfData(u) {
 function downloadPDF() {
     var btn = document.querySelector('.download-btn');
     btn.innerHTML = '⏳';
-    if (typeof html2canvas === 'undefined') { btn.innerHTML = '&#8681;'; alert('导出库加载失败，请刷新重试'); return; }
-    if (typeof window.jspdf === 'undefined') { btn.innerHTML = '&#8681;'; alert('PDF库加载失败，请刷新重试'); return; }
+    if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+        btn.innerHTML = '&#8681;';
+        alert('导出库加载中，请稍后再试');
+        return;
+    }
 
     // 导出前确保二维码已生成
     var code = (localStorage.getItem('xuexin_user_verify_code') || '').trim();
     if (!code) {
-        // 尝试从页面获取
         var codeEl = document.getElementById('pdfCode');
         if (codeEl) code = codeEl.textContent.trim();
     }
@@ -833,59 +835,55 @@ function downloadPDF() {
     var source = document.getElementById('pdfReport');
     var clone = source.cloneNode(true);
     var reportDiv = clone.querySelector('.xj-zxyz-res-pdf');
-    // 设置整体背景色为 #FAFCFB
     if (reportDiv) {
         reportDiv.style.backgroundColor = '#FAFCFB';
-    }
-    // 花纹边框作为覆盖层在最上层
-    if (reportDiv) {
+        // 花纹边框
         var borderOverlay = document.createElement('div');
         borderOverlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background-image:url(' + BG_BASE64 + ');background-size:100% 100%;background-repeat:no-repeat;z-index:5;pointer-events:none;';
         reportDiv.appendChild(borderOverlay);
     }
 
-    // 在克隆中注入二维码图片（替代可能丢失内容的canvas）
+    // 注入二维码
     if (qrDataUrl) {
         var qrDiv = clone.querySelector('#pdfQR');
         if (qrDiv) {
             qrDiv.innerHTML = '<img src="' + qrDataUrl + '" style="width:68px;height:68px;display:block;">';
         }
     }
-    // 让克隆根据内容自动扩展高度
+
+    // 手机端兼容：用 absolute 替代 fixed
+    clone.style.cssText = 'position:absolute;left:-9999px;top:0;width:706px;z-index:-1;';
     clone.style.display = 'block';
-    clone.style.position = 'fixed';
-    clone.style.left = '-9999px';
-    clone.style.top = '0';
-    clone.style.width = '706px';
     document.body.appendChild(clone);
-    // 等浏览器渲染完成，获取实际高度
-    clone.offsetHeight;
-    var actualHeight = Math.max(clone.scrollHeight, 1000);
+    var actualHeight = clone.scrollHeight || 706;
     clone.style.height = actualHeight + 'px';
 
-    html2canvas(clone, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        width: 706,
-        height: actualHeight
-    }).then(function(canvas) {
-        document.body.removeChild(clone);
-        var imgData = canvas.toDataURL('image/jpeg', 0.95);
-        var { jsPDF } = window.jspdf;
-        var pdf = new jsPDF('p', 'mm', 'a4');
-        var pdfW = pdf.internal.pageSize.getWidth();
-        var ratio = pdfW / canvas.width;
-        var finalH = canvas.height * ratio;
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, finalH);
-        pdf.save('教育部学籍在线验证报告.pdf');
-        btn.innerHTML = '&#8681;';
-    }).catch(function(e) {
-        if (clone.parentNode) document.body.removeChild(clone);
-        btn.innerHTML = '&#8681;';
-        alert('生成PDF失败：' + e.message);
-    });
+    setTimeout(function() {
+        html2canvas(clone, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#FAFCFB',
+            width: 706,
+            height: actualHeight,
+            logging: false
+        }).then(function(canvas) {
+            if (clone.parentNode) document.body.removeChild(clone);
+            var imgData = canvas.toDataURL('image/jpeg', 0.95);
+            var { jsPDF } = window.jspdf;
+            var pdf = new jsPDF('p', 'mm', 'a4');
+            var pdfW = pdf.internal.pageSize.getWidth();
+            var ratio = pdfW / canvas.width;
+            var finalH = canvas.height * ratio;
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, finalH);
+            pdf.save('教育部学籍在线验证报告.pdf');
+            btn.innerHTML = '&#8681;';
+        }).catch(function(e) {
+            if (clone.parentNode) document.body.removeChild(clone);
+            btn.innerHTML = '&#8681;';
+            alert('生成PDF失败，请尝试使用电脑端导出。错误：' + e.message);
+        });
+    }, 500);
 }
 // 学信网报告背景花纹图片 (base64)
 // 学信网报告背景花纹图片

@@ -330,7 +330,7 @@ function buildAndDownloadPdf(u, btn) {
     for (var i = 0; i < fields.length; i++) {
         allHtml += '<div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">' + fields[i][0] + '</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;">' + fields[i][1] + '</div></div>';
     }
-    var html = '<div style="width:706px;background-color:#FAFCFB;padding:50px 50px 30px 65px;box-sizing:border-box;color:#222;font-family:\'Helvetica Neue\',Helvetica,\'PingFang SC\',\'Microsoft YaHei\',sans-serif;">'
+    var html = '<div style="width:706px;background-color:#FAFCFB;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:\'Helvetica Neue\',Helvetica,\'PingFang SC\',\'Microsoft YaHei\',sans-serif;min-height:auto;">'
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:url(bg_pattern.jpg);background-size:100% 100%;background-repeat:no-repeat;z-index:5;pointer-events:none;"></div>'
         + '<div style="position:relative;z-index:10;">'
         + '<h4 style="font-size:27px;font-weight:700;text-align:center;color:#000;margin-top:20px;margin-bottom:4px;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>'
@@ -343,7 +343,7 @@ function buildAndDownloadPdf(u, btn) {
         + '<div style="margin:120px 0 10px 0;border:1px solid #c2dec9;background:#f6fbf8;padding:10px;display:flex;gap:12px;align-items:center;width:520px;">'
         + '<div style="flex-shrink:0;">' + (qrDataUrl ? '<img src="' + qrDataUrl + '" style="width:68px;height:68px;display:block;">' : '<div style="width:68px;height:68px;border:1px solid #b5ccbe;background:white;"></div>') + '</div>'
         + '<div style="flex:1;font-size:11px;line-height:1.6;color:#333;">'
-        + '<div><span style="font-weight:600;color:#333;">在线验证码</span> <span style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#00bac7;margin-left:6px;">' + code + '</span></div>'
+        + '<div><span style="font-weight:600;color:#333;">在线验证码</span> <span style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#000;margin-left:6px;">' + code + '</span></div>'
         + '<div>① 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>'
         + '<div>② 使用学信网App扫描二维码验证</div></div></div>'
         // 注意事项 - 正常流
@@ -355,16 +355,16 @@ function buildAndDownloadPdf(u, btn) {
         + '<div style="flex-shrink:0;margin-left:8px;display:flex;align-items:center;gap:4px;"><img src="xxw.png" style="height:22px;width:auto;"><span style="color:#888;font-size:12px;font-weight:600;">CHSI</span></div></div></div></div></div>';
 
     var div = document.createElement('div');
-    // 先让div自动扩展高度，再锁定高度用于截图
-    div.style.cssText = 'position:fixed;left:-9999px;top:0;width:706px;z-index:99999;';
+    // 手机端兼容：用 absolute 替代 fixed
+    div.style.cssText = 'position:absolute;left:-9999px;top:0;width:706px;z-index:-1;';
     div.innerHTML = html;
     document.body.appendChild(div);
     div.offsetHeight;
-    var divH = Math.max(div.scrollHeight, 1000);
+    var divH = div.scrollHeight || 706;
     div.style.height = divH + 'px';
 
     setTimeout(function() {
-        html2canvas(div, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: null, width: 706, height: divH }).then(function(canvas) {
+        html2canvas(div, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#FAFCFB', width: 706, height: divH }).then(function(canvas) {
             document.body.removeChild(div);
             var imgData = canvas.toDataURL('image/jpeg', 0.95);
             var { jsPDF } = window.jspdf;
