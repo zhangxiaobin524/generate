@@ -33,7 +33,7 @@ def init_db():
             id INT AUTO_INCREMENT PRIMARY KEY,
             name VARCHAR(50) NOT NULL,
             gender VARCHAR(4) NOT NULL,
-            id_card VARCHAR(20) NOT NULL UNIQUE,
+            id_card VARCHAR(20) NOT NULL,
             photo LONGTEXT,
             birth VARCHAR(20),
             ethnic VARCHAR(20) DEFAULT '汉族',
@@ -53,7 +53,11 @@ def init_db():
         )
     """)
 
-    # 添加索引加速查询
+    # 去掉UNIQUE约束、添加索引加速查询
+    try:
+        cursor.execute("ALTER TABLE accounts DROP INDEX id_card")
+    except:
+        pass
     try:
         cursor.execute("CREATE INDEX idx_id_card ON accounts(id_card)")
         cursor.execute("CREATE INDEX idx_name ON accounts(name)")
@@ -193,8 +197,6 @@ def register(req: RegisterRequest):
         user_id = cursor.lastrowid
         info["id"] = user_id
         return {"code": 0, "message": "注册成功", "data": info}
-    except mysql.connector.IntegrityError:
-        raise HTTPException(status_code=400, detail="身份证号已存在")
     finally:
         cursor.close()
         conn.close()
