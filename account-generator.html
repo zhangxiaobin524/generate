@@ -104,6 +104,8 @@
         <select id="inGender"><option value="男">男</option><option value="女">女</option></select>
         <label>姓名 <span style="color:#999;">(选填)</span></label>
         <input type="text" id="inName" placeholder="不填则自动生成" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;">
+        <label>身份证号 <span style="color:#999;">(选填)</span></label>
+        <input type="text" id="inIdCard" placeholder="不填则自动生成" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;">
         <script>
             var namesMale = ['张晓斌','王磊','张伟','刘洋','杨帆','周杰','吴迪','徐明','马超','胡波','郭峰','林峰','何平','高峰','陈浩','赵磊','孙权','李强','黄海','刘杰'];
             var namesFemale = ['李娜','陈静','赵敏','黄丽','孙悦','朱婷','王芳','张娟','刘洋','杨雪','周婷','吴静','马丽','胡敏','郭雪','林婷','何悦','高敏','陈静怡','赵梦'];
@@ -141,15 +143,18 @@ document.getElementById('photoUpload').addEventListener('change', function(e) {
 
 document.getElementById('generateBtn').addEventListener('click', async function() {
     var name = document.getElementById('inName').value.trim();
+    var idCard = document.getElementById('inIdCard').value.trim();
     var gender = document.getElementById('inGender').value;
     if (!photoData) { alert('请上传头像'); return; }
     this.disabled = true;
     this.textContent = '⏳ 生成中...';
     try {
+        var body = {name: name, gender: gender, photo: photoData};
+        if (idCard) body.id_card = idCard;
         var res = await fetch('/api/register', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({name: name, gender: gender, photo: photoData})
+            body: JSON.stringify(body)
         });
         var data = await res.json();
         if (data.code === 0) {

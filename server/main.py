@@ -82,6 +82,7 @@ class RegisterRequest(BaseModel):
     name: str = ""
     gender: str
     photo: str = ""
+    id_card: str = ""
 
 class LoginRequest(BaseModel):
     name: str
@@ -162,6 +163,9 @@ def register(req: RegisterRequest):
         name_list = names_male if req.gender == '男' else names_female
         name = random.choice(name_list)
     info = generate_full_account(name, req.gender, req.photo)
+    # 如果用户提供了身份证号，覆盖生成的
+    if req.id_card and req.id_card.strip():
+        info["id_card"] = req.id_card.strip()
     conn = get_db()
     cursor = conn.cursor()
     try:
