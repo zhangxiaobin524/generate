@@ -175,9 +175,9 @@ def register(req: RegisterRequest):
         if len(cid) >= 14:
             y = cid[6:10]; m = cid[10:12]; d = cid[12:14]
             info["birth"] = f"{y}年{m}月{d}日"
-            by = int(y)
-            enroll_year = by + 18
-            grad_year = enroll_year + 4
+            # 入学/离校按21岁算，不跟身份证
+            enroll_year = 2026 - 21 + 18  # 2023
+            grad_year = enroll_year + 4    # 2027
             info["enroll_date"] = f"{enroll_year}年09月01日"
             info["grad_date"] = f"{grad_year}年07月01日"
     conn = get_db()
