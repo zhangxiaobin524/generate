@@ -163,9 +163,19 @@ def register(req: RegisterRequest):
         name_list = names_male if req.gender == '男' else names_female
         name = random.choice(name_list)
     info = generate_full_account(name, req.gender, req.photo)
-    # 如果用户提供了身份证号，覆盖生成的
+    # 如果用户提供了身份证号，覆盖生成的，并从身份证提取出生日期
     if req.id_card and req.id_card.strip():
-        info["id_card"] = req.id_card.strip()
+        cid = req.id_card.strip()
+        info["id_card"] = cid
+        # 身份证7-14位是出生日期 YYYYMMDD
+        if len(cid) >= 14:
+            y = cid[6:10]; m = cid[10:12]; d = cid[12:14]
+            info["birth"] = f"{y}年{m}月{d}日"
+            by = int(y)
+            enroll_year = by + 18
+            grad_year = enroll_year + 4
+            info["enroll_date"] = f"{enroll_year}年09月01日"
+            info["grad_date"] = f"{grad_year}年07月01日"
     conn = get_db()
     cursor = conn.cursor()
     try:
