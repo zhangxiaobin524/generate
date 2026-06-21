@@ -109,7 +109,7 @@ def generate_full_account(name, gender, photo=""):
 
     # 生成身份证
     now = 2026
-    age = random.randint(18, 24)
+    age = random.randint(20, 22)
     birth_year = now - age
     birth_month = str(random.randint(1, 12)).zfill(2)
     birth_day = str(random.randint(1, 28)).zfill(2)
