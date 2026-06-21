@@ -548,7 +548,7 @@
 
 <!-- 电脑版PDF用（隐藏）- 全部使用正常流布局，彻底解决重叠 -->
 <div id="pdfReport" style="display:none;">
-    <div class="xj-zxyz-res-pdf" style="width:706px;background:#FAFCFB;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;min-height:auto;">
+    <div class="xj-zxyz-res-pdf" style="width:650px;background:#FAFCFB;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;min-height:auto;">
         <h4 style="font-size:27px;font-weight:700;line-height:36px;text-align:center;color:#000;margin-top:20px;margin-bottom:4px;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>
         <div style="font-size:12px;color:#999;text-align:center;margin-bottom:30px;">更新日期：<span id="pdfUpdate"></span></div>
         
@@ -852,10 +852,10 @@ function downloadPDF() {
     }
 
     // 手机端兼容：用 absolute 替代 fixed
-    clone.style.cssText = 'position:absolute;left:-9999px;top:0;width:706px;z-index:-1;';
+    clone.style.cssText = 'position:absolute;left:-9999px;top:0;width:650px;z-index:-1;';
     clone.style.display = 'block';
     document.body.appendChild(clone);
-    var actualHeight = clone.scrollHeight || 706;
+    var actualHeight = clone.scrollHeight || 650;
     clone.style.height = actualHeight + 'px';
 
     setTimeout(function() {
@@ -864,7 +864,7 @@ function downloadPDF() {
             useCORS: true,
             allowTaint: true,
             backgroundColor: '#FAFCFB',
-            width: 706,
+            width: 650,
             height: actualHeight,
             logging: false
         }).then(function(canvas) {

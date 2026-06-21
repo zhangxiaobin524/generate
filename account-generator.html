@@ -330,7 +330,7 @@ function buildAndDownloadPdf(u, btn) {
     for (var i = 0; i < fields.length; i++) {
         allHtml += '<div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">' + fields[i][0] + '</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;">' + fields[i][1] + '</div></div>';
     }
-    var html = '<div style="width:706px;background-color:#FAFCFB;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:\'Helvetica Neue\',Helvetica,\'PingFang SC\',\'Microsoft YaHei\',sans-serif;min-height:auto;">'
+    var html = '<div style="width:650px;background-color:#FAFCFB;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:\'Helvetica Neue\',Helvetica,\'PingFang SC\',\'Microsoft YaHei\',sans-serif;min-height:auto;">'
         + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:url(bg_pattern.jpg);background-size:100% 100%;background-repeat:no-repeat;z-index:5;pointer-events:none;"></div>'
         + '<div style="position:relative;z-index:10;">'
         + '<h4 style="font-size:27px;font-weight:700;text-align:center;color:#000;margin-top:20px;margin-bottom:4px;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>'
@@ -356,15 +356,15 @@ function buildAndDownloadPdf(u, btn) {
 
     var div = document.createElement('div');
     // 手机端兼容：用 absolute 替代 fixed
-    div.style.cssText = 'position:absolute;left:-9999px;top:0;width:706px;z-index:-1;';
+    div.style.cssText = 'position:absolute;left:-9999px;top:0;width:650px;z-index:-1;';
     div.innerHTML = html;
     document.body.appendChild(div);
     div.offsetHeight;
-    var divH = div.scrollHeight || 706;
+    var divH = div.scrollHeight || 650;
     div.style.height = divH + 'px';
 
     setTimeout(function() {
-        html2canvas(div, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#FAFCFB', width: 706, height: divH }).then(function(canvas) {
+        html2canvas(div, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#FAFCFB', width: 650, height: divH }).then(function(canvas) {
             document.body.removeChild(div);
             var imgData = canvas.toDataURL('image/jpeg', 0.95);
             var { jsPDF } = window.jspdf;
