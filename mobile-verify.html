@@ -548,7 +548,7 @@
 
 <!-- 电脑版PDF用（隐藏）- 全部使用正常流布局，彻底解决重叠 -->
 <div id="pdfReport" style="display:none;">
-    <div class="xj-zxyz-res-pdf" style="width:650px;background:#FAFCFB;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;min-height:auto;">
+    <div class="xj-zxyz-res-pdf" style="width:650px;background:#FAFCFB url(bg_pattern.jpg) no-repeat 0 0 / 100% 100%;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:'Helvetica Neue',Helvetica,'PingFang SC','Microsoft YaHei',sans-serif;">
         <h4 style="font-size:27px;font-weight:700;line-height:36px;text-align:center;color:#000;margin-top:20px;margin-bottom:4px;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>
         <div style="font-size:12px;color:#999;text-align:center;margin-bottom:30px;">更新日期：<span id="pdfUpdate"></span></div>
         
@@ -588,8 +588,8 @@
             <div style="margin-bottom:1px;">1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>
             <div style="margin-bottom:1px;">2、报告内容如有修改，请以最新在线验证的内容为准。</div>
             <div style="margin-bottom:1px;">3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>
-            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-                <div style="flex:1;">4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;white-space:nowrap;">
+                <div style="flex:1;white-space:nowrap;font-size:9px;">4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>
                 <div style="flex-shrink:0;margin-left:8px;display:flex;align-items:center;gap:4px;"><img src="xxw.png" style="height:22px;width:auto;"><span style="color:#888;font-size:12px;font-weight:600;">CHSI</span></div>
             </div>
         </div>
@@ -794,7 +794,7 @@ function fillPdfData(u) {
     }
 }
 
-// ---- 下载PDF（克隆渲染，保留花纹背景） ----
+// ---- 下载PDF（克隆渲染） ----
 function downloadPDF() {
     var btn = document.querySelector('.download-btn');
     btn.innerHTML = '⏳';
@@ -804,7 +804,7 @@ function downloadPDF() {
         return;
     }
 
-    // 导出前确保二维码已生成
+    // 生成二维码dataURL
     var code = (localStorage.getItem('xuexin_user_verify_code') || '').trim();
     if (!code) {
         var codeEl = document.getElementById('pdfCode');
@@ -832,18 +832,11 @@ function downloadPDF() {
         } catch(e) { console.warn('QR生成失败', e); }
     }
 
+    // 克隆模板
     var source = document.getElementById('pdfReport');
     var clone = source.cloneNode(true);
-    var reportDiv = clone.querySelector('.xj-zxyz-res-pdf');
-    if (reportDiv) {
-        reportDiv.style.backgroundColor = '#FAFCFB';
-        // 花纹边框
-        var borderOverlay = document.createElement('div');
-        borderOverlay.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background-image:url(' + BG_BASE64 + ');background-size:100% 100%;background-repeat:no-repeat;z-index:5;pointer-events:none;';
-        reportDiv.appendChild(borderOverlay);
-    }
-
-    // 注入二维码
+    
+    // 注入二维码图片
     if (qrDataUrl) {
         var qrDiv = clone.querySelector('#pdfQR');
         if (qrDiv) {
@@ -851,22 +844,23 @@ function downloadPDF() {
         }
     }
 
-    // 手机端兼容：用 absolute 替代 fixed
-    clone.style.cssText = 'position:absolute;left:-9999px;top:0;width:650px;z-index:-1;';
+    // 挂载到文档并渲染
+    clone.style.cssText = 'position:absolute;left:-9999px;top:0;width:650px;';
     clone.style.display = 'block';
     document.body.appendChild(clone);
-    var actualHeight = clone.scrollHeight || 650;
+    
+    // 获取实际高度
+    var actualHeight = Math.max(clone.scrollHeight || 0, 500);
     clone.style.height = actualHeight + 'px';
 
     setTimeout(function() {
         html2canvas(clone, {
             scale: 2,
-            useCORS: true,
+            useCORS: false,
             allowTaint: true,
             backgroundColor: '#FAFCFB',
             width: 650,
-            height: actualHeight,
-            logging: false
+            height: actualHeight
         }).then(function(canvas) {
             if (clone.parentNode) document.body.removeChild(clone);
             var imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -881,13 +875,12 @@ function downloadPDF() {
         }).catch(function(e) {
             if (clone.parentNode) document.body.removeChild(clone);
             btn.innerHTML = '&#8681;';
-            alert('生成PDF失败，请尝试使用电脑端导出。错误：' + e.message);
+            alert('生成PDF失败：' + e.message);
+            console.error('html2canvas error:', e);
         });
     }, 500);
 }
-// 学信网报告背景花纹图片 (base64)
-// 学信网报告背景花纹图片
-var BG_BASE64 = 'bg_pattern.jpg';
+
 </script>
 </body>
 </html>

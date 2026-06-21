@@ -330,9 +330,8 @@ function buildAndDownloadPdf(u, btn) {
     for (var i = 0; i < fields.length; i++) {
         allHtml += '<div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">' + fields[i][0] + '</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;">' + fields[i][1] + '</div></div>';
     }
-    var html = '<div style="width:650px;background-color:#FAFCFB;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:\'Helvetica Neue\',Helvetica,\'PingFang SC\',\'Microsoft YaHei\',sans-serif;min-height:auto;">'
-        + '<div style="position:absolute;top:0;left:0;right:0;bottom:0;background-image:url(bg_pattern.jpg);background-size:100% 100%;background-repeat:no-repeat;z-index:5;pointer-events:none;"></div>'
-        + '<div style="position:relative;z-index:10;">'
+    var html = '<div style="width:650px;background:#FAFCFB url(bg_pattern.jpg) no-repeat 0 0 / 100% 100%;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:\'Helvetica Neue\',Helvetica,\'PingFang SC\',\'Microsoft YaHei\',sans-serif;">'
+        + '<div style="width:100%;">'
         + '<h4 style="font-size:27px;font-weight:700;text-align:center;color:#000;margin-top:20px;margin-bottom:4px;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>'
         + '<div style="font-size:12px;color:#999;text-align:center;margin-bottom:30px;">更新日期：' + updateDate + '</div>'
         + '<div style="width:100%;position:relative;">'
@@ -351,7 +350,7 @@ function buildAndDownloadPdf(u, btn) {
         + '<div style="margin-bottom:1px;">1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>'
         + '<div style="margin-bottom:1px;">2、报告内容如有修改，请以最新在线验证的内容为准。</div>'
         + '<div style="margin-bottom:1px;">3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>'
-        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;"><div style="flex:1;">4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>'
+        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;white-space:nowrap;"><div style="flex:1;white-space:nowrap;font-size:9px;">4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>'
         + '<div style="flex-shrink:0;margin-left:8px;display:flex;align-items:center;gap:4px;"><img src="xxw.png" style="height:22px;width:auto;"><span style="color:#888;font-size:12px;font-weight:600;">CHSI</span></div></div></div></div></div>';
 
     var div = document.createElement('div');
