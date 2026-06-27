@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>学籍信息</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+            background: #FAFCFB;
+        }
+        .page-container { min-height: 100%; padding-bottom: 80px; }
+        .top-header {
+            background: #00a05b; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 15px; position: relative;
+        }
+        .top-header .back-btn {
+            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+            width: 28px; height: 28px; cursor: pointer;
+        }
+        .header-title { font-size: 18px; color: white; font-weight: 500; }
+        .content { padding: 12px; }
+
+        /* 信息卡片 */
+        .info-card {
+            background: white; border-radius: 8px; margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;
+            cursor: pointer; text-decoration: none; display: block;
+        }
+        .info-card:active { background: #f9f9f9; }
+        .info-card .card-inner {
+            display: flex; align-items: center; padding: 14px 16px;
+        }
+        .info-card .card-icon {
+            width: 40px; height: 40px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .info-card .card-icon svg { width: 24px; height: 24px; }
+        .info-card .card-body { flex: 1; margin-left: 12px; }
+        .info-card .card-title { font-size: 15px; font-weight: 500; color: #333; }
+        .info-card .card-sub { font-size: 12px; color: #999; margin-top: 2px; }
+        .info-card .card-arrow { color: #ccc; font-size: 16px; flex-shrink: 0; }
+        .info-card .card-dot { color: #00a05b; font-size: 8px; margin-right: 4px; }
+
+        /* 空状态 */
+        .empty-state { text-align: center; padding: 60px 20px; color: #ccc; font-size: 14px; }
+        .empty-state .big-icon { font-size: 48px; margin-bottom: 12px; }
+
+        /* 底部导航 */
+        .bottom-tab {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            height: 56px; background: white;
+            border-top: 1px solid #e8e8e8;
+            display: flex; align-items: center; justify-content: space-around; z-index: 1000;
+        }
+        .tab-item {
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            text-decoration: none; padding: 4px 0; flex: 1;
+        }
+        .tab-item .tab-icon { width: 24px; height: 24px; }
+        .tab-item .tab-icon svg { width: 100%; height: 100%; }
+        .tab-item .tab-label { font-size: 10px; color: #666; }
+        .tab-item.active .tab-label { color: #00a05b; }
+
+        /* 菜单 */
+        .menu-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 10000; display: none;
+        }
+        .menu-overlay.open { display: block; }
+        .menu-popup {
+            position: fixed; top: 0; left: 0; right: 0;
+            background: white; z-index: 10001; display: none;
+            padding: 0 0 20px; border-radius: 0 0 12px 12px;
+        }
+        .menu-popup.open { display: block; }
+        .menu-popup .close-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px;
+        }
+        .menu-popup .close-bar span { font-weight: bold; font-size: 16px; }
+        .menu-popup .close-btn { font-size: 22px; color: #999; cursor: pointer; }
+        .menu-popup .menu-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            padding: 0 12px; gap: 8px;
+        }
+        .menu-popup .menu-grid a {
+            display: block; text-align: center; padding: 10px 6px;
+            font-size: 17px; color: #333; text-decoration: none;
+            background: #f5f5f5; border-radius: 8px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<div class="menu-popup" id="menuPanel">
+    <div class="close-bar">
+        <span>学信网</span>
+        <span class="close-btn" onclick="closeMenu()">&times;</span>
+    </div>
+    <div class="menu-grid">
+        <a href="archive.html">首页</a>
+        <a href="edu-main.html">高等教育信息</a>
+        <a href="edu-detail.html?type=degree">学位信息</a>
+        <a href="list.html">在线验证</a>
+        <a href="list.html">学历查询</a>
+        <a href="#">出国教育背景</a>
+        <a href="#">图像校对</a>
+        <a href="archive.html">学信档案</a>
+        <a href="#">高考</a>
+        <a href="#">研招</a>
+    </div>
+</div>
+
+<div class="page-container">
+    <!-- 顶部 -->
+    <div class="top-header">
+        <svg class="back-btn" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" onclick="history.back()">
+            <polyline points="15,18 9,12 15,6"/>
+        </svg>
+        <span class="header-title" id="pageTitle">学籍信息</span>
+    </div>
+
+    <div class="content" id="infoContent">
+        <div class="empty-state"><div class="big-icon">📋</div>加载中...</div>
+    </div>
+</div>
+
+<!-- 底部导航 -->
+<div class="bottom-tab">
+    <a href="archive.html" class="tab-item">
+        <div class="tab-icon"><svg viewBox="0 0 24 24" fill="#666"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div>
+        <span class="tab-label">首页</span>
+    </a>
+    <a href="edu-main.html" class="tab-item active">
+        <div class="tab-icon"><svg viewBox="0 0 24 24" fill="#00a05b"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg></div>
+        <span class="tab-label">学籍学历学位</span>
+    </a>
+    <a href="#" class="tab-item">
+        <div class="tab-icon"><svg viewBox="0 0 24 24" fill="#666"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div>
+        <span class="tab-label">个人测评</span>
+    </a>
+    <a href="#" class="tab-item">
+        <div class="tab-icon"><svg viewBox="0 0 24 24" fill="#666"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.1 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg></div>
+        <span class="tab-label">求职招聘</span>
+    </a>
+    <a href="account-generator.html" class="tab-item">
+        <div class="tab-icon"><svg viewBox="0 0 24 24" fill="#666"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+        <span class="tab-label">我的</span>
+    </a>
+</div>
+
+<script>
+// 获取URL参数
+function getParam(name) {
+    var m = location.search.match(new RegExp('[?&]' + name + '=([^&]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
+}
+
+var typeMap = {
+    xueji: { title: '学籍信息', icon: '🎓', color: '#4caf50', bg: '#e8f5e9' },
+    xueli: { title: '学历信息', icon: '📜', color: '#1976d2', bg: '#e3f2fd' },
+    degree: { title: '学位信息', icon: '🏅', color: '#ff9800', bg: '#fff3e0' },
+    kaoyan: { title: '考研信息', icon: '📚', color: '#ab47bc', bg: '#f3e5f5' },
+};
+
+var type = getParam('type') || 'xueji';
+var info = typeMap[type] || typeMap.xueji;
+document.getElementById('pageTitle').textContent = info.title;
+
+// 构建卡片列表
+var fieldGroups = {
+    xueji: [
+        { label: '姓名', key: 'name', icon: '👤' },
+        { label: '性别', key: 'gender', icon: '⚤' },
+        { label: '出生日期', key: 'birth', icon: '📅' },
+        { label: '民族', key: 'ethnic', icon: '🏳️' },
+        { label: '学校名称', key: 'school', icon: '🏫' },
+        { label: '层次', key: 'level', icon: '📊' },
+        { label: '专业', key: 'major', icon: '📖' },
+        { label: '学制', key: 'duration', icon: '⏱️' },
+        { label: '学历类别', key: 'degree_type', icon: '📋' },
+        { label: '学习形式', key: 'study_form', icon: '📝' },
+        { label: '分院', key: 'college', icon: '🏛️' },
+        { label: '系所', key: 'dept', icon: '🏛️' },
+        { label: '入学日期', key: 'enroll_date', icon: '📅' },
+        { label: '学籍状态', key: 'status', icon: '✅' },
+        { label: '离校日期', key: 'grad_date', icon: '📅' },
+    ],
+    xueli: [
+        { label: '姓名', key: 'name', icon: '👤' },
+        { label: '性别', key: 'gender', icon: '⚤' },
+        { label: '出生日期', key: 'birth', icon: '📅' },
+        { label: '民族', key: 'ethnic', icon: '🏳️' },
+        { label: '学校名称', key: 'school', icon: '🏫' },
+        { label: '专业', key: 'major', icon: '📖' },
+        { label: '学历类别', key: 'degree_type', icon: '📋' },
+        { label: '学习形式', key: 'study_form', icon: '📝' },
+        { label: '入学日期', key: 'enroll_date', icon: '📅' },
+        { label: '毕业日期', key: 'grad_date', icon: '📅' },
+        { label: '学历状态', key: 'status', icon: '✅' },
+    ],
+    degree: [
+        { label: '姓名', key: 'name', icon: '👤' },
+        { label: '性别', key: 'gender', icon: '⚤' },
+        { label: '出生日期', key: 'birth', icon: '📅' },
+        { label: '学位授予单位', key: 'school', icon: '🏫' },
+        { label: '专业', key: 'major', icon: '📖' },
+        { label: '学位级别', key: 'level', icon: '🏅' },
+        { label: '学位类别', key: 'degree_type', icon: '📋' },
+        { label: '获学位日期', key: 'grad_date', icon: '📅' },
+        { label: '学位证书编号', key: 'id_card', icon: '🔖' },
+        { label: '学位状态', key: 'status', icon: '✅' },
+    ],
+    kaoyan: [
+        { label: '姓名', key: 'name', icon: '👤' },
+        { label: '报考学校', key: 'school', icon: '🏫' },
+        { label: '报考专业', key: 'major', icon: '📖' },
+        { label: '报考年份', key: 'enroll_date', icon: '📅' },
+        { label: '考试状态', key: 'status', icon: '✅' },
+    ],
+};
+
+var fields = fieldGroups[type] || fieldGroups.xueli;
+
+// 加载用户数据
+(async function() {
+    var uid = localStorage.getItem('xuexin_user_id');
+    if (!uid) {
+        document.getElementById('infoContent').innerHTML = '<div class="empty-state"><div class="big-icon">🔒</div>请先登录</div>';
+        return;
+    }
+    try {
+        var res = await fetch('/api/user/' + uid);
+        var data = await res.json();
+        if (data.code !== 0 || !data.data) {
+            document.getElementById('infoContent').innerHTML = '<div class="empty-state"><div class="big-icon">😵</div>获取信息失败</div>';
+            return;
+        }
+        var u = data.data;
+        var html = '';
+        // 有照片时显示头像
+        if (u.photo) {
+            html += '<div style="text-align:center;padding:20px 0 10px;">';
+            html += '<div style="width:72px;height:72px;border-radius:50%;overflow:hidden;margin:0 auto;border:3px solid ' + info.color + ';"><img src="' + u.photo + '" style="width:100%;height:100%;object-fit:cover;"></div>';
+            html += '<div style="margin-top:8px;font-size:14px;font-weight:500;color:#333;">' + (u.name || '') + '</div>';
+            html += '</div>';
+        }
+        fields.forEach(function(f) {
+            var val = u[f.key];
+            if (!val || val === '') val = '-';
+            html += '<a href="edu-info.html?type=' + type + '&key=' + f.key + '" class="info-card">';
+            html += '<div class="card-inner">';
+            html += '<div class="card-icon" style="background:' + info.bg + ';"><span style="font-size:16px;">' + f.icon + '</span></div>';
+            html += '<div class="card-body">';
+            html += '<div class="card-title">' + f.label + '</div>';
+            html += '<div class="card-sub">' + val + '</div>';
+            html += '</div>';
+            html += '<span class="card-arrow">›</span>';
+            html += '</div></a>';
+        });
+        document.getElementById('infoContent').innerHTML = html;
+    } catch(e) {
+        document.getElementById('infoContent').innerHTML = '<div class="empty-state"><div class="big-icon">🌐</div>网络错误：' + e.message + '</div>';
+    }
+})();
+
+function openMenu() {
+    document.getElementById('menuOverlay').classList.add('open');
+    document.getElementById('menuPanel').classList.add('open');
+}
+function closeMenu() {
+    document.getElementById('menuOverlay').classList.remove('open');
+    document.getElementById('menuPanel').classList.remove('open');
+}
+</script>
+</body>
+</html>

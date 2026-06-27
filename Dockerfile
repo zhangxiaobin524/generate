@@ -8,6 +8,9 @@ COPY login.html /usr/share/nginx/html/login.html
 COPY account-generator.html /usr/share/nginx/html/account-generator.html
 COPY report-list.html /usr/share/nginx/html/report-list.html
 COPY mobile-verify.html /usr/share/nginx/html/mobile-verify.html
+COPY edu-main.html /usr/share/nginx/html/edu-main.html
+COPY edu-detail.html /usr/share/nginx/html/edu-detail.html
+COPY edu-info.html /usr/share/nginx/html/edu-info.html
 COPY xxw.png /usr/share/nginx/html/xxw.png
 COPY bg_pattern.jpg /usr/share/nginx/html/bg_pattern.jpg
 
