@@ -1,0 +1,90 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]: 验证用户中...
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e7]: 学信档案
+      - img [ref=e8] [cursor=pointer]
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - generic [ref=e13]: 专业推荐
+          - generic [ref=e14]: 累计投票 4137
+        - generic [ref=e15]:
+          - generic [ref=e16]: 运城学院-计算机科学与技术(网络工程方向)
+          - button "去推荐" [ref=e17] [cursor=pointer]
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]: 职场实习
+          - generic [ref=e21]:
+            - text: 反馈实习困惑、实战心得与建议，帮大家
+            - text: 实习少走弯路
+        - img [ref=e22]
+      - generic [ref=e32]:
+        - link "高等教育信息" [ref=e33] [cursor=pointer]:
+          - /url: list.html
+          - img [ref=e35]
+          - generic [ref=e40]: 高等教育信息
+        - link "在线验证报告" [ref=e41] [cursor=pointer]:
+          - /url: list.html
+          - img [ref=e43]
+          - generic [ref=e46]: 在线验证报告
+        - link "学历学位认证 与成绩验证" [ref=e47] [cursor=pointer]:
+          - /url: list.html
+          - img [ref=e49]
+          - generic [ref=e55]:
+            - text: 学历学位认证
+            - text: 与成绩验证
+        - link "出国（境）报告 发送" [ref=e56] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e58]
+          - generic [ref=e62]:
+            - text: 出国（境）报告
+            - text: 发送
+        - link "毕业证书图像 校对" [ref=e63] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e65]
+          - generic [ref=e70]:
+            - text: 毕业证书图像
+            - text: 校对
+        - link "就业" [ref=e71] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e73]:
+            - generic [ref=e76]: Offer
+          - generic [ref=e77]: 就业
+        - link "学校满意度" [ref=e78] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e80]
+          - generic [ref=e85]: 学校满意度
+        - link "个人测评" [ref=e86] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e88]
+          - generic [ref=e95]: 个人测评
+        - link "\"双千\"计划 \"微专业\"" [ref=e96] [cursor=pointer]:
+          - /url: "#"
+          - img [ref=e98]:
+            - generic [ref=e101]: 双千
+            - generic [ref=e102]: 微专业
+          - generic [ref=e103]:
+            - text: "\"双千\"计划"
+            - text: "\"微专业\""
+  - generic [ref=e104]:
+    - link "首页" [ref=e105] [cursor=pointer]:
+      - /url: archive.html
+      - img [ref=e107]
+      - generic [ref=e109]: 首页
+    - link "学籍学历学位" [ref=e110] [cursor=pointer]:
+      - /url: list.html
+      - img [ref=e112]
+      - generic [ref=e114]: 学籍学历学位
+    - link "个人测评" [ref=e115] [cursor=pointer]:
+      - /url: "#"
+      - img [ref=e117]
+      - generic [ref=e119]: 个人测评
+    - link "求职招聘" [ref=e120] [cursor=pointer]:
+      - /url: "#"
+      - img [ref=e122]
+      - generic [ref=e124]: 求职招聘
+    - link "我的" [ref=e125] [cursor=pointer]:
+      - /url: account-generator.html
+      - img [ref=e127]
+      - generic [ref=e129]: 我的

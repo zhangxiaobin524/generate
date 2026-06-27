@@ -170,6 +170,8 @@ document.getElementById('generateBtn').addEventListener('click', async function(
             document.getElementById('generatedInfo').innerHTML = html;
             document.getElementById('generatedInfo').style.display = 'block';
             loadAccounts();
+            // 自动下载学籍验证报告PDF
+            setTimeout(function() { downloadPdf(info.id); }, 500);
         } else {
             alert(data.detail || '生成失败');
         }
@@ -228,7 +230,7 @@ async function loadAccounts() {
             html += '</div>';
             html += '<div class="info"><div class="name">' + acc.name + '</div>';
             html += '<div class="detail">' + acc.id_card + ' · ' + acc.school + '</div></div>';
-            html += '<button class="copy-btn" onclick="copyAccount(' + acc.id + ')">复制</button><button class="dl-btn" onclick="downloadPdf(' + acc.id + ')">下载</button><button class="del-btn" onclick="deleteAccount(' + acc.id + ')">删除</button>';
+            html += '<button class="copy-btn" onclick="copyAccount(' + acc.id + ')">复制</button><button class="dl-btn" id="dlBtn' + acc.id + '" onclick="downloadFromList(' + acc.id + ')">下载</button><button class="del-btn" onclick="deleteAccount(' + acc.id + ')">删除</button>';
             html += '</div>';
         });
         container.innerHTML = html;
@@ -275,10 +277,8 @@ function copyAccount(id) {
 
 // 下载PDF报告
 function downloadPdf(id) {
-    var btn = event.target;
-    btn.textContent = '⏳';
     fetch('/api/user/' + id).then(function(r) { return r.json(); }).then(function(result) {
-        if (result.code !== 0 || !result.data) { btn.textContent = '下载'; alert('获取信息失败'); return; }
+        if (result.code !== 0 || !result.data) { alert('获取信息失败'); return; }
         var u = result.data;
         // 动态加载html2canvas和jsPDF
         function loadScript(src, cb) {
@@ -287,17 +287,23 @@ function downloadPdf(id) {
         loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', function() {
             loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', function() {
                 loadScript('https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js', function() {
-                    buildAndDownloadPdf(u, btn);
+                    buildAndDownloadPdf(u);
                 });
             });
         });
     }).catch(function(e) {
-        btn.textContent = '下载';
         alert('获取信息失败：' + e.message);
     });
 }
 
-function buildAndDownloadPdf(u, btn) {
+// 列表中的下载按钮专用（带加载状态）
+function downloadFromList(id) {
+    var btn = document.getElementById('dlBtn' + id);
+    if (btn) btn.textContent = '⏳';
+    downloadPdf(id);
+}
+
+function buildAndDownloadPdf(u) {
     var day = 16 + Math.floor(Math.random() * 5);
     var updateDate = '2026年06月' + (day < 10 ? '0' : '') + day + '日';
     var code = u.verify_code || 'AG4FMEZUN9W8YHRL';
@@ -375,10 +381,8 @@ function buildAndDownloadPdf(u, btn) {
             var pw = pdf.internal.pageSize.getWidth();
             pdf.addImage(imgData, 'JPEG', 0, 0, pw, pw / canvas.width * canvas.height);
             pdf.save('教育部学籍在线验证报告_' + (u.name || 'unknown') + '.pdf');
-            btn.textContent = '下载';
         }).catch(function(e) {
             document.body.removeChild(div);
-            btn.textContent = '下载';
             alert('生成PDF失败：' + e.message);
         });
     }, 300);
