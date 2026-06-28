@@ -9,7 +9,7 @@
         html, body {
             height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
-            background: #FAFCFB;
+            background: #f5f5f5;
         }
         .page-container { min-height: 100%; padding-bottom: 80px; }
         .top-header {
@@ -24,37 +24,106 @@
         .header-title { font-size: 18px; color: white; font-weight: 500; }
         .content { padding: 12px; }
 
-        /* 用户信息条 */
-        .user-bar {
-            background: white; border-radius: 8px; padding: 14px 16px;
-            margin-bottom: 12px; display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        /* 院校满意度横幅 */
+        .satisfaction-banner {
+            background: linear-gradient(135deg, #5c9cf5 0%, #4a8df0 100%);
+            border-radius: 8px; padding: 12px 14px; margin-bottom: 16px;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .user-bar .avatar {
-            width: 44px; height: 44px; border-radius: 50%;
-            background: #e8f5e9; overflow: hidden; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
+        .satisfaction-left {
+            display: flex; flex-direction: column; gap: 4px;
         }
-        .user-bar .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .user-bar .user-name { font-size: 16px; font-weight: 600; color: #333; }
-        .user-bar .user-school { font-size: 12px; color: #999; margin-top: 2px; }
+        .satisfaction-title {
+            font-size: 16px; font-weight: 600; color: white;
+        }
+        .satisfaction-sub {
+            font-size: 12px; color: rgba(255,255,255,0.85);
+        }
+        .satisfaction-tags {
+            display: flex; align-items: center; gap: 6px; margin-top: 2px;
+        }
+        .sat-tag {
+            background: rgba(255,255,255,0.25); color: white;
+            font-size: 11px; padding: 2px 8px; border-radius: 4px;
+        }
+        .sat-tag-vote {
+            background: #ff6b35; color: white;
+            font-size: 11px; padding: 2px 8px; border-radius: 4px;
+            font-weight: 500;
+        }
+        .satisfaction-right {
+            text-align: center;
+        }
+        .vote-btn {
+            background: #00a05b; color: white; border: none;
+            padding: 6px 14px; border-radius: 4px; font-size: 13px;
+            cursor: pointer;
+        }
 
-        /* 功能卡片列表 */
-        .func-card {
-            background: white; border-radius: 8px; margin-bottom: 10px;
-            display: flex; align-items: center; padding: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05); cursor: pointer; text-decoration: none;
+        /* 信息区块标题 */
+        .section-title {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 10px; margin-top: 20px;
         }
-        .func-card:active { background: #f5f5f5; }
-        .func-card .card-icon {
-            width: 44px; height: 44px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        .section-title-text {
+            font-size: 15px; font-weight: 600; color: #333;
         }
-        .func-card .card-icon svg { width: 26px; height: 26px; }
-        .func-card .card-body { flex: 1; margin-left: 14px; }
-        .func-card .card-title { font-size: 16px; font-weight: 500; color: #333; }
-        .func-card .card-desc { font-size: 13px; color: #999; margin-top: 3px; }
-        .func-card .card-arrow { color: #ccc; font-size: 18px; flex-shrink: 0; }
+        .section-title-right {
+            font-size: 12px; color: #00a05b; cursor: pointer;
+        }
+        .section-title-right span {
+            color: #999;
+        }
+
+        /* 学校卡片 */
+        .school-card {
+            border-radius: 8px; padding: 14px 16px;
+            margin-bottom: 12px; cursor: pointer; text-decoration: none;
+            display: block;
+        }
+        .school-card:active { opacity: 0.9; }
+        .school-card.green {
+            background: linear-gradient(135deg, #4caf50 0%, #43a047 100%);
+        }
+        .school-card.blue {
+            background: linear-gradient(135deg, #42a5f5 0%, #2196f3 100%);
+        }
+        .school-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .school-name {
+            font-size: 18px; font-weight: 600; color: white;
+        }
+        .school-badge {
+            background: rgba(255,255,255,0.9); color: #4caf50;
+            font-size: 11px; padding: 2px 10px; border-radius: 10px;
+            font-weight: 500;
+        }
+        .school-card.blue .school-badge { color: #2196f3; }
+        .school-info {
+            font-size: 13px; color: rgba(255,255,255,0.95);
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* 空状态提示 */
+        .empty-tip-box {
+            background: white; border-radius: 8px; padding: 20px;
+            text-align: center; margin-bottom: 12px;
+        }
+        .empty-tip-box .icon {
+            width: 48px; height: 48px; background: #e8f5e9;
+            border-radius: 50%; margin: 0 auto 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; color: #4caf50;
+        }
+        .empty-tip-box .text {
+            font-size: 14px; color: #333; line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .empty-tip-box .toggle {
+            font-size: 13px; color: #00a05b; cursor: pointer;
+        }
 
         /* 底部导航 */
         .bottom-tab {
@@ -71,58 +140,9 @@
         .tab-item .tab-icon svg { width: 100%; height: 100%; }
         .tab-item .tab-label { font-size: 10px; color: #666; }
         .tab-item.active .tab-label { color: #00a05b; }
-
-        /* 菜单 */
-        .menu-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5); z-index: 10000; display: none;
-        }
-        .menu-overlay.open { display: block; }
-        .menu-popup {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: white; z-index: 10001; display: none;
-            padding: 0 0 20px; border-radius: 0 0 12px 12px;
-        }
-        .menu-popup.open { display: block; }
-        .menu-popup .close-bar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 16px;
-        }
-        .menu-popup .close-bar span { font-weight: bold; font-size: 16px; }
-        .menu-popup .close-btn { font-size: 22px; color: #999; cursor: pointer; }
-        .menu-popup .menu-grid {
-            display: grid; grid-template-columns: 1fr 1fr 1fr;
-            padding: 0 12px; gap: 8px;
-        }
-        .menu-popup .menu-grid a {
-            display: block; text-align: center; padding: 10px 6px;
-            font-size: 17px; color: #333; text-decoration: none;
-            background: #f5f5f5; border-radius: 8px;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
     </style>
 </head>
 <body>
-
-<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
-<div class="menu-popup" id="menuPanel">
-    <div class="close-bar">
-        <span>学信网</span>
-        <span class="close-btn" onclick="closeMenu()">&times;</span>
-    </div>
-    <div class="menu-grid">
-        <a href="archive.html">首页</a>
-        <a href="edu-main.html">高等教育信息</a>
-        <a href="edu-detail.html?type=degree">学位信息</a>
-        <a href="list.html">在线验证</a>
-        <a href="list.html">学历查询</a>
-        <a href="#">出国教育背景</a>
-        <a href="#">图像校对</a>
-        <a href="archive.html">学信档案</a>
-        <a href="#">高考</a>
-        <a href="#">研招</a>
-    </div>
-</div>
 
 <div class="page-container">
     <!-- 顶部 -->
@@ -134,80 +154,74 @@
     </div>
 
     <div class="content">
-        <!-- 用户信息条 -->
-        <div class="user-bar" id="userBar">
-            <div class="avatar" id="userAvatar">
-                <span style="font-size:20px;color:#4caf50;">👤</span>
+        <!-- 院校满意度横幅 -->
+        <div class="satisfaction-banner">
+            <div class="satisfaction-left">
+                <div class="satisfaction-title">院校满意度 <span class="sat-tag-vote">投票</span></div>
+                <div class="satisfaction-sub">本校的生活条件、环境及综合情况</div>
+                <div class="satisfaction-tags">
+                    <span class="sat-tag">综合情况</span>
+                    <span class="sat-tag">生活条件</span>
+                    <span class="sat-tag">校园环境</span>
+                </div>
             </div>
-            <div>
-                <div class="user-name" id="userName">加载中...</div>
-                <div class="user-school" id="userSchool"></div>
+            <div class="satisfaction-right">
+                <button class="vote-btn">去推荐</button>
             </div>
         </div>
 
-        <!-- 功能卡片列表 -->
-        <a href="edu-detail.html?type=xueji" class="func-card">
-            <div class="card-icon" style="background:#e8f5e9;">
-                <svg viewBox="0 0 48 48" fill="none">
-                    <rect x="8" y="14" width="32" height="28" rx="2" fill="#4caf50"/>
-                    <rect x="12" y="18" width="16" height="4" rx="1" fill="white"/>
-                    <rect x="12" y="24" width="24" height="4" rx="1" fill="white"/>
-                    <rect x="12" y="30" width="20" height="4" rx="1" fill="white"/>
-                    <circle cx="36" cy="34" r="8" fill="#2e7d32"/>
-                    <path d="M33 34 L36 37 L41 31" stroke="white" stroke-width="2" fill="none"/>
-                </svg>
+        <!-- 学籍信息 -->
+        <div class="section-title">
+            <span class="section-title-text">学籍信息 (1)</span>
+            <span class="section-title-right"><span>还有学籍没有显示出来？</span> 尝试绑定</span>
+        </div>
+        <a href="student-status.html" class="school-card green">
+            <div class="school-card-header">
+                <span class="school-name" id="xuejiSchool">运城学院</span>
+                <span class="school-badge">本科</span>
             </div>
-            <div class="card-body">
-                <div class="card-title">学籍信息</div>
-                <div class="card-desc">查看学籍信息</div>
+            <div class="school-info">
+                <span id="xuejiMajor">计算机科学与技术(网络工程方向)</span>
+                <span>|</span>
+                <span>普通全日制</span>
             </div>
-            <span class="card-arrow">›</span>
         </a>
 
-        <a href="edu-detail.html?type=xueli" class="func-card">
-            <div class="card-icon" style="background:#e3f2fd;">
-                <svg viewBox="0 0 48 48" fill="none">
-                    <rect x="8" y="16" width="32" height="26" rx="2" fill="#42a5f5"/>
-                    <path d="M24 6 L40 16 L40 20 L24 10 L8 20 L8 16 Z" fill="#1976d2"/>
-                    <circle cx="24" cy="28" r="6" fill="white"/>
-                    <path d="M20 28 L24 32 L30 24" stroke="#1976d2" stroke-width="2.5" fill="none"/>
-                </svg>
+        <!-- 学历信息 -->
+        <div class="section-title">
+            <span class="section-title-text">学历信息 (1)</span>
+            <span class="section-title-right"><span>还有学历没有显示出来？</span> 尝试绑定</span>
+        </div>
+        <a href="education-detail.html" class="school-card blue">
+            <div class="school-card-header">
+                <span class="school-name" id="xueliSchool">运城学院</span>
+                <span class="school-badge">本科</span>
             </div>
-            <div class="card-body">
-                <div class="card-title">学历信息</div>
-                <div class="card-desc">查看学历信息</div>
+            <div class="school-info">
+                <span id="xueliMajor">计算机科学与技术(网络工程方向)</span>
+                <span>|</span>
+                <span>普通全日制</span>
             </div>
-            <span class="card-arrow">›</span>
         </a>
 
-        <a href="edu-detail.html?type=degree" class="func-card">
-            <div class="card-icon" style="background:#fff3e0;">
-                <svg viewBox="0 0 48 48" fill="none">
-                    <circle cx="24" cy="24" r="20" fill="#ffa726"/>
-                    <path d="M24 8 L30 18 L40 20 L33 28 L35 40 L24 34 L13 40 L15 28 L8 20 L18 18 Z" fill="#ff9800"/>
-                    <path d="M24 12 L28 18 L35 20 L30 26 L32 34 L24 30 L16 34 L18 26 L13 20 L20 18 Z" fill="white"/>
-                </svg>
-            </div>
-            <div class="card-body">
-                <div class="card-title">学位信息</div>
-                <div class="card-desc">查看学位信息</div>
-            </div>
-            <span class="card-arrow">›</span>
-        </a>
+        <!-- 学位信息 -->
+        <div class="section-title">
+            <span class="section-title-text">学位信息</span>
+            <span class="section-title-right"><span>还有学位没有显示出来？</span> 尝试绑定</span>
+        </div>
+        <div class="empty-tip-box">
+            <div class="text">您还未绑定学位信息，可以使用"尝试绑定学位"功能绑定您的学位 <span style="color:#999;">ⓘ</span></div>
+            <div class="toggle">提示信息 ▾</div>
+        </div>
 
-        <a href="edu-detail.html?type=kaoyan" class="func-card">
-            <div class="card-icon" style="background:#f3e5f5;">
-                <svg viewBox="0 0 48 48" fill="none">
-                    <rect x="8" y="10" width="32" height="28" rx="2" fill="#ab47bc"/>
-                    <text x="24" y="28" text-anchor="middle" fill="white" font-size="14" font-weight="bold">研</text>
-                </svg>
-            </div>
-            <div class="card-body">
-                <div class="card-title">考研信息</div>
-                <div class="card-desc">查看考研信息</div>
-            </div>
-            <span class="card-arrow">›</span>
-        </a>
+        <!-- 考研信息 -->
+        <div class="section-title">
+            <span class="section-title-text">考研信息</span>
+        </div>
+        <div class="empty-tip-box">
+            <div style="font-size:16px;font-weight:600;color:#333;margin-bottom:8px;">您没有考研信息！</div>
+            <div style="font-size:13px;color:#666;line-height:1.6;">您目前没有考研信息，系统提供2006年以来入学的硕士研究生报名和成绩数据。</div>
+        </div>
     </div>
 </div>
 
@@ -226,7 +240,7 @@
         <span class="tab-label">个人测评</span>
     </a>
     <a href="#" class="tab-item">
-        <div class="tab-icon"><svg viewBox="0 0 24 24" fill="#666"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg></div>
+        <div class="tab-icon"><svg viewBox="0 0 24 24" fill="#666"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.1 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg></div>
         <span class="tab-label">求职招聘</span>
     </a>
     <a href="account-generator.html" class="tab-item">
@@ -239,32 +253,19 @@
 // 加载用户信息
 (async function() {
     var uid = localStorage.getItem('xuexin_user_id');
-    if (!uid) { document.getElementById('userName').textContent = '未登录'; return; }
+    if (!uid) return;
     try {
         var res = await fetch('/api/user/' + uid);
         var data = await res.json();
         if (data.code === 0 && data.data) {
             var u = data.data;
-            document.getElementById('userName').textContent = u.name || '未知';
-            document.getElementById('userSchool').textContent = u.school || '';
-            var avatarEl = document.getElementById('userAvatar');
-            if (u.photo) {
-                avatarEl.innerHTML = '<img src="' + u.photo + '">';
-            } else {
-                avatarEl.innerHTML = '<span style="font-size:20px;color:#4caf50;">👤</span>';
-            }
+            document.getElementById('xuejiSchool').textContent = u.school || '运城学院';
+            document.getElementById('xuejiMajor').textContent = u.major || '计算机科学与技术(网络工程方向)';
+            document.getElementById('xueliSchool').textContent = u.school || '运城学院';
+            document.getElementById('xueliMajor').textContent = u.major || '计算机科学与技术(网络工程方向)';
         }
-    } catch(e) { document.getElementById('userName').textContent = '网络错误'; }
+    } catch(e) {}
 })();
-
-function openMenu() {
-    document.getElementById('menuOverlay').classList.add('open');
-    document.getElementById('menuPanel').classList.add('open');
-}
-function closeMenu() {
-    document.getElementById('menuOverlay').classList.remove('open');
-    document.getElementById('menuPanel').classList.remove('open');
-}
 </script>
 </body>
 </html>

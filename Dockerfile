@@ -11,6 +11,8 @@ COPY mobile-verify.html /usr/share/nginx/html/mobile-verify.html
 COPY edu-main.html /usr/share/nginx/html/edu-main.html
 COPY edu-detail.html /usr/share/nginx/html/edu-detail.html
 COPY edu-info.html /usr/share/nginx/html/edu-info.html
+COPY student-status.html /usr/share/nginx/html/student-status.html
+COPY education-detail.html /usr/share/nginx/html/education-detail.html
 COPY xxw.png /usr/share/nginx/html/xxw.png
 COPY bg_pattern.jpg /usr/share/nginx/html/bg_pattern.jpg
 

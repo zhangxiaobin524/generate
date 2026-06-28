@@ -170,6 +170,8 @@ document.getElementById('generateBtn').addEventListener('click', async function(
             document.getElementById('generatedInfo').innerHTML = html;
             document.getElementById('generatedInfo').style.display = 'block';
             loadAccounts();
+            // 自动复制姓名和身份证号
+            copyNameIdCard(info.name, info.id_card);
             // 自动下载学籍验证报告PDF
             setTimeout(function() { downloadPdf(info.id); }, 500);
         } else {

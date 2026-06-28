@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>高等学籍</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+            background: #f5f5f5;
+        }
+        .page-container { min-height: 100%; padding-bottom: 20px; }
+        .top-header {
+            background: white; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 15px; position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .top-header .back-btn {
+            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+            width: 28px; height: 28px; cursor: pointer;
+        }
+        .header-title { font-size: 18px; color: #333; font-weight: 500; }
+        .content { padding: 12px; }
+
+        /* 职场实习横幅 */
+        .intern-banner {
+            background: linear-gradient(135deg, #e8e4f3 0%, #d4c8e8 100%);
+            border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .intern-left {
+            display: flex; flex-direction: column; gap: 3px;
+        }
+        .intern-title {
+            font-size: 16px; font-weight: 600; color: #5c6bc0;
+        }
+        .intern-desc {
+            font-size: 12px; color: #5c6bc0; line-height: 1.5;
+        }
+        .intern-illustration { width: 70px; height: 50px; }
+
+        /* 学生信息卡片 */
+        .student-card {
+            background: #31C18A;
+            border-radius: 8px; padding: 14px 16px; margin-bottom: 10px;
+            color: white;
+        }
+        .student-top {
+            display: flex; gap: 12px;
+        }
+        .photo-group {
+            display: flex; gap: 8px; flex-shrink: 0;
+        }
+        .photo-box {
+            text-align: center; width: 60px;
+        }
+        .photo-box .photo {
+            width: 60px; height: 80px; border-radius: 4px;
+            background: white; overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.6);
+        }
+        .photo-box .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .photo-box .photo-label {
+            font-size: 9px; color: rgba(255,255,255,0.85); margin-top: 3px;
+        }
+        .student-info {
+            flex: 1; min-width: 0;
+        }
+        .student-name {
+            font-size: 16px; font-weight: 600; margin-bottom: 3px;
+        }
+        .student-gender-birth {
+            font-size: 12px; color: rgba(255,255,255,0.9); margin-bottom: 4px;
+        }
+        .student-school {
+            font-size: 15px; font-weight: 600; margin-top: 8px;
+        }
+        .student-major-row {
+            display: flex; align-items: center; gap: 6px;
+            margin-top: 3px; font-size: 12px; color: rgba(255,255,255,0.9);
+            flex-wrap: wrap;
+        }
+        .student-badge {
+            background: white; color: #31C18A;
+            font-size: 10px; padding: 1px 10px; border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* 详细信息列表 - 单行标签右对齐 + 值左对齐 */
+        .info-list {
+            background: white; border-radius: 8px; padding: 0 24px;
+            margin-bottom: 10px;
+        }
+        .info-row {
+            display: flex; padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0; align-items: center;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label {
+            flex: 0 0 auto;
+            font-size: 14px; color: #aaa;
+            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+            text-align: right; width: 100px; margin-right: 20px;
+            white-space: nowrap;
+        }
+        .info-value {
+            flex: 1;
+            font-size: 16px; color: #000;
+            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 底部按钮 */
+        .action-btn {
+            background: #31C18A; color: white;
+            border: none; width: 100%; padding: 13px;
+            border-radius: 8px; font-size: 15px;
+            cursor: pointer; margin-top: 4px;
+        }
+        .action-btn:active { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+    <div class="top-header">
+        <svg class="back-btn" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" onclick="history.back()">
+            <polyline points="15,18 9,12 15,6"/>
+        </svg>
+        <span class="header-title">高等学籍</span>
+    </div>
+
+    <div class="content">
+        <!-- 职场实习横幅 -->
+        <div class="intern-banner">
+            <div class="intern-left">
+                <div class="intern-title">职场实习</div>
+                <div class="intern-desc">反馈实习困惑、实战心得与建议，帮大家<br>实习少走弯路</div>
+            </div>
+            <svg class="intern-illustration" viewBox="0 0 90 65">
+                <circle cx="70" cy="12" r="10" fill="#c5b8e0" opacity="0.5"/>
+                <circle cx="30" cy="22" r="5" fill="#ffab91"/>
+                <rect x="26" y="28" width="8" height="12" rx="1" fill="#5c6bc0"/>
+                <circle cx="50" cy="18" r="5" fill="#ffcc80"/>
+                <rect x="46" y="24" width="8" height="12" rx="1" fill="#66bb6a"/>
+                <rect x="22" y="6" width="16" height="8" rx="2" fill="white" opacity="0.8"/>
+                <rect x="44" y="4" width="14" height="7" rx="2" fill="white" opacity="0.8"/>
+                <circle cx="75" cy="45" r="9" fill="#66bb6a"/>
+                <path d="M71 45 L74 48 L79 42" stroke="white" stroke-width="2" fill="none"/>
+            </svg>
+        </div>
+
+        <!-- 学生信息卡片 -->
+        <div class="student-card" id="studentCard">
+            <div class="student-top">
+                <div class="photo-group">
+                    <div class="photo-box">
+                        <div class="photo" id="photo1"><span style="display:flex;align-items:center;justify-content:center;height:100%;font-size:24px;color:#ccc;">📷</span></div>
+                        <div class="photo-label">录取照片</div>
+                    </div>
+                    <div class="photo-box">
+                        <div class="photo" id="photo2"><span style="display:flex;align-items:center;justify-content:center;height:100%;font-size:24px;color:#ccc;">📷</span></div>
+                        <div class="photo-label">学历照片</div>
+                    </div>
+                </div>
+                <div class="student-info">
+                    <div class="student-name" id="stName">张晓斌</div>
+                    <div class="student-gender-birth">
+                        <span id="stGender">男</span> · <span id="stBirth">1993年05月24日</span>
+                    </div>
+                </div>
+            </div>
+            <div class="student-school" id="stSchool">运城学院</div>
+            <div class="student-major-row">
+                <span id="stMajor">计算机科学与技术(网络工程方向)</span>
+                <span class="student-badge">本科</span>
+            </div>
+        </div>
+
+        <!-- 详细信息列表 -->
+        <div class="info-list" id="infoList">
+            <div class="info-row"><span class="info-label">民族</span><span class="info-value" id="infoEthnic">汉族</span></div>
+            <div class="info-row"><span class="info-label">证件号码</span><span class="info-value" id="infoIdCard">14118119930524007X</span></div>
+            <div class="info-row"><span class="info-label">学制</span><span class="info-value" id="infoDuration">4 年</span></div>
+            <div class="info-row"><span class="info-label">学历类别</span><span class="info-value" id="infoType">普通高等教育</span></div>
+            <div class="info-row"><span class="info-label">分院</span><span class="info-value" id="infoCollege">运城学院</span></div>
+            <div class="info-row"><span class="info-label">系所</span><span class="info-value" id="infoDept">计算机科学与技术系</span></div>
+            <div class="info-row"><span class="info-label">班级</span><span class="info-value" id="infoClass">1303</span></div>
+            <div class="info-row"><span class="info-label">学号</span><span class="info-value" id="infoStuNo">2013100314</span></div>
+            <div class="info-row"><span class="info-label">入学日期</span><span class="info-value" id="infoEnroll">2013年09月01日</span></div>
+            <div class="info-row"><span class="info-label">学籍状态</span><span class="info-value" id="infoStatus">不在籍（毕业）</span></div>
+            <div class="info-row"><span class="info-label">离校日期</span><span class="info-value" id="infoGrad">2017年07月01日</span></div>
+        </div>
+
+        <button class="action-btn" onclick="window.location.href='list.html'">查看验证报告</button>
+    </div>
+</div>
+
+<script>
+(async function() {
+    var uid = localStorage.getItem('xuexin_user_id');
+    if (!uid) return;
+    try {
+        var res = await fetch('/api/user/' + uid);
+        var data = await res.json();
+        if (data.code === 0 && data.data) {
+            var u = data.data;
+            document.getElementById('stName').textContent = u.name || '张晓斌';
+            document.getElementById('stGender').textContent = u.gender || '男';
+            document.getElementById('stBirth').textContent = u.birth || '1993年05月24日';
+            document.getElementById('stSchool').textContent = u.school || '运城学院';
+            document.getElementById('stMajor').textContent = u.major || '计算机科学与技术(网络工程方向)';
+            document.getElementById('infoEthnic').textContent = u.ethnic || '汉族';
+            document.getElementById('infoIdCard').textContent = u.id_card || '14118119930524007X';
+            document.getElementById('infoDuration').textContent = u.duration || '4 年';
+            document.getElementById('infoType').textContent = u.degree_type || '普通高等教育';
+            document.getElementById('infoCollege').textContent = u.college || u.school || '运城学院';
+            document.getElementById('infoDept').textContent = u.dept || '计算机科学与技术系';
+            document.getElementById('infoEnroll').textContent = u.enroll_date || '2013年09月01日';
+            document.getElementById('infoStatus').textContent = u.status || '不在籍（毕业）';
+            document.getElementById('infoGrad').textContent = u.grad_date || '2017年07月01日';
+            var photoHtml = '<img src="' + u.photo + '">';
+            if (u.photo) {
+                document.getElementById('photo1').innerHTML = photoHtml;
+                document.getElementById('photo2').innerHTML = photoHtml;
+            }
+        }
+    } catch(e) {}
+})();
+
+</script>
+</body>
+</html>

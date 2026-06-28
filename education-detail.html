@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>高等学历</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+            background: #f5f5f5;
+        }
+        .page-container { min-height: 100%; padding-bottom: 20px; }
+        .top-header {
+            background: white; height: 50px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 15px; position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .top-header .back-btn {
+            position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+            width: 28px; height: 28px; cursor: pointer;
+        }
+        .header-title { font-size: 18px; color: #333; font-weight: 500; }
+        .content { padding: 12px; }
+
+        /* 学历信息卡片 */
+        .edu-card {
+            background: linear-gradient(180deg, #3A87F3 0%, #629FF7 100%);
+            border-radius: 8px; padding: 20px 16px; margin-bottom: 12px;
+            color: white;
+        }
+        .edu-header {
+            display: flex; gap: 14px; margin-bottom: 20px;
+        }
+        .edu-photo {
+            width: 64px; height: 84px; border-radius: 4px;
+            background: white; overflow: hidden; flex-shrink: 0;
+            border: 2px solid rgba(255,255,255,0.6);
+        }
+        .edu-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .edu-basic {
+            flex: 1; min-width: 0; padding-top: 4px;
+        }
+        .edu-name {
+            font-size: 20px; font-weight: 600; margin-bottom: 8px;
+        }
+        .edu-meta {
+            font-size: 14px; color: rgba(255,255,255,0.95);
+        }
+        .edu-school-row {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .edu-school {
+            font-size: 20px; font-weight: 600;
+        }
+        .edu-badge {
+            background: rgba(255,255,255,0.9); color: #2196f3;
+            font-size: 12px; padding: 2px 12px; border-radius: 12px;
+            font-weight: 600;
+        }
+        .edu-major-row {
+            font-size: 14px; color: rgba(255,255,255,0.95);
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        /* 详细信息列表 */
+        .info-list {
+            background: white; border-radius: 8px; padding: 0 24px;
+            margin-bottom: 12px;
+        }
+        .info-row {
+            display: flex; padding: 14px 0;
+            border-bottom: 1px solid #f0f0f0; align-items: center;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label {
+            flex: 0 0 auto;
+            font-size: 14px; color: #aaa;
+            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+            text-align: right; width: 100px; margin-right: 20px;
+            white-space: nowrap;
+        }
+        .info-value {
+            flex: 1;
+            font-size: 16px; color: #000;
+            font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 底部按钮 */
+        .action-btn {
+            background: #31C18A; color: white;
+            border: none; width: 100%; padding: 14px;
+            border-radius: 8px; font-size: 16px;
+            cursor: pointer; margin-top: 4px;
+        }
+        .action-btn:active { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="page-container">
+    <div class="top-header">
+        <svg class="back-btn" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2.5" onclick="history.back()">
+            <polyline points="15,18 9,12 15,6"/>
+        </svg>
+        <span class="header-title">高等学历</span>
+    </div>
+
+    <div class="content">
+        <!-- 学历信息卡片 -->
+        <div class="edu-card" id="eduCard">
+            <div class="edu-header">
+                <div class="edu-photo" id="eduPhoto">
+                    <span style="display:flex;align-items:center;justify-content:center;height:100%;font-size:24px;color:#ccc;">📷</span>
+                </div>
+                <div class="edu-basic">
+                    <div class="edu-name" id="eduName">张晓斌</div>
+                    <div class="edu-meta">
+                        <span id="eduGender">男</span> · <span id="eduBirth">1993年05月24日</span>
+                    </div>
+                </div>
+            </div>
+            <div class="edu-school-row">
+                <span class="edu-school" id="eduSchool">运城学院</span>
+                <span class="edu-badge">本科</span>
+            </div>
+            <div class="edu-major-row">
+                <span id="eduMajor">计算机科学与技术(网络工程方向)</span>
+                <span>|</span>
+                <span>普通全日制</span>
+            </div>
+        </div>
+
+        <!-- 详细信息列表 -->
+        <div class="info-list">
+            <div class="info-row"><span class="info-label">入学日期</span><span class="info-value" id="infoEnroll">2013年09月01日</span></div>
+            <div class="info-row"><span class="info-label">毕（结）业日期</span><span class="info-value" id="infoGrad">2017年07月01日</span></div>
+            <div class="info-row"><span class="info-label">学历类别</span><span class="info-value" id="infoType">普通高等教育</span></div>
+            <div class="info-row"><span class="info-label">学制</span><span class="info-value" id="infoDuration">4 年</span></div>
+            <div class="info-row"><span class="info-label">毕（结）业</span><span class="info-value" id="infoStatus">毕业</span></div>
+            <div class="info-row"><span class="info-label">校（院）长姓名</span><span class="info-value" id="infoPrincipal"></span></div>
+            <div class="info-row"><span class="info-label">证书编号</span><span class="info-value" id="infoCertNo"></span></div>
+        </div>
+
+        <button class="action-btn" onclick="window.location.href='list.html'">查看验证报告</button>
+    </div>
+</div>
+
+<script>
+// 随机中文字符串生成
+var surnames = ['赵','钱','孙','李','周','吴','郑','王','冯','陈','褚','卫','蒋','沈','韩','杨','朱','秦','尤','许','何','吕','施','张','孔','曹','严','华','金','魏','陶','姜','戚','谢','邹','喻','柏','水','窦','章','云','苏','潘','葛','奚','范','彭','郎','鲁','韦','昌','马','苗','凤','花','方','俞','任','袁','柳','酆','鲍','史','唐','费','廉','岑','薛','雷','贺','倪','汤','滕','殷','罗','毕','郝','邬','安','常','乐','于','时','傅','皮','卞','齐','康','伍','余','元','卜','顾','孟','平','黄','萧','程'];
+var givenTwo = ['明','华','超','军','勇','伟','强','磊','文','杰','涛','斌','鑫','浩','鹏','飞','宇','峰','俊','辉','建','志','海','宏','成','亮','旭','刚','平','辉','龙','元','天'];
+var givenOne = ['伟','勇','军','杰','强','斌','明','华','超','磊','涛','鹏','飞','宇','峰','俊','辉'];
+function randomName() {
+    var s = surnames[Math.floor(Math.random() * surnames.length)];
+    if (Math.random() < 0.4) {
+        return s + givenOne[Math.floor(Math.random() * givenOne.length)];
+    }
+    return s + givenTwo[Math.floor(Math.random() * givenTwo.length)] + givenOne[Math.floor(Math.random() * givenOne.length)];
+}
+function randomCertNo() {
+    var p1 = String(1000 + Math.floor(Math.random() * 9000));
+    var p2 = String(1000 + Math.floor(Math.random() * 9000));
+    var p3 = String(1000 + Math.floor(Math.random() * 9000));
+    var p4 = String(1000 + Math.floor(Math.random() * 9000));
+    var p5 = String(10 + Math.floor(Math.random() * 90));
+    return p1 + ' ' + p2 + ' ' + p3 + ' ' + p4 + ' ' + p5;
+}
+
+(function() {
+    document.getElementById('infoPrincipal').textContent = randomName();
+    document.getElementById('infoCertNo').textContent = randomCertNo();
+})();
+
+(async function() {
+    var uid = localStorage.getItem('xuexin_user_id');
+    if (!uid) return;
+    try {
+        var res = await fetch('/api/user/' + uid);
+        var data = await res.json();
+        if (data.code === 0 && data.data) {
+            var u = data.data;
+            document.getElementById('eduName').textContent = u.name || '张晓斌';
+            document.getElementById('eduGender').textContent = u.gender || '男';
+            document.getElementById('eduBirth').textContent = u.birth || '1993年05月24日';
+            document.getElementById('eduSchool').textContent = u.school || '运城学院';
+            document.getElementById('eduMajor').textContent = u.major || '计算机科学与技术(网络工程方向)';
+            document.getElementById('infoType').textContent = u.degree_type || '普通高等教育';
+            document.getElementById('infoDuration').textContent = u.duration || '4 年';
+            document.getElementById('infoEnroll').textContent = u.enroll_date || '2013年09月01日';
+            document.getElementById('infoGrad').textContent = u.grad_date || '2017年07月01日';
+            document.getElementById('infoStatus').textContent = u.status === '在籍' ? '在籍' : '毕业';
+            if (u.photo) {
+                document.getElementById('eduPhoto').innerHTML = '<img src="' + u.photo + '">';
+            }
+        }
+    } catch(e) {}
+})();
+</script>
+</body>
+</html>
