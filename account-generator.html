@@ -2,8 +2,10 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>账号生成 - 学信档案</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -25,16 +27,64 @@
             border-radius: 8px; font-size: 14px; outline: none;
         }
         input:focus, select:focus { border-color: #2db475; }
-        .photo-area {
-            margin: 10px 0; display: flex; align-items: center; gap: 15px;
+
+        /* 表单卡片容器 */
+        .forms-container { display: flex; flex-direction: column; gap: 16px; }
+
+        /* 单个表单卡片 */
+        .form-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            background: #fafcfa;
+        }
+        .form-card .card-index {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2db475;
+            margin-bottom: 10px;
+        }
+
+        /* 上传区域 */
+        .photo-upload-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
         .photo-preview {
-            width: 80px; height: 100px; border: 2px dashed #ddd; border-radius: 8px;
+            width: 72px; height: 90px;
+            border: 2px dashed #ddd; border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            color: #ccc; font-size: 11px; overflow: hidden; background: #fafafa; flex-shrink: 0;
+            color: #ccc; font-size: 10px;
+            overflow: hidden; background: #f5f5f5; flex-shrink: 0;
+            cursor: pointer;
+            transition: border-color 0.2s;
         }
+        .photo-preview:hover { border-color: #2db475; }
         .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
-        .btn {
+        .photo-preview .upload-hint { text-align: center; line-height: 1.4; }
+        .photo-preview .upload-hint .icon { font-size: 20px; display: block; }
+
+        /* 添加按钮 */
+        .add-btn-wrap { margin-top: 12px; text-align: center; }
+        .add-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 20px; background: #f0faf5; color: #2db475;
+            border: 1px dashed #2db475; border-radius: 8px;
+            font-size: 14px; cursor: pointer; font-weight: 500;
+        }
+        .add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .add-btn:hover:not(:disabled) { background: #e0f5ea; }
+
+        /* 删除按钮 */
+        .remove-btn {
+            float: right;
+            padding: 4px 12px; background: #ff4444; color: white;
+            border: none; border-radius: 4px; font-size: 11px; cursor: pointer;
+        }
+        .remove-btn:hover { background: #e03030; }
+
+        btn .btn {
             width: 100%; padding: 14px; border: none; border-radius: 10px;
             font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 18px; transition: all 0.2s;
         }
@@ -51,13 +101,29 @@
             text-decoration: none; font-size: 14px; font-weight: 500;
         }
         .btn-login:hover { text-decoration: underline; }
-        .generated-info {
-            margin-top: 16px; padding: 16px; background: #f0faf5; border-radius: 10px;
-            border: 1px solid #d4edda; display: none;
+
+        /* 生成结果 */
+        .results-area {
+            margin-top: 16px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
         }
-        .gen-row { display: flex; padding: 3px 0; font-size: 13px; }
-        .gen-row .lbl { width: 75px; color: #888; flex-shrink: 0; }
-        .gen-row .val { flex: 1; color: #333; }
+        .result-item {
+            padding: 14px; background: #f0faf5; border-radius: 10px;
+            border: 1px solid #d4edda;
+        }
+        .result-item .r-name { font-weight: 600; color: #2db475; font-size: 14px; margin-bottom: 6px; }
+        .result-item .r-detail { font-size: 12px; color: #555; line-height: 1.6; }
+        .result-item .r-actions { margin-top: 8px; display: flex; gap: 8px; }
+        .result-item .r-actions button {
+            flex: 1; padding: 8px; border: none; border-radius: 6px;
+            font-size: 12px; font-weight: 500; cursor: pointer;
+        }
+        .result-item .r-copy { background: #2db475; color: white; }
+        .result-item .r-dl { background: #555; color: white; }
+
+        /* 账号列表 */
         .account-list { margin-top: 12px; }
         .acc-item {
             display: flex; align-items: center; padding: 10px 12px;
@@ -84,110 +150,497 @@
             border: none; border-radius: 4px; font-size: 11px; cursor: pointer; margin-right: 4px;
         }
         .empty-tip { text-align: center; color: #ccc; font-size: 13px; padding: 20px; }
+
+        /* 生成进度 */
+        .progress-bar-wrap {
+            display: none;
+            margin-top: 16px;
+        }
+        .progress-bar {
+            height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: #2db475; border-radius: 3px;
+            transition: width 0.3s; width: 0%;
+        }
+        .progress-text { font-size: 12px; color: #888; text-align: center; margin-top: 6px; }
+        .progress-text .pname { color: #333; font-weight: 500; }
+
+        /* 隐藏的文件输入 */
+        .file-input-hidden { display: none; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>📋 账号管理</h2>
+    <h2 style="font-size:20px;">&#128203; 批量账号生成</h2>
 
     <div class="card">
-        <h3>生成新账号</h3>
-        <label>📷 头像 <span style="color:red;">*</span></label>
-        <div class="photo-area">
-            <div class="photo-preview" id="photoPreview">
-                <span>点击上传</span>
-            </div>
-            <input type="file" id="photoUpload" accept="image/*" style="display:none">
-            <span style="font-size:12px;color:#999;">支持 JPG/PNG</span>
+        <h3>上传照片 &amp; 填写信息</h3>
+        <p style="font-size:12px;color:#999;margin-bottom:10px;">可同时上传 1~2 张照片，每张照片独立生成一个账号</p>
+
+        <div class="forms-container" id="formsContainer">
+            <!-- 初始显示一张表单 -->
         </div>
-        <label>性别</label>
-        <select id="inGender"><option value="男">男</option><option value="女">女</option></select>
-        <label>姓名 <span style="color:#999;">(选填)</span></label>
-        <input type="text" id="inName" placeholder="不填则自动生成" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;">
-        <label>身份证号 <span style="color:#999;">(选填)</span></label>
-        <input type="text" id="inIdCard" placeholder="不填则自动生成" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;">
-        <script>
-            // 姓名由后端生成，此处为空（兼容旧代码）
-        </script>
-        <button class="btn btn-green" id="generateBtn">⚡ 生成账号</button>
-        <div class="generated-info" id="generatedInfo"></div>
+
+        <div class="add-btn-wrap">
+            <button class="add-btn" id="addFormBtn">+ 添加第二张照片</button>
+        </div>
+
+        <!-- 批量生成按钮 -->
+        <button class="btn btn-green" id="generateBtn">&#9889; 批量生成账号</button>
+
+        <!-- 进度条 -->
+        <div class="progress-bar-wrap" id="progressWrap">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-text" id="progressText">正在生成 <span class="pname"></span></div>
+        </div>
+
+        <!-- 生成结果 -->
+        <div class="results-area" id="resultsArea"></div>
     </div>
 
     <div class="card">
         <h3>已生成账号 <span id="accountCount" style="color:#999;font-weight:400;"></span></h3>
         <div id="accountList"><div class="empty-tip">暂无账号，请先生成一个</div></div>
         <div style="text-align:center;margin-top:12px;">
-            <a href="login.html" class="btn-login">→ 去登录</a>
+            <a href="login.html" class="btn-login">&#8594; 去登录</a>
         </div>
     </div>
 </div>
 
 <script>
-var photoData = '';
+// ==================== 状态管理 ====================
+var MAX_FORMS = 2;
+var formCount = 0;
+var photoDataMap = {}; // index -> base64
 
-document.getElementById('photoPreview').addEventListener('click', function() {
-    document.getElementById('photoUpload').click();
-});
-document.getElementById('photoUpload').addEventListener('change', function(e) {
+// ==================== 表单管理 ====================
+function createFormCard(index) {
+    var card = document.createElement('div');
+    card.className = 'form-card';
+    card.dataset.index = index;
+
+    var header = document.createElement('div');
+    header.className = 'card-index';
+    header.textContent = '#' + (index + 1) + ' 账号信息';
+
+    var removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = '删除';
+    removeBtn.onclick = function() { removeForm(card, index); };
+
+    header.appendChild(removeBtn);
+
+    // 照片区域
+    var photoLabel = document.createElement('label');
+    photoLabel.textContent = '\uD83D\uDCF7 照片 *';
+
+    var photoArea = document.createElement('div');
+    photoArea.className = 'photo-upload-area';
+
+    var preview = document.createElement('div');
+    preview.className = 'photo-preview';
+    preview.id = 'preview_' + index;
+    preview.innerHTML = '<div class="upload-hint"><span class="icon">\uD83D\uDCF7</span>点击上传</div>';
+
+    var fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.className = 'file-input-hidden';
+    fileInput.id = 'fileInput_' + index;
+    fileInput.onchange = function(e) { handleFileSelect(index, e); };
+
+    preview.onclick = function() { fileInput.click(); };
+
+    photoArea.appendChild(preview);
+    photoArea.appendChild(fileInput);
+
+    // 性别
+    var genderLabel = document.createElement('label');
+    genderLabel.textContent = '\uD83D\uDC64 性别';
+    var genderSelect = document.createElement('select');
+    genderSelect.id = 'gender_' + index;
+    genderSelect.innerHTML = '<option value="\u7537">\u7537</option><option value="\u5973">\u5973</option>';
+
+    // 姓名
+    var nameLabel = document.createElement('label');
+    nameLabel.innerHTML = '\uD83D\uDC64 姓名 <span style="color:#999;">(选填)</span>';
+    var nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.id = 'name_' + index;
+    nameInput.placeholder = '不填则自动生成';
+    nameInput.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;';
+
+    // 身份证
+    var idLabel = document.createElement('label');
+    idLabel.innerHTML = '\uD83D\uDCB3 身份证号 <span style="color:#999;">(选填)</span>';
+    var idInput = document.createElement('input');
+    idInput.type = 'text';
+    idInput.id = 'idcard_' + index;
+    idInput.placeholder = '不填则自动生成';
+    idInput.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;';
+
+    card.appendChild(photoLabel);
+    card.appendChild(photoArea);
+    card.appendChild(genderLabel);
+    card.appendChild(genderSelect);
+    card.appendChild(nameLabel);
+    card.appendChild(nameInput);
+    card.appendChild(idLabel);
+    card.appendChild(idInput);
+
+    return card;
+}
+
+function addForm(index) {
+    var container = document.getElementById('formsContainer');
+    var card = createFormCard(index);
+    container.appendChild(card);
+    formCount++;
+    updateAddBtn();
+}
+
+function removeForm(card, index) {
+    if (formCount <= 1) { alert('至少保留一张照片表单'); return; }
+    delete photoDataMap[index];
+    card.parentNode.removeChild(card);
+    formCount--;
+    updateAddBtn();
+    // 重新编号剩余卡片
+    reindexForms();
+}
+
+function reindexForms() {
+    var cards = document.querySelectorAll('.form-card');
+    cards.forEach(function(card, idx) {
+        var oldIdx = parseInt(card.dataset.index);
+        card.dataset.index = idx;
+        var header = card.querySelector('.card-index');
+        if (header) {
+            header.childNodes[0].textContent = '#' + (idx + 1) + ' 账号信息';
+        }
+        // 更新所有 id
+        card.querySelector('.photo-preview').id = 'preview_' + idx;
+        card.querySelector('.file-input-hidden').id = 'fileInput_' + idx;
+        card.querySelector('select').id = 'gender_' + idx;
+        card.querySelectorAll('input')[0].id = 'name_' + idx;
+        card.querySelectorAll('input')[1].id = 'idcard_' + idx;
+
+        // 旧 photoDataMap 迁移
+        if (photoDataMap[oldIdx]) {
+            photoDataMap[idx] = photoDataMap[oldIdx];
+            delete photoDataMap[oldIdx];
+        }
+
+        // 更新 removeBtn 的 onclick
+        var rmBtn = card.querySelector('.remove-btn');
+        rmBtn.onclick = function() { removeForm(card, idx); };
+
+        // 更新 fileInput onchange
+        var fi = card.querySelector('.file-input-hidden');
+        fi.onchange = function(e) { handleFileSelect(idx, e); };
+
+        // 更新 preview onclick
+        var pv = card.querySelector('.photo-preview');
+        pv.onclick = function() { fi.click(); };
+    });
+    formCount = cards.length;
+}
+
+function updateAddBtn() {
+    var btn = document.getElementById('addFormBtn');
+    if (formCount >= MAX_FORMS) {
+        btn.disabled = true;
+        btn.style.opacity = '0.4';
+    } else {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    }
+}
+
+function handleFileSelect(index, e) {
     var file = e.target.files[0];
     if (!file) return;
     var reader = new FileReader();
     reader.onload = function(ev) {
-        photoData = ev.target.result;
-        var preview = document.getElementById('photoPreview');
-        preview.innerHTML = '<img src="' + photoData + '">';
+        photoDataMap[index] = ev.target.result;
+        var preview = document.getElementById('preview_' + index);
+        if (preview) preview.innerHTML = '<img src="' + ev.target.result + '">';
     };
     reader.readAsDataURL(file);
+}
+
+// ==================== 初始化默认表单 ====================
+addForm(0);
+
+// ==================== 添加表单按钮 ====================
+document.getElementById('addFormBtn').addEventListener('click', function() {
+    if (formCount >= MAX_FORMS) return;
+    var idx = formCount;
+    addForm(idx);
 });
 
+// ==================== 批量生成 ====================
 document.getElementById('generateBtn').addEventListener('click', async function() {
-    var name = document.getElementById('inName').value.trim();
-    var idCard = document.getElementById('inIdCard').value.trim();
-    var gender = document.getElementById('inGender').value;
-    if (!photoData) { alert('请上传头像'); return; }
-    this.disabled = true;
-    this.textContent = '⏳ 生成中...';
-    try {
-        var body = {name: name, gender: gender, photo: photoData};
-        if (idCard) body.id_card = idCard;
-        var res = await fetch('/api/register', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(body)
-        });
-        var data = await res.json();
-        if (data.code === 0) {
-            var info = data.data;
-            var html = '<div style="font-weight:600;color:#2db475;margin-bottom:8px;">✅ 账号已生成</div>';
-            html += '<div class="gen-row"><span class="lbl">姓名</span><span class="val">' + info.name + '</span></div>';
-            html += '<div class="gen-row"><span class="lbl">性别</span><span class="val">' + info.gender + '</span></div>';
-            html += '<div class="gen-row"><span class="lbl">身份证号</span><span class="val">' + info.id_card + '</span></div>';
-            html += '<div class="gen-row"><span class="lbl">出生日期</span><span class="val">' + info.birth + '</span></div>';
-            html += '<div class="gen-row"><span class="lbl">学校</span><span class="val">' + info.school + '</span></div>';
-            html += '<div class="gen-row"><span class="lbl">专业</span><span class="val">' + info.major + '</span></div>';
-            html += '<div class="gen-row"><span class="lbl">验证码</span><span class="val" style="font-family:monospace;">' + info.verify_code + '</span></div>';
-            html += '<div style="margin-top:12px;display:flex;gap:8px;"><button onclick="copyNameIdCard(\'' + info.name.replace(/'/g, "\\'") + '\',\'' + info.id_card + '\')" style="flex:1;padding:10px;background:#2db475;color:white;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;">📋 复制姓名和身份证号</button></div>';
-            document.getElementById('generatedInfo').innerHTML = html;
-            document.getElementById('generatedInfo').style.display = 'block';
-            loadAccounts();
-            // 自动复制姓名和身份证号
-            copyNameIdCard(info.name, info.id_card);
-            // 自动下载学籍验证报告PDF
-            setTimeout(function() { downloadPdf(info.id); }, 500);
-        } else {
-            alert(data.detail || '生成失败');
+    var btn = this;
+    var cards = document.querySelectorAll('.form-card');
+    if (cards.length === 0) { alert('请至少添加一张照片'); return; }
+
+    // 检查每张表单是否有照片
+    var validIndices = [];
+    cards.forEach(function(card) {
+        var idx = parseInt(card.dataset.index);
+        if (!photoDataMap[idx]) {
+            alert('账号 #' + (idx + 1) + ' 请先上传照片');
+            return;
         }
-    } catch(e) {
-        alert('网络错误：' + e.message);
-    } finally {
-        this.disabled = false;
-        this.textContent = '⚡ 生成账号';
+        validIndices.push(idx);
+    });
+    if (validIndices.length === 0) return;
+    if (validIndices.length < cards.length) return;
+
+    btn.disabled = true;
+    btn.textContent = '⏳ 批量生成中...';
+
+    // 显示进度条
+    var progressWrap = document.getElementById('progressWrap');
+    var progressFill = document.getElementById('progressFill');
+    var progressText = document.getElementById('progressText');
+    progressWrap.style.display = 'block';
+
+    var resultsHtml = '';
+    var allAccounts = [];
+
+    for (var i = 0; i < validIndices.length; i++) {
+        var idx = validIndices[i];
+        var name = document.getElementById('name_' + idx).value.trim();
+        var idCard = document.getElementById('idcard_' + idx).value.trim();
+        var gender = document.getElementById('gender_' + idx).value;
+
+        // 更新进度
+        var pct = Math.round(((i) / validIndices.length) * 100);
+        progressFill.style.width = pct + '%';
+        progressText.innerHTML = '正在生成 ' + (i + 1) + '/' + validIndices.length + ' <span class="pname">' + (name || '#' + (idx + 1)) + '</span>';
+
+        try {
+            var body = { name: name, gender: gender, photo: photoDataMap[idx] };
+            if (idCard) body.id_card = idCard;
+
+            var res = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            var data = await res.json();
+
+            if (data.code === 0) {
+                var info = data.data;
+                allAccounts.push(info);
+
+                resultsHtml += '<div class="result-item">';
+                resultsHtml += '<div class="r-name">✅ ' + info.name + '</div>';
+                resultsHtml += '<div class="r-detail">';
+                resultsHtml += '身份证号：' + info.id_card + '<br>';
+                resultsHtml += '学校：' + info.school + ' · ' + info.major + '<br>';
+                resultsHtml += '验证码：<span style="font-family:monospace;">' + info.verify_code + '</span>';
+                resultsHtml += '</div>';
+                resultsHtml += '<div class="r-actions">';
+                resultsHtml += '<button class="r-copy" onclick="copyText(\'' + info.name.replace(/'/g, "\\'") + ' ' + info.id_card + '\')">📋 复制</button>';
+                resultsHtml += '<button class="r-dl" onclick="downloadScreenshot(' + info.id + ', \'' + info.name.replace(/'/g, "\\'") + '\')">📷 下载截图</button>';
+                resultsHtml += '</div></div>';
+            } else {
+                resultsHtml += '<div class="result-item" style="border-color:#f5c6cb;background:#fff5f5;">';
+                resultsHtml += '<div class="r-name" style="color:#d63031;">❌ 账号 #' + (idx + 1) + ' 生成失败</div>';
+                resultsHtml += '<div class="r-detail">' + (data.detail || '未知错误') + '</div></div>';
+            }
+        } catch(e) {
+            resultsHtml += '<div class="result-item" style="border-color:#f5c6cb;background:#fff5f5;">';
+            resultsHtml += '<div class="r-name" style="color:#d63031;">❌ 账号 #' + (idx + 1) + ' 出错</div>';
+            resultsHtml += '<div class="r-detail">' + e.message + '</div></div>';
+        }
+
+        // 小延迟避免并发问题
+        await new Promise(function(resolve) { setTimeout(resolve, 200); });
     }
+
+    // 进度完成
+    progressFill.style.width = '100%';
+    progressText.innerHTML = '✅ 全部完成';
+
+    var resultsArea = document.getElementById('resultsArea');
+    resultsArea.innerHTML = resultsHtml;
+    resultsArea.style.display = 'flex';
+
+    // 自动复制所有账号信息到剪贴板
+    if (allAccounts.length > 0) {
+        var copyText = '';
+        allAccounts.forEach(function(acc) {
+            copyText += acc.name + ' ' + acc.id_card + '\n';
+        });
+        copyText = copyText.trim();
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(copyText).then(function() {
+                // 静默复制
+            });
+        }
+        // 自动下载所有截图（延迟依次触发）
+        allAccounts.forEach(function(acc, idx) {
+            setTimeout(function() {
+                downloadScreenshot(acc.id, acc.name);
+            }, (idx + 1) * 1500);
+        });
+    }
+
+    loadAccounts();
+
+    btn.disabled = false;
+    btn.textContent = '⚡ 批量生成账号';
+
+    // 3秒后隐藏进度条
+    setTimeout(function() {
+        progressWrap.style.display = 'none';
+        progressFill.style.width = '0%';
+    }, 3000);
 });
 
-// 复制姓名和身份证号
-function copyNameIdCard(name, idCard) {
-    var text = name + ' ' + idCard;
+// ==================== 下载截图到相册 ====================
+function downloadScreenshot(id, name) {
+    fetch('/api/user/' + id).then(function(r) { return r.json(); }).then(function(result) {
+        if (result.code !== 0 || !result.data) { alert('获取信息失败'); return; }
+        var u = result.data;
+        // 确保依赖加载完成
+        function ensureLibs(cb) {
+            if (typeof html2canvas !== 'undefined' && typeof qrcode !== 'undefined') {
+                cb();
+                return;
+            }
+            var loaded = 0;
+            function check() {
+                if (typeof html2canvas !== 'undefined' && typeof qrcode !== 'undefined') {
+                    cb();
+                } else {
+                    setTimeout(check, 200);
+                }
+            }
+            setTimeout(check, 200);
+        }
+        ensureLibs(function() {
+            buildAndDownloadImage(u);
+        });
+    }).catch(function(e) {
+        alert('获取信息失败：' + e.message);
+    });
+}
+
+function buildAndDownloadImage(u) {
+    var day = 16 + Math.floor(Math.random() * 5);
+    var updateDate = '2026年06月' + (day < 10 ? '0' : '') + day + '日';
+
+    // 生成二维码
+    var code = u.verify_code || 'AG4FMEZUN9W8YHRL';
+    var qrDataUrl = '';
+    if (code && typeof qrcode !== 'undefined') {
+        try {
+            var qr = qrcode(4, 'M');
+            qr.addData('https://www.chsi.com.cn/xlcx/bgcx.jsp?code=' + code);
+            qr.make();
+            var cs = 3, mg = 2;
+            var sz = qr.getModuleCount() * cs + mg * 2;
+            var cv = document.createElement('canvas');
+            cv.width = sz; cv.height = sz;
+            var ctx = cv.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, sz, sz);
+            for (var r = 0; r < qr.getModuleCount(); r++) {
+                for (var c = 0; c < qr.getModuleCount(); c++) {
+                    if (qr.isDark(r, c)) { ctx.fillStyle = '#000'; ctx.fillRect(c*cs+mg, r*cs+mg, cs, cs); }
+                }
+            }
+            qrDataUrl = cv.toDataURL('image/png');
+        } catch(e) {}
+    }
+
+    // 构建报告HTML
+    var fields = [
+        ['姓名', u.name || ''], ['性别', u.gender || ''], ['出生日期', u.birth || ''],
+        ['民族', u.ethnic || '汉族'], ['学校名称', u.school || ''], ['层次', u.level || '本科'],
+        ['专业', u.major || ''], ['学制', u.duration || '4年'], ['学历类别', u.degree_type || '普通高等教育'],
+        ['学习形式', u.study_form || '普通全日制'], ['分院', u.college || ''], ['系所', u.dept || ''],
+        ['入学日期', u.enroll_date || ''], ['学籍状态', u.status || '在籍'], ['离校日期', u.grad_date || '']
+    ];
+    var allHtml = '';
+    for (var i = 0; i < fields.length; i++) {
+        allHtml += '<div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">' + fields[i][0] + '</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;">' + fields[i][1] + '</div></div>';
+    }
+
+    var html = '<div style="width:650px;background:#FAFCFB url(bg_pattern.jpg) no-repeat 0 0 / 100% 100%;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:\'Helvetica Neue\',Helvetica,\'PingFang SC\',\'Microsoft YaHei\',sans-serif;">'
+        + '<div style="width:100%;">'
+        + '<h4 style="font-size:27px;font-weight:700;text-align:center;color:#000;margin-top:20px;margin-bottom:4px;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>'
+        + '<div style="font-size:12px;color:#999;text-align:center;margin-bottom:30px;">更新日期：' + updateDate + '</div>'
+        + '<div style="width:100%;position:relative;">'
+        + '<div style="position:absolute;right:30px;top:0;width:100px;height:130px;border:1px solid #b0b0b0;background:#f4f9f5;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:11px;color:#aaa;">' + (u.photo ? '<img src="' + u.photo + '" style="width:100%;height:100%;object-fit:cover;">' : '暂无照片') + '</div>'
+        + allHtml
+        + '</div>'
+        + '<div style="margin:120px 0 10px 0;border:1px solid #c2dec9;background:#f6fbf8;padding:10px;display:flex;gap:12px;align-items:center;width:520px;">'
+        + '<div style="flex-shrink:0;">' + (qrDataUrl ? '<img src="' + qrDataUrl + '" style="width:68px;height:68px;display:block;">' : '<div style="width:68px;height:68px;border:1px solid #b5ccbe;background:white;"></div>') + '</div>'
+        + '<div style="flex:1;font-size:11px;line-height:1.6;color:#333;">'
+        + '<div><span style="font-weight:600;color:#333;">在线验证码</span> <span style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#000;margin-left:6px;">' + code + '</span></div>'
+        + '<div>① 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>'
+        + '<div>② 使用学信网App扫描二维码验证</div></div></div>'
+        + '<div style="font-size:10px;color:#444;line-height:1.6;margin-top:10px;"><div style="font-weight:bold;color:#222;margin-bottom:2px;font-size:10.5px;">注意事项：</div>'
+        + '<div style="margin-bottom:1px;">1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>'
+        + '<div style="margin-bottom:1px;">2、报告内容如有修改，请以最新在线验证的内容为准。</div>'
+        + '<div style="margin-bottom:1px;">3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>'
+        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;white-space:nowrap;"><div style="flex:1;white-space:nowrap;font-size:9px;">4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>'
+        + '<div style="flex-shrink:0;margin-left:8px;display:flex;align-items:center;gap:4px;"><img src="xxw.png" style="height:22px;width:auto;"><span style="color:#888;font-size:12px;font-weight:600;">CHSI</span></div></div></div></div></div>';
+
+    var div = document.createElement('div');
+    div.style.cssText = 'position:absolute;left:-9999px;top:0;width:650px;z-index:-1;';
+    div.innerHTML = html;
+    document.body.appendChild(div);
+    div.offsetHeight;
+    var divH = div.scrollHeight || 650;
+    div.style.height = divH + 'px';
+
+    setTimeout(function() {
+        html2canvas(div, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#FAFCFB', width: 650, height: divH }).then(function(canvas) {
+            document.body.removeChild(div);
+            var name = u.name || 'unknown';
+            // 转为 blob，尝试保存到相册
+            canvas.toBlob(function(blob) {
+                // 方式1: 使用 Web Share API（iOS/Android，可直接保存到相册）
+                if (navigator.share && navigator.canShare) {
+                    try {
+                        var file = new File([blob], '学籍在线验证报告_' + name + '.jpg', { type: 'image/jpeg' });
+                        if (navigator.canShare({ files: [file] })) {
+                            navigator.share({ files: [file], title: '学籍在线验证报告', text: name });
+                            return;
+                        }
+                    } catch(e) {}
+                }
+                // 方式2: 在新标签页打开图片（iOS Safari: 长按→保存到相册；Android: 可保存）
+                var url = URL.createObjectURL(blob);
+                var w = window.open(url, '_blank');
+                if (!w) {
+                    // 弹窗被拦截，使用下载链接
+                    var link = document.createElement('a');
+                    link.href = url;
+                    link.download = '学籍在线验证报告_' + name + '.jpg';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+                setTimeout(function() { URL.revokeObjectURL(url); }, 15000);
+            }, 'image/jpeg', 0.95);
+        }).catch(function(e) {
+            document.body.removeChild(div);
+            alert('生成截图失败：' + e.message);
+        });
+    }, 300);
+}
+
+// ==================== 复制文本 ====================
+function copyText(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function() {
             alert('已复制：' + text);
@@ -203,7 +656,7 @@ function copyNameIdCard(name, idCard) {
     }
 }
 
-// 加载账号列表（从后端API获取）
+// ==================== 账号列表管理 ====================
 async function loadAccounts() {
     var container = document.getElementById('accountList');
     var countEl = document.getElementById('accountCount');
@@ -232,7 +685,7 @@ async function loadAccounts() {
             html += '</div>';
             html += '<div class="info"><div class="name">' + acc.name + '</div>';
             html += '<div class="detail">' + acc.id_card + ' · ' + acc.school + '</div></div>';
-            html += '<button class="copy-btn" onclick="copyAccount(' + acc.id + ')">复制</button><button class="dl-btn" id="dlBtn' + acc.id + '" onclick="downloadFromList(' + acc.id + ')">下载</button><button class="del-btn" onclick="deleteAccount(' + acc.id + ')">删除</button>';
+            html += '<button class="copy-btn" onclick="copyAccount(' + acc.id + ')">复制</button><button class="dl-btn" id="dlBtn' + acc.id + '" onclick="downloadScreenshot(' + acc.id + ',\'' + acc.name.replace(/'/g, "\\'") + '\')">截图</button><button class="del-btn" onclick="deleteAccount(' + acc.id + ')">删除</button>';
             html += '</div>';
         });
         container.innerHTML = html;
@@ -241,7 +694,6 @@ async function loadAccounts() {
     }
 }
 
-// 删除指定数据库ID的账号
 async function deleteAccount(id) {
     if (!confirm('确定要删除此账号吗？')) return;
     try {
@@ -255,141 +707,15 @@ async function deleteAccount(id) {
     loadAccounts();
 }
 
-// 复制姓名和身份证号
 function copyAccount(id) {
     fetch('/api/user/' + id).then(function(r) { return r.json(); }).then(function(result) {
         if (result.code !== 0 || !result.data) { alert('获取信息失败'); return; }
         var acc = result.data;
-        var text = acc.name + ' ' + acc.id_card;
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function() {
-            alert('已复制：' + text);
-        });
-    } else {
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        alert('已复制：' + text);
-    }
+        copyText(acc.name + ' ' + acc.id_card);
     });
 }
 
-// 下载PDF报告
-function downloadPdf(id) {
-    fetch('/api/user/' + id).then(function(r) { return r.json(); }).then(function(result) {
-        if (result.code !== 0 || !result.data) { alert('获取信息失败'); return; }
-        var u = result.data;
-        // 动态加载html2canvas和jsPDF
-        function loadScript(src, cb) {
-            var s = document.createElement('script'); s.src = src; s.onload = cb; document.head.appendChild(s);
-        }
-        loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', function() {
-            loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', function() {
-                loadScript('https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js', function() {
-                    buildAndDownloadPdf(u);
-                });
-            });
-        });
-    }).catch(function(e) {
-        alert('获取信息失败：' + e.message);
-    });
-}
-
-// 列表中的下载按钮专用（带加载状态）
-function downloadFromList(id) {
-    var btn = document.getElementById('dlBtn' + id);
-    if (btn) btn.textContent = '⏳';
-    downloadPdf(id);
-}
-
-function buildAndDownloadPdf(u) {
-    var day = 16 + Math.floor(Math.random() * 5);
-    var updateDate = '2026年06月' + (day < 10 ? '0' : '') + day + '日';
-    var code = u.verify_code || 'AG4FMEZUN9W8YHRL';
-    // 生成二维码
-    var qrDataUrl = '';
-    if (code && typeof qrcode !== 'undefined') {
-        try {
-            var qr = qrcode(4, 'M');
-            qr.addData('https://www.chsi.com.cn/xlcx/bgcx.jsp?code=' + code);
-            qr.make();
-            var cs = 3, mg = 2;
-            var sz = qr.getModuleCount() * cs + mg * 2;
-            var cv = document.createElement('canvas');
-            cv.width = sz; cv.height = sz;
-            var ctx = cv.getContext('2d');
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, sz, sz);
-            for (var r = 0; r < qr.getModuleCount(); r++) {
-                for (var c = 0; c < qr.getModuleCount(); c++) {
-                    if (qr.isDark(r, c)) { ctx.fillStyle = '#000'; ctx.fillRect(c*cs+mg, r*cs+mg, cs, cs); }
-                }
-            }
-            qrDataUrl = cv.toDataURL('image/png');
-        } catch(e) {}
-    }
-    var fields = [
-        ['姓名', u.name || ''], ['性别', u.gender || ''], ['出生日期', u.birth || ''],
-        ['民族', u.ethnic || '汉族'], ['学校名称', u.school || ''], ['层次', u.level || '本科'],
-        ['专业', u.major || ''], ['学制', u.duration || '4年'], ['学历类别', u.degree_type || '普通高等教育'],
-        ['学习形式', u.study_form || '普通全日制'], ['分院', u.college || ''], ['系所', u.dept || ''],
-        ['入学日期', u.enroll_date || ''], ['学籍状态', u.status || '在籍'], ['离校日期', u.grad_date || '']
-    ];
-    var allHtml = '';
-    for (var i = 0; i < fields.length; i++) {
-        allHtml += '<div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">' + fields[i][0] + '</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;">' + fields[i][1] + '</div></div>';
-    }
-    var html = '<div style="width:650px;background:#FAFCFB url(bg_pattern.jpg) no-repeat 0 0 / 100% 100%;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:\'Helvetica Neue\',Helvetica,\'PingFang SC\',\'Microsoft YaHei\',sans-serif;">'
-        + '<div style="width:100%;">'
-        + '<h4 style="font-size:27px;font-weight:700;text-align:center;color:#000;margin-top:20px;margin-bottom:4px;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>'
-        + '<div style="font-size:12px;color:#999;text-align:center;margin-bottom:30px;">更新日期：' + updateDate + '</div>'
-        + '<div style="width:100%;position:relative;">'
-        + '<div style="position:absolute;right:30px;top:0;width:100px;height:130px;border:1px solid #b0b0b0;background:#f4f9f5;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:11px;color:#aaa;">' + (u.photo ? '<img src="' + u.photo + '" style="width:100%;height:100%;object-fit:cover;">' : '暂无照片') + '</div>'
-        + allHtml
-        + '</div>'
-        // 在线验证码区域
-        + '<div style="margin:120px 0 10px 0;border:1px solid #c2dec9;background:#f6fbf8;padding:10px;display:flex;gap:12px;align-items:center;width:520px;">'
-        + '<div style="flex-shrink:0;">' + (qrDataUrl ? '<img src="' + qrDataUrl + '" style="width:68px;height:68px;display:block;">' : '<div style="width:68px;height:68px;border:1px solid #b5ccbe;background:white;"></div>') + '</div>'
-        + '<div style="flex:1;font-size:11px;line-height:1.6;color:#333;">'
-        + '<div><span style="font-weight:600;color:#333;">在线验证码</span> <span style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#000;margin-left:6px;">' + code + '</span></div>'
-        + '<div>① 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>'
-        + '<div>② 使用学信网App扫描二维码验证</div></div></div>'
-        // 注意事项 - 正常流
-        + '<div style="font-size:10px;color:#444;line-height:1.6;margin-top:10px;"><div style="font-weight:bold;color:#222;margin-bottom:2px;font-size:10.5px;">注意事项：</div>'
-        + '<div style="margin-bottom:1px;">1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>'
-        + '<div style="margin-bottom:1px;">2、报告内容如有修改，请以最新在线验证的内容为准。</div>'
-        + '<div style="margin-bottom:1px;">3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>'
-        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;white-space:nowrap;"><div style="flex:1;white-space:nowrap;font-size:9px;">4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>'
-        + '<div style="flex-shrink:0;margin-left:8px;display:flex;align-items:center;gap:4px;"><img src="xxw.png" style="height:22px;width:auto;"><span style="color:#888;font-size:12px;font-weight:600;">CHSI</span></div></div></div></div></div>';
-
-    var div = document.createElement('div');
-    // 手机端兼容：用 absolute 替代 fixed
-    div.style.cssText = 'position:absolute;left:-9999px;top:0;width:650px;z-index:-1;';
-    div.innerHTML = html;
-    document.body.appendChild(div);
-    div.offsetHeight;
-    var divH = div.scrollHeight || 650;
-    div.style.height = divH + 'px';
-
-    setTimeout(function() {
-        html2canvas(div, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#FAFCFB', width: 650, height: divH }).then(function(canvas) {
-            document.body.removeChild(div);
-            var imgData = canvas.toDataURL('image/jpeg', 0.95);
-            var { jsPDF } = window.jspdf;
-            var pdf = new jsPDF('p', 'mm', 'a4');
-            var pw = pdf.internal.pageSize.getWidth();
-            pdf.addImage(imgData, 'JPEG', 0, 0, pw, pw / canvas.width * canvas.height);
-            pdf.save('教育部学籍在线验证报告_' + (u.name || 'unknown') + '.pdf');
-        }).catch(function(e) {
-            document.body.removeChild(div);
-            alert('生成PDF失败：' + e.message);
-        });
-    }, 300);
-}
-
+// ==================== 初始化 ====================
 loadAccounts();
 </script>
 </body>
