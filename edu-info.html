@@ -210,7 +210,7 @@ var allFields = [
     { label: '学历类别', key: 'degree_type' },
     { label: '学习形式', key: 'study_form' },
     { label: '入学日期', key: 'enroll_date' },
-    { label: '离校日期', key: 'grad_date' },
+    { label: '预计毕业日期', key: 'grad_date' },
     { label: '学籍状态', key: 'status' },
     { label: '在线验证码', key: 'verify_code' },
 ];
@@ -239,7 +239,7 @@ var allFields = [
         html += '</div>';
         html += '<div class="photo-name">' + (u.name || '') + '</div>';
         html += '<div class="photo-school">' + (u.school || '') + ' · ' + (u.major || '') + '</div>';
-        html += '<div class="photo-status">' + (u.status || '在籍') + '</div>';
+        html += '<div class="photo-status">' + (u.status || '在籍(注册学籍)') + '</div>';
         html += '</div>';
 
         // 字段列表

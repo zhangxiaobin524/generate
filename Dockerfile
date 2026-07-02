@@ -8,6 +8,7 @@ COPY login.html /usr/share/nginx/html/login.html
 COPY account-generator.html /usr/share/nginx/html/account-generator.html
 COPY report-list.html /usr/share/nginx/html/report-list.html
 COPY mobile-verify.html /usr/share/nginx/html/mobile-verify.html
+COPY scan.html /usr/share/nginx/html/scan.html
 COPY edu-main.html /usr/share/nginx/html/edu-main.html
 COPY edu-detail.html /usr/share/nginx/html/edu-detail.html
 COPY edu-info.html /usr/share/nginx/html/edu-info.html
@@ -15,6 +16,9 @@ COPY student-status.html /usr/share/nginx/html/student-status.html
 COPY education-detail.html /usr/share/nginx/html/education-detail.html
 COPY xxw.png /usr/share/nginx/html/xxw.png
 COPY bg_pattern.jpg /usr/share/nginx/html/bg_pattern.jpg
+COPY static/html2canvas.min.js /usr/share/nginx/html/static/html2canvas.min.js
+COPY static/qrcode.min.js /usr/share/nginx/html/static/qrcode.min.js
+COPY static/jspdf.umd.min.js /usr/share/nginx/html/static/jspdf.umd.min.js
 
 EXPOSE 80
 

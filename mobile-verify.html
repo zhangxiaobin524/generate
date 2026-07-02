@@ -165,7 +165,7 @@
             border-bottom: none;
         }
         .info-label {
-            width: 110px;
+            width: 115px;
             color: #999;
             font-size: 15px;
             flex-shrink: 0;
@@ -517,10 +517,10 @@
             </li>
             <li class="info-item">
                 <span class="info-label">学籍状态</span>
-                <span class="info-value" id="outStatus">不在籍（毕业）</span>
+                <span class="info-value" id="outStatus">在籍（注册学籍）</span>
             </li>
             <li class="info-item">
-                <span class="info-label">离校日期</span>
+                <span class="info-label">预计毕业日期</span>
                 <span class="info-value" id="outGrad">2017年07月01日</span>
             </li>
             <li class="info-item">
@@ -564,7 +564,7 @@
             <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">系所</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfDept"></div></div>
             <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">入学日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfEnroll"></div></div>
             <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">学籍状态</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfStatus"></div></div>
-            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">离校日期</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;" id="pdfGrad"></div></div>
+            <div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:75px;color:#888;font-size:13px;flex-shrink:0;white-space:nowrap;">预计毕业日期</div><div style="flex:1;padding-left:35px;padding-right:150px;color:#222;font-size:13px;" id="pdfGrad"></div></div>
         </div>
         
         <!-- 在线验证码区域 -->
@@ -592,13 +592,34 @@
 </div>
 
 <script>
-// 生成6.16~6.20之间的随机更新日期
+// 生成从今天起前3天到今天的随机更新日期
 function randomUpdateDate() {
-    var day = 16 + Math.floor(Math.random() * 5); // 16,17,18,19,20
-    return '2026年06月' + (day < 10 ? '0' : '') + day + '日';
+    var now = new Date();
+    var offset = Math.floor(Math.random() * 4); // 0,1,2,3
+    var d = new Date(now);
+    d.setDate(now.getDate() - offset);
+    return d.getFullYear() + '年' + ('0' + (d.getMonth() + 1)).slice(-2) + '月' + ('0' + d.getDate()).slice(-2) + '日';
+}
+
+// 学籍状态标准化：在籍 → 在籍（注册学籍）
+function normalizeStatus(s) {
+    if (!s) return '在籍（注册学籍）';
+    if (s === '在籍') return '在籍（注册学籍）';
+    return s;
 }
 
 async function checkAndLoad() {
+    // 支持扫码直达：URL 参数 ?id= 自动登录
+    var urlParams = new URLSearchParams(window.location.search);
+    var qrId = urlParams.get('id');
+    if (qrId) {
+        localStorage.setItem('xuexin_user_id', qrId);
+        // 清理 URL 参数（美观）
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    }
+
     var userId = localStorage.getItem('xuexin_user_id');
     var mask = document.getElementById('verifyMask');
     var maskIcon = document.getElementById('maskIcon');
@@ -657,7 +678,7 @@ async function checkAndLoad() {
             'outCollege': u.college,
             'outDept': u.dept,
             'outEnroll': u.enroll_date,
-            'outStatus': u.status,
+            'outStatus': normalizeStatus(u.status),
             'outGrad': u.grad_date,
             'outCode': u.verify_code,
             'outUpdate': randomUpdateDate(),
@@ -747,7 +768,7 @@ function fillPdfData(u) {
         'pdfStudyForm': u.study_form,
         'pdfCollege': u.college,
         'pdfDept': u.dept,
-        'pdfStatus': u.status,
+        'pdfStatus': normalizeStatus(u.status),
         'pdfEnroll': u.enroll_date,
         'pdfGrad': u.grad_date,
         'pdfCode': u.verify_code,

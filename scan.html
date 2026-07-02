@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <title>扫码登录 - 学信网</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f5f5f5; }
+
+        .header {
+            background: #fff;
+            padding: 16px 20px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header h2 { font-size: 17px; color: #333; font-weight: 600; }
+        .header p { font-size: 12px; color: #999; margin-top: 4px; }
+
+        .container { max-width: 500px; margin: 0 auto; padding: 16px; }
+
+        /* 加载 + 错误 */
+        .loading, .error-box {
+            text-align: center; padding: 60px 20px; color: #999; font-size: 14px;
+        }
+        .error-box { color: #e74c3c; }
+        .loading .spinner {
+            display: inline-block; width: 32px; height: 32px;
+            border: 3px solid #e8e8e8; border-top-color: #00bac7;
+            border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 账号卡片 */
+        .account-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .account-card:active { transform: scale(0.98); }
+        .account-card.selected {
+            border-color: #00bac7;
+            background: #f0fdfd;
+        }
+        .account-card .avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            background: #00bac7;
+            color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; font-weight: 600;
+            flex-shrink: 0;
+        }
+        .account-card .avatar.has-photo { background: #e0e0e0; overflow: hidden; }
+        .account-card .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .account-card .info { flex: 1; min-width: 0; }
+        .account-card .name { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 4px; }
+        .account-card .idcard { font-size: 12px; color: #999; font-family: monospace; }
+        .account-card .school { font-size: 12px; color: #bbb; margin-top: 2px; }
+        .account-card .check {
+            width: 22px; height: 22px;
+            border: 2px solid #d9d9d9; border-radius: 50%;
+            flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .account-card.selected .check {
+            border-color: #00bac7;
+            background: #00bac7;
+        }
+        .account-card.selected .check::after {
+            content: '✓';
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* 确认按钮 */
+        .btn-confirm {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 10px;
+            background: #00bac7;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-confirm:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: #ccc;
+        }
+        .btn-confirm:not(:disabled):active { background: #09a0ab; }
+
+        /* 成功 */
+        .success-box {
+            text-align: center; padding: 60px 20px;
+        }
+        .success-icon {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: #2db475; color: #fff;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 32px; margin-bottom: 16px;
+        }
+        .success-box h3 { font-size: 18px; color: #333; margin-bottom: 8px; }
+        .success-box p { font-size: 14px; color: #999; }
+
+        /* 搜索 */
+        .search-box {
+            margin-bottom: 16px;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+        }
+        .search-box input:focus { border-color: #00bac7; }
+
+        .empty-tip { text-align: center; padding: 40px 20px; color: #ccc; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h2>扫码登录</h2>
+    <p>选择一个账号确认登录</p>
+</div>
+
+<div class="container">
+    <div id="loadingEl" class="loading">
+        <div class="spinner"></div>
+        <div>加载账号列表...</div>
+    </div>
+
+    <div id="errorEl" class="error-box hidden"></div>
+
+    <div id="accountList" class="hidden"></div>
+
+    <div id="successEl" class="success-box hidden">
+        <div class="success-icon">✓</div>
+        <h3>登录确认成功</h3>
+        <p>请返回电脑端查看</p>
+    </div>
+</div>
+
+<script>
+var token = null;
+var selectedId = null;
+var accounts = [];
+
+// 解析 URL 中的 token
+(function() {
+    var params = new URLSearchParams(window.location.search);
+    token = params.get('token');
+    if (!token) {
+        showError('无效的二维码链接');
+        return;
+    }
+    loadAccounts();
+})();
+
+async function loadAccounts() {
+    try {
+        var res = await fetch('/api/users');
+        var data = await res.json();
+        if (data.code !== 0 || !data.data || data.data.length === 0) {
+            showError('暂无可用账号，请先生成账号');
+            return;
+        }
+        accounts = data.data;
+        renderAccountList(accounts);
+    } catch (e) {
+        showError('加载失败，请检查网络：' + e.message);
+    }
+}
+
+function renderAccountList(list) {
+    var el = document.getElementById('accountList');
+    document.getElementById('loadingEl').classList.add('hidden');
+
+    if (list.length === 0) {
+        el.innerHTML = '<div class="empty-tip">没有匹配的账号</div>';
+        el.classList.remove('hidden');
+        return;
+    }
+
+    var html = '';
+    list.forEach(function(acc) {
+        var initial = (acc.name || '?').charAt(0);
+        var photoHtml = acc.photo ? '<img src="' + acc.photo + '">' : '';
+        var avatarClass = acc.photo ? 'avatar has-photo' : 'avatar';
+
+        html += '<div class="account-card" data-id="' + acc.id + '" onclick="selectAccount(' + acc.id + ', this)">';
+        html += '<div class="' + avatarClass + '">' + photoHtml + (acc.photo ? '' : initial) + '</div>';
+        html += '<div class="info">';
+        html += '<div class="name">' + acc.name + '</div>';
+        html += '<div class="idcard">' + acc.id_card + '</div>';
+        html += '<div class="school">' + (acc.school || '') + '</div>';
+        html += '</div>';
+        html += '<div class="check"></div>';
+        html += '</div>';
+    });
+    html += '<button class="btn-confirm" id="btnConfirm" disabled onclick="confirmLogin()">确认登录</button>';
+
+    el.innerHTML = html;
+    el.classList.remove('hidden');
+}
+
+function selectAccount(id, cardEl) {
+    selectedId = id;
+    document.querySelectorAll('.account-card').forEach(function(c) {
+        c.classList.remove('selected');
+    });
+    cardEl.classList.add('selected');
+    document.getElementById('btnConfirm').disabled = false;
+}
+
+async function confirmLogin() {
+    if (!selectedId || !token) return;
+
+    var btn = document.getElementById('btnConfirm');
+    btn.disabled = true;
+    btn.textContent = '确认中...';
+
+    try {
+        var res = await fetch('/api/scan-login/confirm/' + token + '?user_id=' + selectedId, {
+            method: 'POST'
+        });
+        var data = await res.json();
+        if (data.code === 0) {
+            document.getElementById('accountList').classList.add('hidden');
+            document.getElementById('successEl').classList.remove('hidden');
+        } else {
+            alert(data.detail || '确认失败，请重试');
+            btn.disabled = false;
+            btn.textContent = '确认登录';
+        }
+    } catch (e) {
+        alert('网络错误：' + e.message);
+        btn.disabled = false;
+        btn.textContent = '确认登录';
+    }
+}
+
+function showError(msg) {
+    document.getElementById('loadingEl').classList.add('hidden');
+    var errEl = document.getElementById('errorEl');
+    errEl.textContent = msg;
+    errEl.classList.remove('hidden');
+}
+</script>
+</body>
+</html>

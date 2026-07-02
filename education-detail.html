@@ -196,7 +196,7 @@ function randomCertNo() {
             document.getElementById('infoDuration').textContent = u.duration || '4 年';
             document.getElementById('infoEnroll').textContent = u.enroll_date || '2013年09月01日';
             document.getElementById('infoGrad').textContent = u.grad_date || '2017年07月01日';
-            document.getElementById('infoStatus').textContent = u.status === '在籍' ? '在籍' : '毕业';
+            document.getElementById('infoStatus').textContent = u.status === '在籍(注册学籍)' ? '在籍(注册学籍)' : '毕业';
             if (u.photo) {
                 document.getElementById('eduPhoto').innerHTML = '<img src="' + u.photo + '">';
             }

@@ -1,0 +1,357 @@
+/*主体内容*/
+
+li {
+    list-style: none;
+}
+
+.bgcolor {
+    background: #0168d1;
+    color:#fff;
+}
+
+.fontcolor {
+    color: #ff9900;
+}
+
+.bordercolor {
+    border-right: #0168d1;
+}
+
+#content {
+    margin-top: 20px;
+}
+
+.fl {
+    float: left;
+}
+
+.fr {
+    float: right;
+}
+
+
+/*.btn{width:138px; height:45px;}*/
+
+.kong {
+    width: 68px;
+    display: inline-block;
+}
+
+
+/*搜索框*/
+
+.search-bar.btn-group .btn .caret {
+    margin-left: 70px
+}
+
+.search-bar.btn-group .form-control
+ {
+    border-color: #0168d1;
+    border-width: 2px;
+}
+.borderwidth2 {
+    border-width: 2px;
+}
+.search-bar .input-group-lg>.form-control {
+    height: 48px;
+    border-left-width: 1px;
+    border-right-width: 1px;
+}
+
+.search-bar.btn-group>.btn-group:not(:first-child):not(:last-child)>.btn {
+    border-radius: 0;
+    border-left-width: 1px;
+    border-right-width: 2px;
+}
+
+.btn-group-lg>.btn,
+.btn-lg {
+    padding: 10px 16px;
+    font-size: 14px;
+    line-height: 24px;
+    border-radius: 6px;
+}
+
+.input-group-lg>.form-control,
+.input-group-lg>.input-group-addon,
+.input-group-lg>.input-group-btn>.btn {
+    height: 46px;
+    padding: 10px 16px;
+    font-size: 14px;
+    line-height: 24px;
+}
+
+.search-bar.btn-group .input-group {
+    width: 559px;
+}
+
+.search-bar .btn-search {
+    padding: 10px 50px;
+    text-align: center;
+    color: #fff
+}
+
+/*下拉菜单*/
+
+.btn-group .dropdown-menu{min-width:145px; border-radius: 0; margin-top:-2px;}
+.btn-group .dropdown-menu li{color:#333;}
+/*.qg .dropdown-menu li span{padding:0 10px;}*/
+.qg .dropdown-menu li{line-height:20px;}
+.qg .dropdown-menu{width:700px;padding-bottom:30px;}
+.qg .dropdown-menu li{width:100%;}
+.qg .dropdown-menu li span{display:inline-block; padding:0 8px; text-align:center;}
+.qg .dropdown-menu .shilist{background:#dbdbdb; padding:0; padding-left:25px;}
+.qg .dropdown-menu .shilist li{line-height:25px;}
+.qg .dropdown-menu .shilist span{width:65px; color:#666; padding:0;}
+
+/*列表*/
+
+.mylist {
+    width: 100%;
+    background: #efeff4;
+    margin-top: 20px;
+    padding:10px 0;
+    border:1px solid #e1e1e4;
+}
+
+.mylist ul {
+    width: 90%;
+    text-align: center;
+    float:left;
+}
+.mylist .industryList-box span{
+	float:left;
+	margin-left:14px;
+	position: relative;
+	top:2px;
+}
+.mylist .industryList-box{
+	margin-top:8px;
+}
+.mylist .propertyList-box span{
+	float:left;
+	margin-left:14px;
+	position: relative;
+	top:2px;
+}
+.mylist .jobPosition-box span{
+	float:left;
+	margin-left:14px;
+	position: relative;
+	top:2px;
+}
+.mylist .propertyList-box ul{
+	margin-bottom:0;
+}
+.mylist .memberLevelList-box span{
+	float:left;
+	margin-left:14px;
+	position:relative;
+	top:2px;
+}
+.mylist ul li {
+    float: left;
+    font-size: 14px;
+    margin-left: 15px;
+    padding: 2px 5px;
+    margin-bottom:4px;
+    text-align:left;
+}
+.mylist .recruitTypeList-box span{
+	float:left;
+	margin-left:14px;
+	position:relative;
+	top:2px;
+}
+.mylist ul li:hover {
+    background: #0168d1;
+    color: #fff;
+}
+
+.mylist ul li.active {
+    background: #0168d1;
+    color: #fff;
+}
+
+.mylist ul h5 {
+    float: left;
+    width: 113px;
+}
+
+
+/*职位列表*/
+
+.position-list {
+    background: #fff;
+    width: 100%;
+    border: 1px solid #e1e1e4;
+    margin-top:20px;
+}
+
+
+/*全选框*/
+
+.position-list .select ul {
+    border: 1px solid #ebebeb;
+    font-size: 14px;
+    padding: 0;
+}
+
+.position-list .select {
+    height: 65px;
+    border-bottom: 1px solid #ebebeb;
+    line-height: 65px;
+    padding-left: 16px;
+    position:relative;
+}
+.position-list .select input{
+    margin-right:10px;
+    position:relative;
+}
+.position-list button {
+    width: 87px;
+    height: 32px;
+    line-height:30px;
+    padding: 0;
+    text-align: center;
+}
+
+.position-list .select>span {
+    float: right;
+    padding-right: 20px;
+}
+
+
+/*内容列表*/
+
+.position-list .con-list>div {
+    margin: 15px 0 15px 0;
+}
+
+.position-list .con-list>div>div>span {
+    display: inline-block;
+    width: 54px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.position-list .con-list li,
+.position-list .con-list span {
+    color: #999;
+    font-size: 12px;
+    /* margin-top: 10px; */
+    /* margin-bottom:18px; */
+}
+.position-list .con-list li {
+    line-height: 18px;
+}
+.position-list .con-list .btns {
+    margin-top: 15px;
+}
+.position-list .con-list h5{
+    margin-top:0;
+    margin-bottom:6px;
+    line-height: 32px;
+    height: 32px;
+}
+.position-list .con-list .btns span {
+    padding: 10px 20px 10px 0;
+    position:relative;
+    top:4px;
+    min-width:100px;
+    text-align:right;
+}
+.position-list .con-list .btns .time-sp {
+    color: #999;
+    padding: 6px 20px 12px 0;
+    min-width:100px;
+    text-align:right;
+    font-size: 12px;
+    line-height: 18px;
+}
+.position-list .con-list .source-dl{
+	text-align: right;
+	position: relative;
+	right: 20px;
+	color: #999;
+	font-size: 12px;
+    line-height: 18px;
+}
+.btn-box{
+	text-align:right;
+	margin-right:20px;
+}
+.btn-box .appl{
+	position: relative;
+  left: 30px;
+}
+
+/*虚线、*/
+
+.position-list .dotted {
+    border-bottom: 1px dashed #ccc;
+    margin: 0 20px;
+}
+
+
+/*分页部分*/
+
+#footer ul {
+    margin: 46px auto;
+    overflow: hidden;
+    width: 46%;
+}
+
+#footer ul li {
+    float: left;
+    border: 1px solid #666;
+    border-radius: 4px;
+    padding: 2px 10px;
+    margin-left: 9px;
+}
+#footer ul li:nth-child(2) a{
+    color:#fff;
+}
+
+#footer ul li a {
+    color: #666;
+}
+
+#footer ul li:hover {
+    background: #0168d1;
+}
+
+#footer ul li:hover a {
+    color: #fff;
+}
+#footer .footer-b{
+    border:none;
+    padding:0;
+    line-height:30px;
+}
+#footer button{
+    background:none;
+    border:none;
+    /*border:1px solid #666;*/
+   /*  height:25px;
+   position:relative;
+   top:-3px;
+   line-height:25px; */
+}
+#footer ul li:hover button{
+    color:#fff;
+}
+#footer div a{color:#666; padding:0 4px 0 8px;}
+
+ #footer button{
+    outline:none;
+} 
+#jobLIST .first-ul h5,#jobLIST .first-ul li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* #jobLIST .first-ul h5{line-height: 1.6;} */
+.company-ul{padding:0 !important;}
+.company-ul h5,.company-ul li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.apply{border:none !important;}
+#tag li{display:inline-block;width:100px;line-height:24px;background:url("https://t1.chei.com.cn/ncss/student/img/tagbg.png");text-align:center;color:#ff9900;text-indent:13px;    margin: 0 8px;}
+.jobList .job-list-left {
+    width: 42%;
+}

@@ -1,0 +1,14 @@
+html{
+    height: 100%;
+}
+body{min-width: 1200px;-webkit-text-size-adjust: 100%;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;}
+body,p,ul,ol,li,img,h1,h2,h3,h4,h5,h6,form,fieldset,legend,select,input{margin:0; padding:0;}
+body,button,input,select,textarea{font:14px/1.8 "Helvetica Neue",Helvetica,"PingFang SC","Microsoft YaHei","Hiragino Sans GB","WenQuanYi Micro Hei",Arial,"SimSun","sans-serif";}
+body {
+    background-color: #f5f7fa;
+    padding-bottom: 150px;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100%;
+}

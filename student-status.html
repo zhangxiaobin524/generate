@@ -103,7 +103,7 @@
             flex: 0 0 auto;
             font-size: 14px; color: #aaa;
             font-family: "Microsoft YaHei", "微软雅黑", sans-serif;
-            text-align: right; width: 100px; margin-right: 20px;
+            text-align: right; width: 110px; margin-right: 16px;
             white-space: nowrap;
         }
         .info-value {
@@ -194,8 +194,8 @@
             <div class="info-row"><span class="info-label">班级</span><span class="info-value" id="infoClass">1303</span></div>
             <div class="info-row"><span class="info-label">学号</span><span class="info-value" id="infoStuNo">2013100314</span></div>
             <div class="info-row"><span class="info-label">入学日期</span><span class="info-value" id="infoEnroll">2013年09月01日</span></div>
-            <div class="info-row"><span class="info-label">学籍状态</span><span class="info-value" id="infoStatus">不在籍（毕业）</span></div>
-            <div class="info-row"><span class="info-label">离校日期</span><span class="info-value" id="infoGrad">2017年07月01日</span></div>
+            <div class="info-row"><span class="info-label">学籍状态</span><span class="info-value" id="infoStatus">在籍（注册学籍）</span></div>
+            <div class="info-row"><span class="info-label">预计毕业日期</span><span class="info-value" id="infoGrad">2017年07月01日</span></div>
         </div>
 
         <button class="action-btn" onclick="window.location.href='list.html'">查看验证报告</button>
@@ -204,6 +204,11 @@
 
 <script>
 (async function() {
+    function normalizeStatus(s) {
+        if (!s) return '在籍（注册学籍）';
+        if (s === '在籍') return '在籍（注册学籍）';
+        return s;
+    }
     var uid = localStorage.getItem('xuexin_user_id');
     if (!uid) return;
     try {
@@ -223,12 +228,16 @@
             document.getElementById('infoCollege').textContent = u.college || u.school || '运城学院';
             document.getElementById('infoDept').textContent = u.dept || '计算机科学与技术系';
             document.getElementById('infoEnroll').textContent = u.enroll_date || '2013年09月01日';
-            document.getElementById('infoStatus').textContent = u.status || '不在籍（毕业）';
+            document.getElementById('infoStatus').textContent = normalizeStatus(u.status);
             document.getElementById('infoGrad').textContent = u.grad_date || '2017年07月01日';
-            var photoHtml = '<img src="' + u.photo + '">';
+            // 录取照片（旧照片，无则回退到现在照片）
+            var photoOld = u.photo_old || u.photo;
+            if (photoOld) {
+                document.getElementById('photo1').innerHTML = '<img src="' + photoOld + '">';
+            }
+            // 学历照片（现在照片）
             if (u.photo) {
-                document.getElementById('photo1').innerHTML = photoHtml;
-                document.getElementById('photo2').innerHTML = photoHtml;
+                document.getElementById('photo2').innerHTML = '<img src="' + u.photo + '">';
             }
         }
     } catch(e) {}

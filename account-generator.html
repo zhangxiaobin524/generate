@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>账号生成 - 学信档案</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" defer></script>
+    <script src="static/html2canvas.min.js" defer></script>
+    <script src="static/jspdf.umd.min.js" defer></script>
+    <script src="static/qrcode.min.js" defer></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -51,6 +52,23 @@
             align-items: center;
             gap: 12px;
         }
+        .photo-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .photo-col {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .photo-col label { margin-bottom: 0; }
+        .photo-col .photo-preview {
+            width: 100%; height: 130px;
+        }
         .photo-preview {
             width: 72px; height: 90px;
             border: 2px dashed #ddd; border-radius: 8px;
@@ -68,13 +86,23 @@
         /* 添加按钮 */
         .add-btn-wrap { margin-top: 12px; text-align: center; }
         .add-btn {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 8px 20px; background: #f0faf5; color: #2db475;
-            border: 1px dashed #2db475; border-radius: 8px;
+            display: inline-flex; align-items: center; justify-content: center;
+            gap: 4px;
+            padding: 10px 18px; background: #ffffff; color: #2db475;
+            border: 1px solid #2db475; border-radius: 10px;
             font-size: 14px; cursor: pointer; font-weight: 500;
+            line-height: 1; transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(45, 180, 117, 0.05);
+        }
+        .add-btn .icon {
+            font-size: 16px; font-weight: 400; line-height: 1;
+            margin-right: 2px;
         }
         .add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .add-btn:hover:not(:disabled) { background: #e0f5ea; }
+        .add-btn:hover:not(:disabled) {
+            background: #2db475; color: #ffffff;
+            box-shadow: 0 2px 6px rgba(45, 180, 117, 0.25);
+        }
 
         /* 删除按钮 */
         .remove-btn {
@@ -84,11 +112,12 @@
         }
         .remove-btn:hover { background: #e03030; }
 
-        btn .btn {
+        .btn {
+            display: block;
             width: 100%; padding: 14px; border: none; border-radius: 10px;
-            font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 18px; transition: all 0.2s;
+            font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.2s;
         }
-        .btn-green { background: #2db475; color: white; }
+        .btn-green { background: #2db475; color: white; margin-top: 12px; }
         .btn-green:hover { background: #25a065; }
         .btn-green:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-small {
@@ -128,28 +157,127 @@
         .acc-item {
             display: flex; align-items: center; padding: 10px 12px;
             background: #fafafa; border-radius: 8px; margin-bottom: 6px; border: 1px solid #eee;
+            gap: 10px;
         }
         .acc-item .avatar {
             width: 36px; height: 36px; border-radius: 50%; background: #eee;
-            margin-right: 12px; overflow: hidden; flex-shrink: 0;
+            overflow: hidden; flex-shrink: 0;
         }
         .acc-item .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .acc-item .info { flex: 1; }
-        .acc-item .name { font-size: 14px; font-weight: 600; color: #333; }
-        .acc-item .detail { font-size: 11px; color: #999; }
-        .acc-item .del-btn {
-            padding: 4px 10px; background: #ff4444; color: white;
-            border: none; border-radius: 4px; font-size: 11px; cursor: pointer;
+        .acc-item .info { flex: 1; min-width: 0; }
+        .acc-item .name { font-size: 14px; font-weight: 600; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .acc-item .detail { font-size: 12px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .acc-actions {
+            display: flex; align-items: center; gap: 4px; flex-shrink: 0;
         }
-        .acc-item .copy-btn {
-            padding: 4px 10px; background: #2db475; color: white;
-            border: none; border-radius: 4px; font-size: 11px; cursor: pointer; margin-right: 4px;
+        .acc-item .acc-actions button {
+            width: 30px; height: 30px; padding: 0;
+            border: none; border-radius: 6px;
+            color: white; font-size: 14px; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
+            line-height: 1;
         }
-        .acc-item .dl-btn {
-            padding: 4px 10px; background: #555; color: white;
-            border: none; border-radius: 4px; font-size: 11px; cursor: pointer; margin-right: 4px;
-        }
+        .acc-item .del-btn { background: #ff4444; }
+        .acc-item .copy-btn { background: #2db475; }
+        .acc-item .dl-btn { background: #555; }
+        .acc-item .edit-btn { background: #f0a040; }
+        .acc-item .qr-btn { background: #5b8def; }
         .empty-tip { text-align: center; color: #ccc; font-size: 13px; padding: 20px; }
+
+        /* 分页 */
+        #pagination { margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+        #pagination button {
+            padding: 5px 12px; border: 1px solid #ddd; border-radius: 4px;
+            background: #fff; color: #333; font-size: 12px; cursor: pointer;
+        }
+        #pagination button:hover:not(:disabled) { background: #f0f0f0; }
+        #pagination button:disabled { color: #ccc; cursor: not-allowed; }
+
+        /* 图片预览弹窗（支付宝长按保存） */
+        .img-preview-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85); z-index: 99999;
+            align-items: center; justify-content: center; flex-direction: column;
+            padding: 20px; box-sizing: border-box;
+        }
+        .img-preview-overlay.show { display: flex; }
+        .img-preview-overlay img {
+            max-width: 100%; max-height: 80vh; border-radius: 4px;
+            -webkit-user-select: auto; user-select: auto;
+            -webkit-touch-callout: default;
+        }
+        .img-preview-tip {
+            color: #fff; font-size: 14px; margin-top: 16px; text-align: center; line-height: 1.6;
+        }
+        .img-preview-close {
+            margin-top: 12px; padding: 8px 24px; border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.5); background: transparent;
+            color: #fff; font-size: 14px; cursor: pointer;
+        }
+
+        /* 二维码弹窗 */
+        .qr-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 9999;
+            align-items: center; justify-content: center;
+        }
+        .qr-overlay.show { display: flex; }
+        .qr-dialog {
+            background: white; border-radius: 14px; padding: 30px 24px 24px;
+            text-align: center; max-width: 320px; width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .qr-dialog h4 { font-size: 16px; color: #333; margin-bottom: 4px; }
+        .qr-dialog .qr-sub { font-size: 12px; color: #999; margin-bottom: 16px; }
+        .qr-dialog canvas { display: block; margin: 0 auto; border: 1px solid #eee; border-radius: 8px; padding: 8px; }
+        .qr-dialog .qr-url { 
+            font-size: 11px; color: #888; margin-top: 12px; word-break: break-all; 
+            background: #f5f5f5; padding: 6px 10px; border-radius: 6px; line-height: 1.4;
+        }
+        .qr-dialog .qr-close { 
+            margin-top: 16px; padding: 8px 30px; background: #eee; color: #666;
+            border: none; border-radius: 8px; font-size: 14px; cursor: pointer;
+        }
+        .qr-dialog .qr-close:hover { background: #ddd; }
+
+        /* 编辑弹窗 */
+        .edit-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 10000;
+            align-items: center; justify-content: center;
+        }
+        .edit-overlay.show { display: flex; }
+        .edit-dialog {
+            background: white; border-radius: 14px; padding: 24px;
+            max-width: 400px; width: 90%; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .edit-dialog h4 { font-size: 17px; color: #333; margin-bottom: 16px; text-align: center; }
+        .edit-dialog .edit-field { margin-bottom: 14px; }
+        .edit-dialog .edit-field label { font-size: 13px; color: #666; display: block; margin-bottom: 4px; }
+        .edit-dialog .edit-field input[type=text] {
+            width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px;
+            font-size: 14px; outline: none; box-sizing: border-box;
+        }
+        .edit-dialog .edit-photo-row { display: flex; gap: 12px; }
+        .edit-dialog .edit-photo-item { flex: 1; text-align: center; }
+        .edit-dialog .edit-photo-box {
+            width: 72px; height: 90px; border: 2px dashed #ddd; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: #ccc; font-size: 10px; overflow: hidden; background: #f5f5f5;
+            cursor: pointer; margin: 0 auto 4px;
+        }
+        .edit-dialog .edit-photo-box img { width: 100%; height: 100%; object-fit: cover; }
+        .edit-dialog .edit-photo-box:hover { border-color: #2db475; }
+        .edit-dialog .edit-btn-row { display: flex; gap: 10px; margin-top: 16px; }
+        .edit-dialog .edit-btn-row button {
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 500; cursor: pointer;
+        }
+        .edit-dialog .edit-save { background: #2db475; color: white; }
+        .edit-dialog .edit-save:hover { background: #25a065; }
+        .edit-dialog .edit-cancel { background: #eee; color: #666; }
+        .edit-dialog .edit-cancel:hover { background: #ddd; }
 
         /* 生成进度 */
         .progress-bar-wrap {
@@ -183,7 +311,7 @@
         </div>
 
         <div class="add-btn-wrap">
-            <button class="add-btn" id="addFormBtn">+ 添加第二张照片</button>
+            <button class="add-btn" id="addFormBtn"><span class="icon">+</span>添加第二张照片</button>
         </div>
 
         <!-- 批量生成按钮 -->
@@ -200,19 +328,87 @@
     </div>
 
     <div class="card">
-        <h3>已生成账号 <span id="accountCount" style="color:#999;font-weight:400;"></span></h3>
+        <h3 style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+            <span>已生成账号 <span id="accountCount" style="color:#999;font-weight:400;"></span></span>
+            <button class="btn-login" onclick="batchDeleteRecent()" style="cursor:pointer;border:2px dashed #f44336;background:transparent;color:#f44336;padding:5px 14px;border-radius:8px;font-size:12px;margin:0;">🗑️ 删除最老100条</button>
+        </h3>
+        <div style="margin-bottom:10px;">
+            <input type="text" id="searchAccounts" placeholder="🔍 搜索姓名..." oninput="filterAccounts()" style="width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box;outline:none;" />
+            <div id="searchResultTip" style="font-size:12px;color:#999;margin-top:4px;display:none;"></div>
+        </div>
         <div id="accountList"><div class="empty-tip">暂无账号，请先生成一个</div></div>
-        <div style="text-align:center;margin-top:12px;">
+        <div id="pagination" style="text-align:center;margin-top:10px;"></div>
+        <div style="text-align:center;margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+            <button class="btn-login" onclick="copyAllNameId()" style="cursor:pointer;border:2px dashed #4CAF50;background:transparent;color:#4CAF50;padding:8px 20px;border-radius:8px;font-size:13px;">📋 一键复制全部姓名+号码</button>
+        </div>
+        <div style="text-align:center;margin-top:8px;">
             <a href="login.html" class="btn-login">&#8594; 去登录</a>
         </div>
     </div>
+</div>
+
+<!-- 二维码弹窗 -->
+<div class="qr-overlay" id="qrOverlay" onclick="closeQR(event)">
+    <div class="qr-dialog" onclick="event.stopPropagation()">
+        <h4 id="qrName">扫码查看报告</h4>
+        <div class="qr-sub">使用手机扫描二维码，直接查看学籍验证报告</div>
+        <div id="qrCanvas"></div>
+        <div class="qr-url" id="qrUrl"></div>
+        <button class="qr-close" onclick="document.getElementById('qrOverlay').classList.remove('show')">关闭</button>
+    </div>
+</div>
+
+<!-- 编辑弹窗 -->
+<div class="edit-overlay" id="editOverlay" onclick="closeEditOverlay(event)">
+    <div class="edit-dialog" onclick="event.stopPropagation()">
+        <h4>编辑账号信息</h4>
+        <input type="hidden" id="editId">
+        <div class="edit-field">
+            <label>姓名</label>
+            <input type="text" id="editName">
+        </div>
+        <div class="edit-field">
+            <label>身份证号</label>
+            <input type="text" id="editIdCard">
+        </div>
+        <div class="edit-photo-row">
+            <div class="edit-photo-item">
+                <label style="font-size:12px;">现在照片</label>
+                <div class="edit-photo-box" id="editPhotoNow" onclick="document.getElementById('editFileNow').click()">
+                    <span style="line-height:90px;">📷</span>
+                </div>
+                <input type="file" accept="image/*" id="editFileNow" style="display:none;" onchange="handleEditFile('now')">
+            </div>
+            <div class="edit-photo-item">
+                <label style="font-size:12px;">录取照片</label>
+                <div class="edit-photo-box" id="editPhotoOld" onclick="document.getElementById('editFileOld').click()">
+                    <span style="line-height:90px;">📷</span>
+                </div>
+                <input type="file" accept="image/*" id="editFileOld" style="display:none;" onchange="handleEditFile('old')">
+            </div>
+        </div>
+        <div class="edit-btn-row">
+            <button class="edit-cancel" onclick="document.getElementById('editOverlay').classList.remove('show')">取消</button>
+            <button class="edit-save" onclick="saveEdit()">保存修改</button>
+        </div>
+    </div>
+</div>
+
+<!-- 图片预览弹窗（支付宝长按保存到相册） -->
+<div class="img-preview-overlay" id="imgPreview" onclick="closeImgPreview(event)">
+    <img id="imgPreviewImg" src="" alt="学籍报告" style="pointer-events:auto;">
+    <div class="img-preview-tip" id="imgPreviewTip">👆 长按图片 → 保存到相册</div>
+    <button class="img-preview-close" onclick="document.getElementById('imgPreview').classList.remove('show')">关闭</button>
 </div>
 
 <script>
 // ==================== 状态管理 ====================
 var MAX_FORMS = 2;
 var formCount = 0;
-var photoDataMap = {}; // index -> base64
+var photoDataMap = {}; // index -> base64 (现在照片)
+var photoDataMapOld = {}; // index -> base64 (录取照片)
+var editPhotoNow = ''; // 编辑弹窗中暂存的现在照片
+var editPhotoOld = ''; // 编辑弹窗中暂存的录取照片
 
 // ==================== 表单管理 ====================
 function createFormCard(index) {
@@ -255,6 +451,45 @@ function createFormCard(index) {
     photoArea.appendChild(preview);
     photoArea.appendChild(fileInput);
 
+    // 录取照片（可选）
+    var photoOldLabel = document.createElement('label');
+    photoOldLabel.innerHTML = '\uD83C\uDF93 录取照片 <span style="color:#999;">(选填)</span>';
+    var photoOldArea = document.createElement('div');
+    photoOldArea.className = 'photo-upload-area';
+
+    var previewOld = document.createElement('div');
+    previewOld.className = 'photo-preview';
+    previewOld.id = 'preview_old_' + index;
+    previewOld.innerHTML = '<div class="upload-hint"><span class="icon">\uD83D\uDCF7</span>点击上传</div>';
+
+    var fileInputOld = document.createElement('input');
+    fileInputOld.type = 'file';
+    fileInputOld.accept = 'image/*';
+    fileInputOld.className = 'file-input-hidden';
+    fileInputOld.id = 'fileInput_old_' + index;
+    fileInputOld.onchange = function(e) { handleFileSelectOld(index, e); };
+
+    previewOld.onclick = function() { fileInputOld.click(); };
+
+    photoOldArea.appendChild(previewOld);
+    photoOldArea.appendChild(fileInputOld);
+
+    // 包装为一行两列
+    var photoRow = document.createElement('div');
+    photoRow.className = 'photo-row';
+    var photoCol1 = document.createElement('div');
+    photoCol1.className = 'photo-col';
+    photoCol1.appendChild(photoLabel);
+    photoCol1.appendChild(photoArea);
+    var photoCol2 = document.createElement('div');
+    photoCol2.className = 'photo-col';
+    photoCol2.appendChild(photoOldLabel);
+    photoCol2.appendChild(photoOldArea);
+    photoRow.appendChild(photoCol1);
+    photoRow.appendChild(photoCol2);
+
+    card.appendChild(photoRow);
+
     // 性别
     var genderLabel = document.createElement('label');
     genderLabel.textContent = '\uD83D\uDC64 性别';
@@ -280,8 +515,6 @@ function createFormCard(index) {
     idInput.placeholder = '不填则自动生成';
     idInput.style.cssText = 'width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;';
 
-    card.appendChild(photoLabel);
-    card.appendChild(photoArea);
     card.appendChild(genderLabel);
     card.appendChild(genderSelect);
     card.appendChild(nameLabel);
@@ -319,17 +552,27 @@ function reindexForms() {
         if (header) {
             header.childNodes[0].textContent = '#' + (idx + 1) + ' 账号信息';
         }
-        // 更新所有 id
-        card.querySelector('.photo-preview').id = 'preview_' + idx;
-        card.querySelector('.file-input-hidden').id = 'fileInput_' + idx;
+        // 更新现在照片相关 id
+        document.getElementById('preview_' + oldIdx).id = 'preview_' + idx;
+        document.getElementById('fileInput_' + oldIdx).id = 'fileInput_' + idx;
+        // 更新录取照片相关 id
+        var po = document.getElementById('preview_old_' + oldIdx);
+        if (po) po.id = 'preview_old_' + idx;
+        var fo = document.getElementById('fileInput_old_' + oldIdx);
+        if (fo) fo.id = 'fileInput_old_' + idx;
+        // 更新其他 id
         card.querySelector('select').id = 'gender_' + idx;
-        card.querySelectorAll('input')[0].id = 'name_' + idx;
-        card.querySelectorAll('input')[1].id = 'idcard_' + idx;
+        card.querySelectorAll('input[type="text"]')[0].id = 'name_' + idx;
+        card.querySelectorAll('input[type="text"]')[1].id = 'idcard_' + idx;
 
         // 旧 photoDataMap 迁移
         if (photoDataMap[oldIdx]) {
             photoDataMap[idx] = photoDataMap[oldIdx];
             delete photoDataMap[oldIdx];
+        }
+        if (photoDataMapOld[oldIdx]) {
+            photoDataMapOld[idx] = photoDataMapOld[oldIdx];
+            delete photoDataMapOld[oldIdx];
         }
 
         // 更新 removeBtn 的 onclick
@@ -337,12 +580,16 @@ function reindexForms() {
         rmBtn.onclick = function() { removeForm(card, idx); };
 
         // 更新 fileInput onchange
-        var fi = card.querySelector('.file-input-hidden');
+        var fi = document.getElementById('fileInput_' + idx);
         fi.onchange = function(e) { handleFileSelect(idx, e); };
+        var fiOld = document.getElementById('fileInput_old_' + idx);
+        if (fiOld) fiOld.onchange = function(e) { handleFileSelectOld(idx, e); };
 
         // 更新 preview onclick
-        var pv = card.querySelector('.photo-preview');
+        var pv = document.getElementById('preview_' + idx);
         pv.onclick = function() { fi.click(); };
+        var pvOld = document.getElementById('preview_old_' + idx);
+        if (pvOld) pvOld.onclick = function() { fiOld.click(); };
     });
     formCount = cards.length;
 }
@@ -365,6 +612,18 @@ function handleFileSelect(index, e) {
     reader.onload = function(ev) {
         photoDataMap[index] = ev.target.result;
         var preview = document.getElementById('preview_' + index);
+        if (preview) preview.innerHTML = '<img src="' + ev.target.result + '">';
+    };
+    reader.readAsDataURL(file);
+}
+
+function handleFileSelectOld(index, e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        photoDataMapOld[index] = ev.target.result;
+        var preview = document.getElementById('preview_old_' + index);
         if (preview) preview.innerHTML = '<img src="' + ev.target.result + '">';
     };
     reader.readAsDataURL(file);
@@ -423,7 +682,7 @@ document.getElementById('generateBtn').addEventListener('click', async function(
         progressText.innerHTML = '正在生成 ' + (i + 1) + '/' + validIndices.length + ' <span class="pname">' + (name || '#' + (idx + 1)) + '</span>';
 
         try {
-            var body = { name: name, gender: gender, photo: photoDataMap[idx] };
+            var body = { name: name, gender: gender, photo: photoDataMap[idx], photo_old: photoDataMapOld[idx] || '' };
             if (idCard) body.id_card = idCard;
 
             var res = await fetch('/api/register', {
@@ -445,8 +704,8 @@ document.getElementById('generateBtn').addEventListener('click', async function(
                 resultsHtml += '验证码：<span style="font-family:monospace;">' + info.verify_code + '</span>';
                 resultsHtml += '</div>';
                 resultsHtml += '<div class="r-actions">';
-                resultsHtml += '<button class="r-copy" onclick="copyText(\'' + info.name.replace(/'/g, "\\'") + ' ' + info.id_card + '\')">📋 复制</button>';
-                resultsHtml += '<button class="r-dl" onclick="downloadScreenshot(' + info.id + ', \'' + info.name.replace(/'/g, "\\'") + '\')">📷 下载截图</button>';
+                resultsHtml += '<button class="r-copy" onclick="copyText(\'' + info.name.replace(/'/g, "\\'") + '\\t' + info.id_card + '\')">📋 复制姓名+号码</button>';
+                resultsHtml += '<button class="r-dl" onclick="downloadScreenshot(' + info.id + ', \'' + info.name.replace(/'/g, "\\'") + '\')">📥 下载报告</button>';
                 resultsHtml += '</div></div>';
             } else {
                 resultsHtml += '<div class="result-item" style="border-color:#f5c6cb;background:#fff5f5;">';
@@ -471,17 +730,19 @@ document.getElementById('generateBtn').addEventListener('click', async function(
     resultsArea.innerHTML = resultsHtml;
     resultsArea.style.display = 'flex';
 
-    // 自动复制所有账号信息到剪贴板
+    // 自动复制最后一个生成的账号（姓名+号码，Tab分隔，方便粘贴到 image-editor）
     if (allAccounts.length > 0) {
-        var copyText = '';
-        allAccounts.forEach(function(acc) {
-            copyText += acc.name + ' ' + acc.id_card + '\n';
-        });
-        copyText = copyText.trim();
+        var last = allAccounts[allAccounts.length - 1];
+        var copyNameId = last.name + '\t' + last.id_card;
         if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(copyText).then(function() {
-                // 静默复制
+            navigator.clipboard.writeText(copyNameId).then(function() {
+                progressText.innerHTML = '✅ 已自动复制「' + last.name + ' ' + last.id_card + '」';
+            }).catch(function() {
+                copyTextFallback(copyNameId);
+                progressText.innerHTML = '✅ 已自动复制（请手动粘贴）';
             });
+        } else {
+            copyTextFallback(copyNameId);
         }
         // 自动下载所有截图（延迟依次触发）
         allAccounts.forEach(function(acc, idx) {
@@ -505,6 +766,8 @@ document.getElementById('generateBtn').addEventListener('click', async function(
 
 // ==================== 下载截图到相册 ====================
 function downloadScreenshot(id, name) {
+    var dlBtn = document.getElementById('dlBtn' + id);
+    if (dlBtn) { dlBtn.textContent = '⏳'; dlBtn.disabled = true; }
     fetch('/api/user/' + id).then(function(r) { return r.json(); }).then(function(result) {
         if (result.code !== 0 || !result.data) { alert('获取信息失败'); return; }
         var u = result.data;
@@ -514,27 +777,29 @@ function downloadScreenshot(id, name) {
                 cb();
                 return;
             }
-            var loaded = 0;
-            function check() {
-                if (typeof html2canvas !== 'undefined' && typeof qrcode !== 'undefined') {
-                    cb();
-                } else {
-                    setTimeout(check, 200);
-                }
-            }
-            setTimeout(check, 200);
+            setTimeout(function() { ensureLibs(cb); }, 200);
         }
         ensureLibs(function() {
             buildAndDownloadImage(u);
         });
     }).catch(function(e) {
-        alert('获取信息失败：' + e.message);
+        alert('网络请求失败：' + e.message);
+    }).finally(function() {
+        if (dlBtn) { dlBtn.textContent = '📥'; dlBtn.disabled = false; }
     });
 }
 
 function buildAndDownloadImage(u) {
-    var day = 16 + Math.floor(Math.random() * 5);
-    var updateDate = '2026年06月' + (day < 10 ? '0' : '') + day + '日';
+    // 学籍状态标准化
+    function normalizeStatus(s) {
+        if (!s) return '在籍（注册学籍）';
+        if (s === '在籍') return '在籍（注册学籍）';
+        return s;
+    }
+    var now = new Date();
+    var offset = Math.floor(Math.random() * 4);
+    var d = new Date(now); d.setDate(now.getDate() - offset);
+    var updateDate = d.getFullYear() + '年' + ('0' + (d.getMonth()+1)).slice(-2) + '月' + ('0' + d.getDate()).slice(-2) + '日';
 
     // 生成二维码
     var code = u.verify_code || 'AG4FMEZUN9W8YHRL';
@@ -566,11 +831,12 @@ function buildAndDownloadImage(u) {
         ['民族', u.ethnic || '汉族'], ['学校名称', u.school || ''], ['层次', u.level || '本科'],
         ['专业', u.major || ''], ['学制', u.duration || '4年'], ['学历类别', u.degree_type || '普通高等教育'],
         ['学习形式', u.study_form || '普通全日制'], ['分院', u.college || ''], ['系所', u.dept || ''],
-        ['入学日期', u.enroll_date || ''], ['学籍状态', u.status || '在籍'], ['离校日期', u.grad_date || '']
+        ['入学日期', u.enroll_date || ''], ['学籍状态', normalizeStatus(u.status)], ['预计毕业日期', u.grad_date || '']
     ];
     var allHtml = '';
     for (var i = 0; i < fields.length; i++) {
-        allHtml += '<div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:65px;color:#888;font-size:13px;flex-shrink:0;">' + fields[i][0] + '</div><div style="flex:1;padding-left:45px;padding-right:150px;color:#222;font-size:13px;">' + fields[i][1] + '</div></div>';
+        var lblW = (fields[i][0].length > 4) ? '75px' : '65px';
+        allHtml += '<div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:' + lblW + ';color:#888;font-size:13px;flex-shrink:0;white-space:nowrap;">' + fields[i][0] + '</div><div style="flex:1;padding-left:' + (lblW === '75px' ? '35' : '45') + 'px;padding-right:150px;color:#222;font-size:13px;">' + fields[i][1] + '</div></div>';
     }
 
     var html = '<div style="width:650px;background:#FAFCFB url(bg_pattern.jpg) no-repeat 0 0 / 100% 100%;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:\'Helvetica Neue\',Helvetica,\'PingFang SC\',\'Microsoft YaHei\',sans-serif;">'
@@ -603,34 +869,25 @@ function buildAndDownloadImage(u) {
     div.style.height = divH + 'px';
 
     setTimeout(function() {
-        html2canvas(div, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#FAFCFB', width: 650, height: divH }).then(function(canvas) {
+        html2canvas(div, { scale: 2, backgroundColor: '#FAFCFB', width: 650, height: divH }).then(function(canvas) {
             document.body.removeChild(div);
             var name = u.name || 'unknown';
-            // 转为 blob，尝试保存到相册
             canvas.toBlob(function(blob) {
-                // 方式1: 使用 Web Share API（iOS/Android，可直接保存到相册）
-                if (navigator.share && navigator.canShare) {
-                    try {
-                        var file = new File([blob], '学籍在线验证报告_' + name + '.jpg', { type: 'image/jpeg' });
-                        if (navigator.canShare({ files: [file] })) {
-                            navigator.share({ files: [file], title: '学籍在线验证报告', text: name });
-                            return;
-                        }
-                    } catch(e) {}
+                var isAppBrowser = /Alipay|AliPay|MicroMessenger/i.test(navigator.userAgent);
+                if (isAppBrowser) {
+                    // 支付宝/微信等App内浏览器不支持直接下载，弹窗展示图片，长按保存到相册
+                    showImagePreview(blob, name);
+                    return;
                 }
-                // 方式2: 在新标签页打开图片（iOS Safari: 长按→保存到相册；Android: 可保存）
+                // 其他浏览器：直接触发下载
                 var url = URL.createObjectURL(blob);
-                var w = window.open(url, '_blank');
-                if (!w) {
-                    // 弹窗被拦截，使用下载链接
-                    var link = document.createElement('a');
-                    link.href = url;
-                    link.download = '学籍在线验证报告_' + name + '.jpg';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
-                setTimeout(function() { URL.revokeObjectURL(url); }, 15000);
+                var link = document.createElement('a');
+                link.href = url;
+                link.download = '学籍在线验证报告_' + name + '.jpg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
             }, 'image/jpeg', 0.95);
         }).catch(function(e) {
             document.body.removeChild(div);
@@ -639,24 +896,225 @@ function buildAndDownloadImage(u) {
     }, 300);
 }
 
-// ==================== 复制文本 ====================
-function copyText(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function() {
-            alert('已复制：' + text);
+// 图片预览弹窗（支付宝等环境下长按保存到相册）
+function showImagePreview(blob, name) {
+    var url = URL.createObjectURL(blob);
+    var img = document.getElementById('imgPreviewImg');
+    var overlay = document.getElementById('imgPreview');
+    img.src = url;
+    var tip = document.getElementById('imgPreviewTip');
+    var isAlipay = /Alipay|AliPay/i.test(navigator.userAgent);
+    tip.textContent = isAlipay ? '👆 长按上方图片 → 保存到相册' : '👆 长按图片 → 保存到相册';
+    overlay.classList.add('show');
+    // 清理 URL
+    img.onload = function() { setTimeout(function() { URL.revokeObjectURL(url); }, 5000); };
+}
+function closeImgPreview(e) {
+    if (e && e.target !== document.getElementById('imgPreview')) return;
+    document.getElementById('imgPreview').classList.remove('show');
+}
+
+// ==================== 下载PDF ====================
+function downloadPdf(id, name) {
+    fetch('/api/user/' + id).then(function(r) { return r.json(); }).then(function(result) {
+        if (result.code !== 0 || !result.data) { alert('获取信息失败'); return; }
+        var u = result.data;
+        function ensureLibs(cb) {
+            if (typeof html2canvas !== 'undefined' && typeof qrcode !== 'undefined' && typeof window.jspdf !== 'undefined') {
+                cb();
+                return;
+            }
+            setTimeout(function() { ensureLibs(cb); }, 200);
+        }
+        ensureLibs(function() {
+            buildAndDownloadPdf(u);
         });
-    } else {
+    }).catch(function(e) {
+        alert('获取信息失败：' + e.message);
+    });
+}
+
+function buildAndDownloadPdf(u) {
+    function normalizeStatus(s) {
+        if (!s) return '在籍（注册学籍）';
+        if (s === '在籍') return '在籍（注册学籍）';
+        return s;
+    }
+    var now = new Date();
+    var offset = Math.floor(Math.random() * 4);
+    var d = new Date(now); d.setDate(now.getDate() - offset);
+    var updateDate = d.getFullYear() + '年' + ('0' + (d.getMonth()+1)).slice(-2) + '月' + ('0' + d.getDate()).slice(-2) + '日';
+    var code = u.verify_code || 'AG4FMEZUN9W8YHRL';
+    // 生成二维码
+    var qrDataUrl = '';
+    if (code && typeof qrcode !== 'undefined') {
+        try {
+            var qr = qrcode(4, 'M');
+            qr.addData('https://www.chsi.com.cn/xlcx/bgcx.jsp?code=' + code);
+            qr.make();
+            var cs = 3, mg = 2;
+            var sz = qr.getModuleCount() * cs + mg * 2;
+            var cv = document.createElement('canvas');
+            cv.width = sz; cv.height = sz;
+            var ctx = cv.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, sz, sz);
+            for (var r = 0; r < qr.getModuleCount(); r++) {
+                for (var c = 0; c < qr.getModuleCount(); c++) {
+                    if (qr.isDark(r, c)) { ctx.fillStyle = '#000'; ctx.fillRect(c*cs+mg, r*cs+mg, cs, cs); }
+                }
+            }
+            qrDataUrl = cv.toDataURL('image/png');
+        } catch(e) {}
+    }
+    var fields = [
+        ['姓名', u.name || ''], ['性别', u.gender || ''], ['出生日期', u.birth || ''],
+        ['民族', u.ethnic || '汉族'], ['学校名称', u.school || ''], ['层次', u.level || '本科'],
+        ['专业', u.major || ''], ['学制', u.duration || '4年'], ['学历类别', u.degree_type || '普通高等教育'],
+        ['学习形式', u.study_form || '普通全日制'], ['分院', u.college || ''], ['系所', u.dept || ''],
+        ['入学日期', u.enroll_date || ''], ['学籍状态', normalizeStatus(u.status)], ['预计毕业日期', u.grad_date || '']
+    ];
+    var allHtml = '';
+    for (var i = 0; i < fields.length; i++) {
+        var lblW = (fields[i][0].length > 4) ? '75px' : '65px';
+        allHtml += '<div style="display:flex;margin-bottom:10px;align-items:baseline;"><div style="width:' + lblW + ';color:#888;font-size:13px;flex-shrink:0;white-space:nowrap;">' + fields[i][0] + '</div><div style="flex:1;padding-left:' + (lblW === '75px' ? '35' : '45') + 'px;padding-right:150px;color:#222;font-size:13px;">' + fields[i][1] + '</div></div>';
+    }
+    var html = '<div style="width:650px;background:#FAFCFB url(bg_pattern.jpg) no-repeat 0 0 / 100% 100%;padding:50px 65px 30px 65px;box-sizing:border-box;color:#222;font-family:\'Helvetica Neue\',Helvetica,\'PingFang SC\',\'Microsoft YaHei\',sans-serif;">'
+        + '<div style="width:100%;">'
+        + '<h4 style="font-size:27px;font-weight:700;text-align:center;color:#000;margin-top:20px;margin-bottom:4px;letter-spacing:0.5px;">教育部学籍在线验证报告</h4>'
+        + '<div style="font-size:12px;color:#999;text-align:center;margin-bottom:30px;">更新日期：' + updateDate + '</div>'
+        + '<div style="width:100%;position:relative;">'
+        + '<div style="position:absolute;right:30px;top:0;width:100px;height:130px;border:1px solid #b0b0b0;background:#f4f9f5;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:11px;color:#aaa;">' + (u.photo ? '<img src="' + u.photo + '" style="width:100%;height:100%;object-fit:cover;">' : '暂无照片') + '</div>'
+        + allHtml
+        + '</div>'
+        + '<div style="margin:120px 0 10px 0;border:1px solid #c2dec9;background:#f6fbf8;padding:10px;display:flex;gap:12px;align-items:center;width:520px;">'
+        + '<div style="flex-shrink:0;">' + (qrDataUrl ? '<img src="' + qrDataUrl + '" style="width:68px;height:68px;display:block;">' : '<div style="width:68px;height:68px;border:1px solid #b5ccbe;background:white;"></div>') + '</div>'
+        + '<div style="flex:1;font-size:11px;line-height:1.6;color:#333;">'
+        + '<div><span style="font-weight:600;color:#333;">在线验证码</span> <span style="font-family:Arial,sans-serif;font-size:18px;font-weight:700;color:#000;margin-left:6px;">' + code + '</span></div>'
+        + '<div>① 验证报告在线查验网址：https://www.chsi.com.cn/xlcx/bgcx.jsp</div>'
+        + '<div>② 使用学信网App扫描二维码验证</div></div></div>'
+        + '<div style="font-size:10px;color:#444;line-height:1.6;margin-top:10px;"><div style="font-weight:bold;color:#222;margin-bottom:2px;font-size:10.5px;">注意事项：</div>'
+        + '<div style="margin-bottom:1px;">1、《学籍在线验证报告》是教育部学籍电子注册备案的查询结果。</div>'
+        + '<div style="margin-bottom:1px;">2、报告内容如有修改，请以最新在线验证的内容为准。</div>'
+        + '<div style="margin-bottom:1px;">3、未经学籍信息权属人同意，不得将报告用于违背权属人意愿之用途。</div>'
+        + '<div style="display:flex;justify-content:space-between;align-items:flex-start;white-space:nowrap;"><div style="flex:1;white-space:nowrap;font-size:9px;">4、报告在线验证有效期由报告权属人设置（1~6个月），其在报告验证到期前可再次延长验证有效期。</div>'
+        + '<div style="flex-shrink:0;margin-left:8px;display:flex;align-items:center;gap:4px;"><img src="xxw.png" style="height:22px;width:auto;"><span style="color:#888;font-size:12px;font-weight:600;">CHSI</span></div></div></div></div></div>';
+
+    var div = document.createElement('div');
+    div.style.cssText = 'position:absolute;left:-9999px;top:0;width:650px;z-index:-1;';
+    div.innerHTML = html;
+    document.body.appendChild(div);
+    div.offsetHeight;
+    var divH = div.scrollHeight || 650;
+    div.style.height = divH + 'px';
+
+    setTimeout(function() {
+        html2canvas(div, { scale: 2, backgroundColor: '#FAFCFB', width: 650, height: divH }).then(function(canvas) {
+            document.body.removeChild(div);
+            var imgData = canvas.toDataURL('image/jpeg', 0.95);
+            var { jsPDF } = window.jspdf;
+            var pdf = new jsPDF('p', 'mm', 'a4');
+            var pw = pdf.internal.pageSize.getWidth();
+            pdf.addImage(imgData, 'JPEG', 0, 0, pw, pw / canvas.width * canvas.height);
+            pdf.save('教育部学籍在线验证报告_' + (u.name || 'unknown') + '.pdf');
+        }).catch(function(e) {
+            document.body.removeChild(div);
+            alert('生成PDF失败：' + e.message);
+        });
+    }, 300);
+}
+
+// ==================== 复制文本 ====================
+function copyTextFallback(text) {
+    // 方案1：textarea + execCommand（兼容性最好，但需在用户手势内调用）
+    try {
         var ta = document.createElement('textarea');
         ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.left = '0px';
+        ta.style.top = '0px';
+        ta.style.opacity = '0';
+        ta.style.pointerEvents = 'none';
+        ta.style.zIndex = '-1';
         document.body.appendChild(ta);
+        ta.focus();
         ta.select();
-        document.execCommand('copy');
+        ta.setSelectionRange(0, text.length);
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch(e) { ok = false; }
         document.body.removeChild(ta);
-        alert('已复制：' + text);
+        if (ok) return true;
+    } catch(e) {}
+
+    // 方案2：selection + execCommand（兜底）
+    try {
+        var div = document.createElement('div');
+        div.textContent = text;
+        div.style.position = 'fixed';
+        div.style.left = '-9999px';
+        div.style.whiteSpace = 'pre';
+        document.body.appendChild(div);
+        var range = document.createRange();
+        range.selectNodeContents(div);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        var ok2 = false;
+        try { ok2 = document.execCommand('copy'); } catch(e) { ok2 = false; }
+        document.body.removeChild(div);
+        if (ok2) return true;
+    } catch(e) {}
+
+    return false;
+}
+
+async function copyText(text, el) {
+    var success = false;
+
+    // 优先使用现代 Clipboard API（仅安全上下文可用）
+    if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(text);
+            success = true;
+        } catch(e) { success = false; }
+    }
+
+    // 退化到 execCommand（必须在点击事件的同步调用栈中才有效）
+    if (!success) {
+        success = copyTextFallback(text);
+    }
+
+    // 终极兜底：弹出 prompt 让用户手动复制
+    if (!success) {
+        prompt('请手动复制以下内容：', text);
+        return;
+    }
+
+    if (el) { var t = el.textContent; el.textContent = '✅已复制!'; setTimeout(function() { el.textContent = t; }, 1500); }
+    else alert('已复制：' + text);
+}
+
+// 一键复制全部姓名+号码（每行一个，方便粘贴到 image-editor）
+async function copyAllNameId() {
+    try {
+        var res = await fetch('/api/users');
+        var result = await res.json();
+        if (result.code !== 0 || !result.data || result.data.length === 0) { alert('没有可复制的账号'); return; }
+        var lines = result.data.map(function(acc) { return acc.name + '\t' + acc.id_card; }).join('\n');
+        await copyText(lines);
+    } catch(e) {
+        alert('复制失败：' + e.message);
     }
 }
 
 // ==================== 账号列表管理 ====================
+// 全部账号数据（搜索用）
+var allAccountsData = [];
+var currentData = [];   // 当前显示的数据（搜索时是过滤结果，否则是全部）
+var currentPage = 1;
+var pageSize = 20;
+
 async function loadAccounts() {
     var container = document.getElementById('accountList');
     var countEl = document.getElementById('accountCount');
@@ -668,30 +1126,94 @@ async function loadAccounts() {
             return;
         }
         var accounts = result.data || [];
+        allAccountsData = accounts;
+        currentData = accounts;
 
         if (accounts.length === 0) {
             container.innerHTML = '<div class="empty-tip">暂无账号</div>';
             countEl.textContent = '';
+            document.getElementById('pagination').innerHTML = '';
             return;
         }
 
         countEl.textContent = '(' + accounts.length + '个)';
-        var html = '';
-        accounts.forEach(function(acc) {
-            html += '<div class="acc-item">';
-            html += '<div class="avatar">';
-            if (acc.photo) html += '<img src="' + acc.photo + '">';
-            else html += '<span style="display:flex;align-items:center;justify-content:center;height:100%;color:#ccc;">?</span>';
-            html += '</div>';
-            html += '<div class="info"><div class="name">' + acc.name + '</div>';
-            html += '<div class="detail">' + acc.id_card + ' · ' + acc.school + '</div></div>';
-            html += '<button class="copy-btn" onclick="copyAccount(' + acc.id + ')">复制</button><button class="dl-btn" id="dlBtn' + acc.id + '" onclick="downloadScreenshot(' + acc.id + ',\'' + acc.name.replace(/'/g, "\\'") + '\')">截图</button><button class="del-btn" onclick="deleteAccount(' + acc.id + ')">删除</button>';
-            html += '</div>';
-        });
-        container.innerHTML = html;
+        currentPage = 1;
+        document.getElementById('searchAccounts').value = '';
+        document.getElementById('searchResultTip').style.display = 'none';
+        renderPage(currentData, 1);
     } catch(e) {
         container.innerHTML = '<div class="empty-tip">加载失败</div>';
     }
+}
+
+function renderPage(accounts, page) {
+    var container = document.getElementById('accountList');
+    var totalPages = Math.ceil(accounts.length / pageSize);
+    if (page > totalPages) page = totalPages;
+    if (page < 1) page = 1;
+    currentPage = page;
+    var start = (page - 1) * pageSize;
+    var pageAccounts = accounts.slice(start, start + pageSize);
+    renderAccountList(pageAccounts, container);
+    renderPagination(accounts.length, page, totalPages);
+}
+
+function renderPagination(total, page, totalPages) {
+    var pg = document.getElementById('pagination');
+    if (totalPages <= 1) { pg.innerHTML = ''; return; }
+    var h = '<span style="font-size:13px;color:#999;">共 ' + total + ' 条 · ' + totalPages + ' 页</span>';
+    h += '<button onclick="goPage(1)" ' + (page===1?'disabled':'') + '>首页</button>';
+    h += '<button onclick="goPage(' + (page-1) + ')" ' + (page===1?'disabled':'') + '>上一页</button>';
+    h += '<span style="font-size:13px;margin:0 8px;">第 ' + page + ' 页</span>';
+    h += '<button onclick="goPage(' + (page+1) + ')" ' + (page===totalPages?'disabled':'') + '>下一页</button>';
+    h += '<button onclick="goPage(' + totalPages + ')" ' + (page===totalPages?'disabled':'') + '>末页</button>';
+    h += ' <select onchange="pageSize=parseInt(this.value);renderPage(currentData,1)" style="padding:4px;border-radius:4px;border:1px solid #ddd;">';
+    h += '<option value="10"' + (pageSize===10?' selected':'') + '>10条/页</option>';
+    h += '<option value="20"' + (pageSize===20?' selected':'') + '>20条/页</option>';
+    h += '<option value="50"' + (pageSize===50?' selected':'') + '>50条/页</option>';
+    h += '</select>';
+    pg.innerHTML = h;
+}
+
+function goPage(p) { renderPage(currentData, p); }
+
+function renderAccountList(accounts, container) {
+    if (!container) container = document.getElementById('accountList');
+    if (accounts.length === 0) {
+        container.innerHTML = '<div class="empty-tip">没有匹配的账号</div>';
+        return;
+    }
+    var html = '';
+    accounts.forEach(function(acc) {
+        html += '<div class="acc-item">';
+        html += '<div class="avatar">';
+        if (acc.photo) html += '<img src="' + acc.photo + '">';
+        else html += '<span style="display:flex;align-items:center;justify-content:center;height:100%;color:#ccc;">?</span>';
+        html += '</div>';
+        html += '<div class="info"><div class="name">' + acc.name + '</div>';
+        html += '<div class="detail"><span style="cursor:pointer;color:#4CAF50;text-decoration:underline;font-family:monospace;" onclick="copyText(\'' + acc.name.replace(/'/g, "\\'") + ' ' + acc.id_card + '\',this)" title="点击复制姓名+号码">' + acc.id_card + '</span> · ' + acc.school + '</div></div>';
+        html += '<div class="acc-actions"><button class="edit-btn" onclick="openEditModal(' + acc.id + ')" title="编辑">✏️</button><button class="qr-btn" onclick="showQRCode(' + acc.id + ',\'' + acc.name.replace(/'/g, "\\'") + '\')" title="二维码">📱</button><button class="copy-btn" onclick="copyAccount(' + acc.id + ',this)" title="复制">📋</button><button class="dl-btn" id="dlBtn' + acc.id + '" onclick="downloadScreenshot(' + acc.id + ',\'' + acc.name.replace(/'/g, "\\'") + '\')" title="下载报告">📥</button><button class="del-btn" onclick="deleteAccount(' + acc.id + ')" title="删除">🗑️</button></div>';
+        html += '</div>';
+    });
+    container.innerHTML = html;
+}
+
+// 按姓名模糊搜索账号
+function filterAccounts() {
+    var keyword = document.getElementById('searchAccounts').value.trim().toLowerCase();
+    var tipEl = document.getElementById('searchResultTip');
+    if (!keyword) {
+        currentData = allAccountsData;
+        renderPage(currentData, 1);
+        if (tipEl) tipEl.style.display = 'none';
+        return;
+    }
+    var filtered = allAccountsData.filter(function(acc) {
+        return (acc.name || '').toLowerCase().indexOf(keyword) !== -1;
+    });
+    currentData = filtered;
+    if (tipEl) { tipEl.style.display = 'block'; tipEl.textContent = '匹配到 ' + filtered.length + ' 个结果（共 ' + allAccountsData.length + ' 个）'; }
+    renderPage(currentData, 1);
 }
 
 async function deleteAccount(id) {
@@ -707,12 +1229,194 @@ async function deleteAccount(id) {
     loadAccounts();
 }
 
-function copyAccount(id) {
-    fetch('/api/user/' + id).then(function(r) { return r.json(); }).then(function(result) {
-        if (result.code !== 0 || !result.data) { alert('获取信息失败'); return; }
+async function batchDeleteRecent(count) {
+    count = count || 100;
+    if (!confirm('⚠️ 确定要删除最近 ' + count + ' 条账号吗？此操作不可恢复！')) return;
+    if (!confirm('再次确认：真的要删除吗？')) return;
+    try {
+        var res = await fetch('/api/users/batch-delete?count=' + count, { method: 'DELETE' });
+        var data = await res.json();
+        if (data.code === 0) {
+            alert('已删除 ' + data.deleted + ' 条');
+            loadAccounts();
+        } else {
+            alert('删除失败');
+        }
+    } catch(e) {
+        alert('删除失败：' + e.message);
+    }
+}
+
+function copyAccount(id, btn) {
+    // 直接从 DOM 提取，保持同步调用（execCommand 必须在用户手势中）
+    var item = btn.closest('.acc-item');
+    if (!item) return;
+    var nameEl = item.querySelector('.name');
+    var idEl = item.querySelector('.detail span');
+    var name = nameEl ? nameEl.textContent.trim() : '';
+    var idCard = idEl ? idEl.textContent.trim() : '';
+    if (name && idCard) {
+        copyText(name + ' ' + idCard, btn);
+    } else {
+        alert('获取信息失败');
+    }
+}
+
+// ==================== 二维码弹窗 ====================
+function showQRCode(id, name) {
+    var overlay = document.getElementById('qrOverlay');
+    var canvasDiv = document.getElementById('qrCanvas');
+    var urlDiv = document.getElementById('qrUrl');
+    var nameEl = document.getElementById('qrName');
+
+    var url = window.location.origin + '/mobile-verify.html?id=' + id;
+    nameEl.textContent = name + ' 的报告';
+    urlDiv.textContent = url;
+
+    if (typeof qrcode === 'undefined') {
+        canvasDiv.innerHTML = '<div style="padding:40px;color:#999;">二维码库加载中...</div>';
+        overlay.classList.add('show');
+        // 等待加载
+        var check = setInterval(function() {
+            if (typeof qrcode !== 'undefined') {
+                clearInterval(check);
+                genQR(url, canvasDiv);
+            }
+        }, 300);
+        return;
+    }
+    genQR(url, canvasDiv);
+    overlay.classList.add('show');
+}
+
+function genQR(data, container) {
+    container.innerHTML = '';
+    var qr = qrcode(4, 'M');
+    qr.addData(data);
+    qr.make();
+    var cs = 4, mg = 8;
+    var sz = qr.getModuleCount() * cs + mg * 2;
+    var cv = document.createElement('canvas');
+    cv.width = sz; cv.height = sz;
+    cv.style.width = '200px'; cv.style.height = '200px';
+    var ctx = cv.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, sz, sz);
+    for (var r = 0; r < qr.getModuleCount(); r++) {
+        for (var c = 0; c < qr.getModuleCount(); c++) {
+            if (qr.isDark(r, c)) {
+                ctx.fillStyle = '#000';
+                ctx.fillRect(c * cs + mg, r * cs + mg, cs, cs);
+            }
+        }
+    }
+    container.appendChild(cv);
+}
+
+function closeQR(e) {
+    if (e.target === document.getElementById('qrOverlay')) {
+        document.getElementById('qrOverlay').classList.remove('show');
+    }
+}
+
+// ==================== 编辑弹窗 ====================
+async function openEditModal(id) {
+    document.getElementById('editId').value = id;
+    document.getElementById('editName').value = '';
+    document.getElementById('editIdCard').value = '';
+    editPhotoNow = '';
+    editPhotoOld = '';
+    var boxNow = document.getElementById('editPhotoNow');
+    var boxOld = document.getElementById('editPhotoOld');
+    if (boxNow) boxNow.innerHTML = '<span style="line-height:90px;">📷</span>';
+    if (boxOld) boxOld.innerHTML = '<span style="line-height:90px;">📷</span>';
+    document.getElementById('editFileNow').value = '';
+    document.getElementById('editFileOld').value = '';
+
+    document.getElementById('editOverlay').classList.add('show');
+
+    try {
+        var res = await fetch('/api/user/' + id);
+        var result = await res.json();
+        if (result.code !== 0 || !result.data) {
+            alert('加载账号失败');
+            return;
+        }
         var acc = result.data;
-        copyText(acc.name + ' ' + acc.id_card);
-    });
+
+        document.getElementById('editName').value = acc.name || '';
+        document.getElementById('editIdCard').value = acc.id_card || '';
+
+        // 现在照片
+        editPhotoNow = acc.photo || '';
+        if (editPhotoNow) {
+            boxNow.innerHTML = '<img src="' + editPhotoNow + '">';
+        } else {
+            boxNow.innerHTML = '<span style="line-height:90px;">📷</span>';
+        }
+
+        // 录取照片
+        editPhotoOld = acc.photo_old || '';
+        if (editPhotoOld) {
+            boxOld.innerHTML = '<img src="' + editPhotoOld + '">';
+        } else {
+            boxOld.innerHTML = '<span style="line-height:90px;">📷</span>';
+        }
+    } catch(e) {
+        alert('加载账号失败：' + e.message);
+    }
+}
+
+function handleEditFile(type) {
+    var input = document.getElementById(type === 'now' ? 'editFileNow' : 'editFileOld');
+    var box = document.getElementById(type === 'now' ? 'editPhotoNow' : 'editPhotoOld');
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+        if (type === 'now') {
+            editPhotoNow = ev.target.result;
+        } else {
+            editPhotoOld = ev.target.result;
+        }
+        box.innerHTML = '<img src="' + ev.target.result + '">';
+    };
+    reader.readAsDataURL(file);
+}
+
+async function saveEdit() {
+    var id = document.getElementById('editId').value;
+    var name = document.getElementById('editName').value.trim();
+    var idCard = document.getElementById('editIdCard').value.trim();
+
+    var body = {};
+    if (name) body.name = name;
+    if (idCard) body.id_card = idCard;
+    if (editPhotoNow) body.photo = editPhotoNow;
+    if (editPhotoOld) body.photo_old = editPhotoOld;
+
+    try {
+        var res = await fetch('/api/user/' + id, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        var data = await res.json();
+        if (data.code === 0) {
+            document.getElementById('editOverlay').classList.remove('show');
+            loadAccounts(); // 刷新列表
+        } else {
+            alert('保存失败');
+        }
+    } catch(e) {
+        alert('保存失败：' + e.message);
+    }
+}
+
+function closeEditOverlay(e) {
+    if (e.target === document.getElementById('editOverlay')) {
+        document.getElementById('editOverlay').classList.remove('show');
+    }
 }
 
 // ==================== 初始化 ====================

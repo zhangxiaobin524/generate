@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>征兵</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif; background: #f5f5f5; }
+        .page-container { min-height: 100%; padding-bottom: 80px; }
+        .top-header { background: #00a05b; height: 50px; display: flex; align-items: center; justify-content: center; padding: 0 15px; position: relative; }
+        .top-header .back-btn { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; cursor: pointer; }
+        .header-title { font-size: 18px; color: white; font-weight: 500; }
+        .header-menu { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; cursor: pointer; }
+        .content { padding: 12px; }
+        .hero-banner { background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%); border-radius: 8px; padding: 24px 16px; margin-bottom: 12px; color: white; }
+        .hero-banner .banner-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .hero-banner .banner-desc { font-size: 13px; opacity: 0.9; line-height: 1.5; }
+        .link-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; cursor: pointer; text-decoration: none; }
+        .link-card:active { opacity: 0.7; }
+        .link-card .link-title { font-size: 15px; font-weight: 600; color: #333; }
+        .link-card .link-desc { font-size: 12px; color: #999; margin-top: 4px; }
+        .link-card .link-arrow { color: #ccc; font-size: 18px; }
+        .info-card { background: white; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .info-card .card-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .info-row { display: flex; padding: 8px 0; font-size: 14px; }
+        .info-value { color: #333; flex: 1; }
+        .bottom-tab { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: white; border-top: 1px solid #e8e8e8; display: flex; align-items: center; justify-content: space-around; z-index: 1000; }
+        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; padding: 4px 0; flex: 1; }
+        .tab-item .tab-icon { width: 24px; height: 24px; }
+        .tab-item .tab-icon svg { width: 100%; height: 100%; }
+        .tab-item .tab-label { font-size: 10px; color: #666; }
+        .tab-item.active .tab-label { color: #00a05b; }
+        .menu-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: none; }
+        .menu-overlay.open { display: block; }
+        .menu-popup { position: fixed; top: 0; left: 0; right: 0; background: white; z-index: 10001; display: none; padding: 0 0 20px; border-radius: 0 0 12px 12px; }
+        .menu-popup.open { display: block; }
+        .menu-popup .close-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; }
+        .menu-popup .close-bar span { font-weight: bold; font-size: 16px; }
+        .menu-popup .close-bar .close-btn { font-size: 22px; color: #999; cursor: pointer; }
+        .menu-popup .menu-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 0 12px; gap: 8px; }
+        .menu-popup .menu-grid a { display: block; text-align: center; padding: 10px 6px; font-size: 14px; color: #333; text-decoration: none; background: #f5f5f5; border-radius: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    </style>
+</head>
+<body>
+<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+<div class="menu-popup" id="menuPanel">
+    <div class="close-bar"><span>学信网</span><span class="close-btn" onclick="closeMenu()">&times;</span></div>
+    <div class="menu-grid">
+        <a href="index.html">首页</a><a href="xueji.html">学籍查询</a><a href="xueli.html">学历查询</a>
+        <a href="xuewei.html">学位查询</a><a href="online-verify.html">在线验证</a><a href="abroad.html">出国教育背景</a>
+        <a href="photo-check.html">图像校对</a><a href="archive.html">学信档案</a><a href="gaokao.html">高考</a>
+        <a href="yanzhao.html">研招</a><a href="gat.html">港澳台招生</a><a href="zhengbing.html">征兵</a>
+        <a href="jiuye.html">就业</a><a href="xuezhi.html">学职平台</a>
+    </div>
+</div>
+<div class="page-container">
+    <div class="top-header">
+        <svg class="back-btn" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" onclick="history.back()"><polyline points="15,18 9,12 15,6"/></svg>
+        <span class="header-title">征兵</span>
+        <svg class="header-menu" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" onclick="openMenu()"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </div>
+    <div class="content">
+        <div class="hero-banner">
+            <div class="banner-title">全国征兵网</div>
+            <div class="banner-desc">国防部征兵办公室指定的唯一官方网上应征平台</div>
+        </div>
+        <a class="link-card" href="https://www.gfbzb.gov.cn/" target="_blank">
+            <div><div class="link-title">全国征兵网</div><div class="link-desc">www.gfbzb.gov.cn</div></div>
+            <span class="link-arrow">›</span>
+        </a>
+<a class="link-card" href="#">
+            <div><div class="link-title">兵役登记</div><div class="link-desc">年满18周岁男性公民兵役登记</div></div>
+            <span class="link-arrow">›</span>
+        </a>
+<a class="link-card" href="#">
+            <div><div class="link-title">应征报名</div><div class="link-desc">男兵/女兵应征报名入口</div></div>
+            <span class="link-arrow">›</span>
+        </a>
+<a class="link-card" href="#">
+            <div><div class="link-title">政策法规</div><div class="link-desc">征兵相关政策法规查询</div></div>
+            <span class="link-arrow">›</span>
+        </a>
+
+        <div class="info-card">
+            <div class="card-title">征兵服务</div>
+            <div class="info-row"><span class="info-value">1. 兵役登记（每年1月1日至6月30日）</span></div>
+<div class="info-row"><span class="info-value">2. 应征报名（男兵/女兵）</span></div>
+<div class="info-row"><span class="info-value">3. 直招士官报名</span></div>
+<div class="info-row"><span class="info-value">4. 退役士兵信息采集</span></div>
+
+        </div>
+    </div>
+</div>
+<div class="bottom-tab">
+    <a href="index.html" class="tab-item"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="#666"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></div><span class="tab-label">首页</span></a>
+    <a href="xueji.html" class="tab-item active"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="#00a05b"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg></div><span class="tab-label">学籍学历学位</span></a>
+    <a href="#" class="tab-item"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="#666"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg></div><span class="tab-label">个人测评</span></a>
+    <a href="jiuye.html" class="tab-item"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="#666"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.1 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg></div><span class="tab-label">求职招聘</span></a>
+    <a href="account-generator.html" class="tab-item"><div class="tab-icon"><svg viewBox="0 0 24 24" fill="#666"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div><span class="tab-label">我的</span></a>
+</div>
+<script>function openMenu(){document.getElementById('menuOverlay').classList.add('open');document.getElementById('menuPanel').classList.add('open');}function closeMenu(){document.getElementById('menuOverlay').classList.remove('open');document.getElementById('menuPanel').classList.remove('open');}</script>
+</body>
+</html>
